@@ -1,0 +1,103 @@
+Person1: Poďme si prejsť okruh o architektúrach so zdieľanou pamäťou. Čakajú nás tri veľké témy: architektúry UMA a NUMA, potom zaistenie lokality dát, a nakoniec protokoly koherencie pamätí keš. Na záver si povieme aj o false sharingu, ktorý s koherenciou úzko súvisí.
+
+Person2: Dobre. Než sa pustíme do samotných architektúr - prečo je vlastne pamäť pri paralelných systémoch taký problém?
+
+Person1: Kľúčové pozorovanie je, že rýchlosť procesorov historicky rástla oveľa rýchlejšie než rýchlosť prístupu do pamäte. Výkon CPU rástol rádovo jedna celá päť krát za rok, kým rýchlosť pamäte DRAM len asi jedna celá nula sedem krát za rok. Tá rastúca medzera medzi krivkami sa nazýva memory wall. [short pause] A dôsledok? Keď paralelne pracuje viac procesorov, práca s pamäťou sa stáva hlavným zdrojom zdržania.
+
+Person2: A ako sa to rieši na úrovni architektúry? Aké máme možnosti?
+
+Person1: Najprv jedno rozlíšenie. Existujú architektúry s distribuovanou pamäťou - to sú clustery serverov, kde je pamäť rozdelená medzi viac fyzických hostov prepojených sieťou. Tam sa koherencia keší typicky vôbec nerieši. Nás ale zaujíma, čo sa deje v rámci jedného stroja. A tam vznikli dve základné architektúry so zdieľanou pamäťou: UMA a NUMA.
+
+Person2: Začnime s UMA. Čo tá skratka znamená?
+
+Person1: UMA je Uniform Memory Access, teda uniformný prístup do pamäte. Predstava je jednoduchá: máme jednu hlavnú pamäť, ktorú zdieľajú všetky procesory, a každý procesor k nej pristupuje cez spoločnú zdieľanú dátovú zbernicu. Každé CPU má pritom vlastnú keš. To slovo uniformný je podstatné - doba prístupu je rovnaká do všetkých častí pamäte, pre všetky procesory.
+
+Person2: Znie to jednoducho. Kde je háčik?
+
+Person1: Háčik je práve tá zbernica - je to úzke hrdlo celého systému. Keď viac procesorov súčasne číta alebo zapisuje, zbernica sa preťaží a operácie prebiehajú pomaly, postupne, jedna za druhou. Takže po prekročení určitého počtu procesorov UMA jednoducho prestáva škálovať. [short pause] Na druhej strane, je to jednoduchá a lacná architektúra - stačí jedna zbernica a jeden radič pamäte. Preto je ideálna pre koncové zariadenia: desktop, notebook, tablet, mobil. Ale pre veľké serverové systémy sa nehodí.
+
+Person2: Takže pre servery potrebujeme NUMA. Ako sa líši?
+
+Person1: NUMA znamená NonUniform Memory Access, neuniformný prístup. Zásadný rozdiel: neexistuje jedna centrálna pamäť. Hlavná pamäť je fyzicky distribuovaná medzi viac menších pamätí. Každý procesor má pridelenú vlastnú lokálnu pamäť, ktorá je blízko neho, a k tej pristupuje výrazne rýchlejšie. Keď ale potrebuje dáta z pamäte iného procesora, teda zo vzdialenej pamäte, musí ísť cez prepojovaciu sieť - a to je drahé.
+
+Person2: A ako sú tie dvojice procesor a pamäť prepojené medzi sebou?
+
+Person1: To určuje topológia, a tá zásadne ovplyvňuje vlastnosti systému. Husto prepojená sieť je rýchla, ale drahá. Hviezda alebo strom sú kompromis medzi cenou a rýchlosťou. Podstatné je, že doba prístupu je neuniformná - lokálny prístup je rýchly, vzdialený pomalý. Typickou aplikáciou sú servery, kde uzly clustra vykonávajú špecifické operácie nad vlastnými dátami. Je to komplexná a drahá architektúra, ale škáluje.
+
+Person2: Keď je lokálny prístup o toľko rýchlejší, tak asi celý výkon stojí a padá na tom, aby dáta boli v tej správnej pamäti, nie?
+
+Person1: Presne tak, a to je druhá veľká téma - lokalita dát v NUMA. Problém je udržať dáta blízko procesorov, ktoré s nimi pracujú, ideálne v ich lokálnych pamätiach. Klasický scenár: proces si vytvorí dáta, tie sa zapíšu do lokálnej pamäte jeho procesora. Potom ale príde prepnutie kontextu a proces sa preplánuje na iný procesor - a zrazu sú preň tie isté dáta vzdialené a každý prístup sa spomalí. [short pause] Operačný systém na to môže reagovať: ak scheduler zistí, že viac dát než istá hranica je vo vzdialenej pamäti, môže dáta presunúť do lokálnej pamäte.
+
+Person2: Spomínal si lokalitu - tá sa ale delí na dva druhy, však?
+
+Person1: Áno, a tie ovplyvňujú využitie keše aj rozmiestnenie dát v NUMA. Časová lokalita hovorí, že nedávno použité dáta sa pravdepodobne použijú znova. Priestorová lokalita hovorí, že sa pravdepodobne použijú dáta blízko práve použitých adries. Obe sú dôvod, prečo keše a prefetching vôbec fungujú.
+
+Person2: A kto rozhoduje o tom, do ktorej lokálnej pamäte sa dáta vôbec dostanú?
+
+Person1: O tom rozhoduje pravidlo First Touch. Stránka pamäte sa fyzicky umiestni do lokálnej pamäte toho procesora, ktorý na dáta pristúpi ako prvý. To má veľmi praktický dôsledok: pole treba inicializovať tým istým vzorom a tými istými vláknami, akými sa bude neskôr spracúvať. [short pause] Ak celé pole inicializuje jedno vlákno, všetky stránky skončia v jednej NUMA doméne - a všetky ostatné procesory k nim potom pristupujú vzdialene.
+
+Person2: Takže prístupový vzor programu musí sedieť s tým, ako sú dáta rozmiestnené.
+
+Person1: Presne, tomu sa hovorí afinita dát. Ak prístupový vzor nezodpovedá rozmiestneniu, program je neefektívny. A s tým súvisí ešte bindovanie procesov. Moderné architektúry delia CPU do NUMA domén - to sú triedy ekvivalencie, ktoré určujú vzdialenosť CPU k jednotlivým častiam RAM. Keď vlákno beží v doméne jedna, je dôležité, aby ho scheduler operačného systému po prepnutí kontextu nepresunul do domény vzdialenej od príslušnej RAM. Preto možno explicitným bindovaním definovať, do ktorých domén sa vlákna smú naplánovať. V OpenMP na to slúžia premenné ó-em-pé plejses, ktorá zamkne vlákna na dané domény, a ó-em-pé prok bajnd, ktorá určuje distribúciu vlákien na danom mieste.
+
+Person2: Dobre, lokalitu máme. Poďme na tretiu veľkú tému - koherenciu keší. V čom je problém?
+
+Person1: Predstav si systém s viacerými procesormi alebo jadrami, ktoré zdieľajú pamäť. Každé CPU má typicky vlastnú el-jedna a el-dva keš a zdieľanú el-tri. Tá istá adresa tak môže mať kópiu vo viacerých kešiach naraz - a vzniká problém aktuálnosti dát. [short pause] Koherencia znamená, že pre danú adresu existuje jediná, koherentná verzia zdieľaných dát naprieč kešami. A pozor na detail, ktorý ľudí prekvapuje: na kópii v hlavnej pamäti nezáleží, tá pokojne môže byť zastaraná.
+
+Person2: Toto sa často pletie s pamäťovou konzistenciou. Ako to odlíšiť?
+
+Person1: Jednoducho: koherencia sa zaoberá jednoznačnosťou zápisov na jednu adresu. Pamäťová konzistencia určuje poradie operácií nad viacerými adresami. Koherencia - jedna adresa. Konzistencia - viac adries a ich poradie. Toto rozlíšenie si zapamätaj.
+
+Person2: A ako sa koherencia technicky zabezpečuje?
+
+Person1: Protokoly koherencie využívajú dva základné mechanizmy. Prvý je monitorovanie komunikácie, po anglicky snooping - typicky na zbernici. Kto chce zapisovať, musí to oznámiť na zbernicu, všetci ostatní počúvajú a môžu invalidovať svoju prepísanú hodnotu. Nevýhoda je jasná - zbernica je opäť úzke hrdlo. [short pause] Druhý mechanizmus sú distribuované adresáre: pri hlavnej pamäti sú adresáre, ktoré uchovávajú, v ktorých kešiach je uložená ktorá keš lajna. Umožňujú viac paralelných zápisov bez úzkeho hrdla, ale za cenu pamäťovej réžie. Používajú sa na NUMA systémoch, k tým sa ešte vrátime.
+
+Person2: Predtým ale ešte tie dve dvojice pojmov, ktoré sa pri kešiach rozlišujú - aktualizácia pamäte a zaistenie koherencie.
+
+Person1: Áno, dve nezávislé osi. Prvá os je spôsob aktualizácie pamäte: write-through znamená okamžitý zápis do hlavnej pamäte pri každej zmene, write-back znamená odložený zápis - do pamäte sa zapíše až vtedy, keď by hodnota mala byť odstránená z keše. Druhá os je spôsob zaistenia koherencie: write-invalidate znamená, že pri zápise sa dáta v ostatných kešiach zneplatnia, write-update znamená, že sa aktualizujú novou hodnotou.
+
+Person2: A teraz konkrétny protokol. Základom je MSI, však?
+
+Person1: Áno. Najprv motivácia: úplne jednoduchý protokol valid-invalid s okamžitým zápisom vedie na veľké množstvo výpadkov a je neefektívny. Preto sa zavádzajú stavy, ktoré umožňujú udržať špinavú kópiu v el-jedna keši bez okamžitého zápisu do pamäte. Základom je trojstavový protokol MSI. [short pause] Stav Modified, teda M: len jedna keš má platnú špinavú kópiu, ktorá sa líši od RAM. Stav Shared, teda S: jedna alebo viac keší má kópiu zhodnú s RAM, čistú kópiu, a možno ju len čítať. Stav Invalid, teda I: v tejto keši je neplatná, stará kópia.
+
+Person2: Máš na to nejakú mnemotechniku?
+
+Person1: Modified znamená vlastním a je to špinavé, líši sa to od RAM. Shared znamená mám čítaciu kópiu a môžu ju mať aj iní. Invalid znamená nemám platné dáta. A dôležité pravidlo: blok v stave S možno len čítať - pri zápise musí prejsť do M a všetky ostatné kópie sa musia zneplatniť. V stavových diagramoch sa tomu smerom do M hovorí privatizácia a opačnému smeru, do S alebo I, znárodňovanie.
+
+Person2: Poďme si prejsť tie tri základné situácie. Čo sa deje pri výpadku pri čítaní?
+
+Person1: Výpadok pri čítaní: jadro chce čítať hodnotu, ktorú nemá, alebo ju má v stave Invalid. Vystaví na zbernicu požiadavku bus read. Hodnotu potom dodá buď iné jadro - ak ju má ako Modified, prejde do Shared a zároveň sa urobí write-back do RAM - alebo ju dodá hlavná pamäť. Žiadateľ prechádza z Invalid do Shared.
+
+Person2: A výpadok pri zápise?
+
+Person1: Jadro chce zapísať hodnotu, ktorú nemá, alebo má v stave Invalid. Vystaví bus read exclusive, skrátene brx. Dáta dodá RAM, alebo vlastník, ak má kópiu ako Modified. Žiadateľ prejde do Modified a všetci ostatní, ktorí mali kópiu v S alebo M, prejdú do Invalid. [short pause] A potom je tu ešte tretia situácia, zásah pri zápise: jadro chce zapísať hodnotu, ktorú už má, v stave S alebo M. Aj vtedy sa vystaví brx a ostatné jadrá na jeho základe prejdú do Invalid. Drobná neefektivita: ak je dostupný len brx a nie bus exclusive owner, teda bxo, zdieľaná pamäť zbytočne vystaví hodnotu na zbernicu, hoci ju žiadateľ vôbec nepotrebuje - veď ju už má.
+
+Person2: V poznámke je aj tabuľka s postupnosťou operácií nad tromi kešami. Sú tam nejaké záludnosti, na ktoré si dať pozor?
+
+Person1: Dve. Prvá: keď jadro píše a kópiu v stave Modified má iné jadro, vlastník predá kópiu žiadateľovi priamo - ale neprebieha pri tom zápis do hlavnej pamäte. Špinavá hodnota sa len presunie z jednej keše do druhej. Druhá záludnosť: keď sú v systéme dve kópie v stave Shared a treba dodať hodnotu, nerozhoduje sa medzi kešami - hodnotu jednoducho vystaví hlavná pamäť. Obe kópie sú predsa čisté, zhodné s RAM, takže to je korektné a jednoduchšie.
+
+Person2: MSI má ale aj svoje slabiny, keď existujú rozšírenia. Aké?
+
+Person1: MSI robí niektoré operácie zbytočne draho. Príklad: aj keď existuje jediná kópia v stave Shared, pri čítaní iným jadrom dodá hodnotu pomalá hlavná pamäť. Preto vznikli rozšírenia. [short pause] MESI pridáva stav E, Exclusive: čistá kópia existuje len v jednej keši, a preto ju možno zapísať bez oznámenia na zbernicu. To je hlavná výhoda: prechod zo stavu E do M pri zápise prebehne ticho, bez posielania brx. MSI by v tej istej situácii muselo poslať brx úplne zbytočne. Ďalej MOESI pridáva stav O, Owned - ten umožňuje zdieľať špinavú kópiu bez okamžitého write-backu. A MESIF pridáva stav F, Forward - určuje, ktorá z viacerých Shared kópií odpovedá na požiadavky.
+
+Person2: Toto všetko ale predpokladá spoločnú zbernicu, na ktorej sa dá snoopovať. Ako sa koherencia rieši na NUMA?
+
+Person1: Presne v tom je problém - v NUMA nie je jedna zdieľaná zbernica, procesory sú prepojené napríklad kruhovou topológiou, takže snooping nefunguje. Používajú sa distribuované adresáre uložené v pamäti, ktoré uchovávajú, v ktorých kešiach sú uložené ktoré keš lajny. Každý uzol má pri svojej pamäti adresár a radič adresára, takzvaný DirCtl, a uzly sú prepojené sieťou, napríklad kjú-pí-áj. [short pause] Keď procesor chce pracovať so zdieľanou pamäťou, pošle žiadosť na svoj domovský, čiže Home adresár. Ten zistí, kde sú príslušné keš lajny uložené, a kontaktuje len relevantné keše, aby dáta invalidovali. Radič adresára pritom radí požiadavky.
+
+Person2: A ako taký adresár vyzerá vnútorne?
+
+Person1: Pre každú keš lajnu, ktorá má šesťdesiatštyri bajtov, je v adresári jeden riadok. Prvý bit je validity bit - hovorí, či je kópia čistá alebo špinavá. Zvyšných N bitov je bitová maska, ktorá určuje, v ktorej z N keší sa lajna nachádza.
+
+Person2: To znie, že pri veľkom počte keší to bude dosť veľká réžia.
+
+Person1: A to je presne hlavný problém - škálovateľnosť. Spočítaj si to: pri dvestopäťdesiatich šiestich kešiach potrebuješ dvestopäťdesiatsedem bitov na jednu keš lajnu, ktorá má šesťdesiatštyri bajtov dát, teda päťstodvanásť bitov. Réžia je päťdesiat percent. [short pause] Preto sa typicky obmedzuje počet zdieľaných kópií jednej lajny - vďaka tomu stačí kratšia bitová maska.
+
+Person2: Ostáva nám false sharing. Čo to je?
+
+Person1: Falošné zdieľanie nastáva, keď dve vlákna pristupujú k rôznym premenným, ktoré ale ležia v tej istej keš lajne. Logicky žiadne dáta nezdieľajú - ale koherenčný protokol pracuje s celými lajnami, takže pri každom zápise invaliduje celú keš lajnu. Vlákna si tak lajnu neustále kradnú, vzniká ping-pong medzi kešami a výkon výrazne klesá.
+
+Person2: Máš typický príklad, kde sa to stane?
+
+Person1: Klasika je pole čítačov, jeden čítač na vlákno - napríklad pole intov s dĺžkou podľa počtu vlákien. Susedné čítače padnú do jednej keš lajny a vlákna si ju navzájom kradnú pri každom inkremente. [short pause] Riešenie je zarovnanie a oddelenie dát, takzvaný padding - každý prvok sa doplní na veľkosť keš lajny, typicky šesťdesiatštyri bajtov, takže premenné rôznych vlákien skončia v rôznych lajnách.
+
+Person2: Tak si to zhrňme. UMA má jednu zdieľanú pamäť a spoločnú zbernicu, prístup je uniformný, ale zbernica je úzke hrdlo, takže neškáluje - hodí sa do koncových zariadení. NUMA má pamäť distribuovanú, lokálny prístup je rýchly a vzdialený pomalý - preto je kľúčová lokalita dát: pravidlo First Touch, afinita dát a bindovanie vlákien na NUMA domény. Koherencia keší rieši jednoznačnosť zápisov na jednu adresu - na zbernici snoopingom a protokolmi MSI, MESI, MOESI či MESIF, na NUMA distribuovanými adresármi. A nakoniec pozor na false sharing - rôzne premenné v jednej keš lajne vedia zabiť výkon, rieši to padding. Ďakujem za výklad a počujeme sa pri otázkach komisie.

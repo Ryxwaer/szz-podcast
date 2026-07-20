@@ -1,0 +1,143 @@
+Person1: Témou je prehľadávanie stavového priestoru: neinformované a informované metódy, lokálne prehľadávanie, neisté prostredie, sekvenčné hry a úlohy spĺňania obmedzení.
+
+Person2: Začnime tým, čo presne tvorí stavový priestor a čo v ňom hľadáme.
+
+Person1: Problém opíšeme počiatočným stavom, množinou akcií vykonateľných v jednotlivých stavoch, prechodovou reláciou, testom dosiahnutia cieľa a prípadne cenami akcií. V známom, pozorovateľnom a deterministickom prostredí je riešením postupnosť akcií, ktorá agenta prevedie z počiatočného do cieľového stavu. Ide teda o presný algoritmický prístup, na rozdiel od strojového učenia, kde sa riešenie odvodzuje z dát.
+
+Person2: Stavy pritom nemusia mať vždy rovnakú vnútornú podobu, však?
+
+Person1: Presne tak. Atomický stav berieme ako nedeliteľný celok, napríklad celé rozmiestnenie dám pri základnom prehľadávaní do hĺbky. Faktorizovaný stav rozložíme na premenné s vlastnými doménami, čo je typické pre úlohy spĺňania obmedzení. Štruktúrovaný stav navyše zachytáva zložitejšie vzťahy medzi objektmi, napríklad pomocou predikátovej logiky.
+
+Person2: Podľa čoho potom porovnávame prehľadávacie algoritmy?
+
+Person1: Sledujeme štyri hlavné vlastnosti. Úplnosť hovorí, či algoritmus určite nájde riešenie, ak existuje. Optimálnosť znamená, že nájde najlacnejšiu postupnosť akcií. Ďalej hodnotíme časovú a priestorovú zložitosť. Základné delenie je na neinformované metódy, ktoré postupujú bez znalosti vlastností problému, a informované metódy, ktoré využívajú heuristický odhad.
+
+Person2: Poďme najprv na neinformované metódy. Ako funguje prehľadávanie do šírky?
+
+Person1: Prehľadávanie do šírky, teda BFS, vkladá nové uzly do FIFO fronty. Uzly preto rozbaľuje po vrstvách od počiatočného stavu. Spracované uzly si môže ukladať do množiny CLOSED, aby sa vyhlo cyklom. BFS je úplné aj optimálne, pretože po vrstvách nájde najbližšie riešenie.
+
+Person2: Jeho slabinou je pamäť?
+
+Person1: Áno. Ak je bé miera vetvenia a dé hĺbka riešenia, pamäťová zložitosť rastie rádovo ako bé na dé. Algoritmus totiž musí držať rozsiahlu hranicu prehľadávania.
+
+Person2: Prehľadávanie do hĺbky sa správa opačne?
+
+Person1: DFS používa LIFO zásobník a pokračuje čo najhlbšie v jednej vetve. V nekonečnom priestore nemusí byť úplné ani optimálne, lebo sa môže stále zanárať do slepej vetvy. V konečnom priestore je úplné, ale stále nie optimálne. Jeho výhodou je výrazne menšia pamäťová spotreba, rádovo bé krát maximálna hĺbka, a pri čistom backtrackingu môže klesnúť až na pamäť úmernú samotnej hĺbke.
+
+Person2: Dá sa spojiť úplnosť BFS s pamäťovou úspornosťou DFS?
+
+Person1: Na to slúži IDS, iteratívne prehlbovanie. Opakovane spustí prehľadávanie do hĺbky, najprv s limitom jedna, potom dva a tak ďalej. Je úplné, optimálne a pamäťovo šetrné. Cenou je opakované prechádzanie uzlov z plytších úrovní, preto ho môžeme chápať ako pomalšiu, ale pamäťovo priaznivejšiu obdobu BFS.
+
+Person2: Čo ak jednotlivé akcie nemajú rovnakú cenu?
+
+Person1: Vtedy použijeme UCS, teda prehľadávanie podľa rovnomernej ceny. Uzly ukladá do prioritnej fronty podľa ceny, ktorú sme už zaplatili od štartu. Pri nezáporných cenách je úplné aj optimálne. V podstate ide o Dijkstrov algoritmus zastavený po nájdení cieľa. Ak majú všetky akcie rovnakú cenu, správa sa ako BFS.
+
+Person2: A obojsmerné prehľadávanie?
+
+Person1: To prehľadáva súčasne od štartu aj od cieľa a zisťuje, či sa oba priestory pretli. Aspoň jeden smer musí postupovať štýlom BFS, inak je malá pravdepodobnosť, že sa hranice prehľadávania stretnú. Výhodou je, že rozdelenie cesty na dve polovice môže výrazne znížiť počet rozbalených uzlov.
+
+Person2: Neinformované metódy teda nevedia, ktorý smer vyzerá nádejne. Čo pridávajú informované metódy?
+
+Person1: Zavádzajú hodnotiacu funkciu. [short pause] Hodnota uzla je súčet doteraz zaplatenej ceny a heuristiky, ktorá odhaduje zostávajúcu cenu do cieľa. [short pause] Doterajšiu cenu označujeme gé a heuristiku há. Uzly potom vyberáme z prioritnej fronty podľa tohto súčtu. Ak je heuristika vždy nulová, dostaneme UCS.
+
+Person2: Ako sa od toho líši hladové prehľadávanie?
+
+Person1: Greedy search ignoruje doterajšiu cenu a riadi sa iba heuristikou. Snaží sa teda čo najrýchlejšie priblížiť k cieľu. Často nájde riešenie rýchlo, ale toto riešenie nemusí byť optimálne.
+
+Person2: A hviezdička berie do úvahy obe zložky?
+
+Person1: Áno. A hviezdička používa súčet už zaplatenej ceny a odhadu zostávajúcej ceny. Kľúčová je požiadavka, aby heuristika bola prípustná, čiže optimistická: nesmie nadhodnotiť skutočnú zostávajúcu cenu. Pri tejto podmienke je A hviezdička úplná aj optimálna. Ak heuristika optimistická nie je, záruka optimálnosti sa stráca.
+
+Person2: Čím lepší odhad, tým menej zbytočných uzlov algoritmus rozbalí?
+
+Person1: Presne. Pri dvoch prípustných heuristikách dominuje tá, ktorá dáva vyšší, a teda presnejší dolný odhad. Viac prípustných heuristík môžeme bezpečne spojiť tak, že pre každý stav vezmeme ich maximum. Výsledok zostane prípustný a využije najsilnejší dostupný odhad.
+
+Person2: Doteraz sme predpokladali, že agent presne pozná stav aj výsledok akcie. Čo sa zmení v neistom prostredí?
+
+Person1: V čiastočne pozorovateľnom prostredí agent nezistí stav priamo, ale získava informácie zo senzorov. Preto pracuje s belief stavom, teda s množinou všetkých stavov, v ktorých sa podľa doterajších informácií môže nachádzať. Po akcii a novom pozorovaní túto množinu spresní.
+
+Person2: Priestor takýchto množín môže byť obrovský.
+
+Person1: Áno, belief stav môže byť ľubovoľnou podmnožinou pôvodného stavového priestoru, takže počet možností rastie exponenciálne. Preto sa belief stavy zvyčajne vytvárajú inkrementálne podľa toho, čo agent vykonal a pozoroval.
+
+Person2: A čo nedeterministické prostredie, kde rovnaká akcia nemusí skončiť rovnako?
+
+Person1: Výsledkom akcie tam nie je jediný stav, ale množina možných stavov. Riešením preto už nestačí pevná sekvencia akcií. Potrebujeme podmienený plán vo forme stromu ak potom, ktorý reaguje na skutočný výsledok.
+
+Person2: To je úloha pre AND-OR strom?
+
+Person1: Áno. OR uzol predstavuje voľbu agenta a stačí v ňom vyriešiť jeden z podproblémov. AND uzol zachytáva možné následky akcie a plán musí vyriešiť všetky jeho podproblémy. Tak vznikne plán, ktorý je pripravený na každý možný výsledok.
+
+Person2: Podobné stromy používame aj pri hrách, len tam neistotu vytvára súper.
+
+Person1: Pri sekvenčných hrách riešime konflikt dvoch hráčov, z ktorých každý maximalizuje svoj zisk. Zameriavame sa na ťahové hry dvoch hráčov s nulovým súčtom, kde zisk jedného hráča znamená rovnakú stratu druhého.
+
+Person2: Ako rozhoduje minimax?
+
+Person1: Hru modeluje stromom ťahov, v ktorom sa úrovne hráčov striedajú. Racionálny prvý hráč na svojich úrovniach vyberá maximum, zatiaľ čo protihráč vyberá minimum. Keďže ide o hru s nulovým súčtom, stačí modelovať úžitok jedného hráča a hodnoty postupne preniesť od koncových stavov ku koreňu.
+
+Person2: Minimax však môže prehľadávať aj vetvy, ktoré už nemôžu ovplyvniť výsledok.
+
+Person1: To rieši alfa-beta orezávanie. Počas prehľadávania sleduje hranice doteraz najlepších možností oboch hráčov. Keď je jasné, že určitý podstrom nemôže zlepšiť výsledné rozhodnutie, celý ho preskočí. Výsledok je vždy rovnaký ako pri plnom minimaxe, iba sa môže nájsť rýchlejšie.
+
+Person2: Dá sa orezávať ešte agresívnejšie?
+
+Person1: Môžeme obmedziť hĺbku prehľadávania alebo dopredne ponechať len niekoľko heuristicky najzaujímavejších potomkov. Tým už však môžeme odrezať aj správnu vetvu, takže strácame optimálnosť.
+
+Person2: A keď do hry vstúpi náhoda, napríklad hod kockou?
+
+Person1: Vtedy používame expectimax. V uzloch náhody nevyberáme minimum ani maximum, ale počítame očakávaný úžitok. Možné zisky vážime pravdepodobnosťami príslušných náhodných udalostí.
+
+Person2: Teraz k lokálnemu prehľadávaniu. V čom sa zásadne líši od doterajších metód?
+
+Person1: Globálne metódy, ako BFS, DFS, IDS alebo A hviezdička, vracajú cestu k cieľu a často potrebujú veľa pamäte. Lokálne prehľadávanie sleduje iba malú časť priestoru a optimalizuje kvalitu aktuálneho riešenia. Výstupom preto nie je cesta, ale výsledný stav.
+
+Person2: Najjednoduchším príkladom je hill climbing?
+
+Person1: Áno. Hill climbing udržiava jediný stav a vždy ho nahradí najlepším susedom. Ak už žiadny sused nie je lepší, skončí. Problémom sú lokálne extrémy: algoritmus môže uviaznuť v lokálnom maxime, hoci globálne lepšie riešenie leží inde. Jednoduchou obranou je opakovaný reštart z rôznych počiatočných stavov.
+
+Person2: Simulované žíhanie dovolí občas spraviť aj zdanlivo zlý krok?
+
+Person1: Presne. Lepšieho suseda prijme vždy, horšieho iba s určitou pravdepodobnosťou. [short pause] Táto pravdepodobnosť zodpovedá exponenciále zo zápornej zmeny energie delenej teplotou. [short pause] Teplota počas behu klesá, takže na začiatku algoritmus viac skúma a dokáže uniknúť z lokálneho extrému, no neskôr sa správa čoraz konzervatívnejšie.
+
+Person2: Čo robí local beam search?
+
+Person1: Je to paralelná obdoba hill climbingu. Namiesto jedného stavu udržiava ká najlepších stavov naraz. Tým rozširuje záber prehľadávania, zvyšuje diverzitu a znižuje riziko, že sa celý beh zastaví v jednom lokálnom extréme.
+
+Person2: Medzi lokálne metódy patria aj genetické algoritmy.
+
+Person1: Tie pracujú s populáciou stavov, ktoré chápeme ako jedincov s génovým kódovaním. V každej iterácii sa podľa fitness funkcie vyberú rodičia, krížením z nich vzniknú potomkovia a tí sa s malou pravdepodobnosťou mutujú. Evolučný cyklus tak postupne zvýhodňuje kvalitnejšie riešenia.
+
+Person2: Poslednou veľkou oblasťou sú CSP úlohy. Ako ich formálne opíšeme?
+
+Person1: Úloha spĺňania obmedzení sa skladá z premenných, ich domén a obmedzení na prípustné kombinácie hodnôt. Cieľom je priradiť hodnotu každej premennej tak, aby boli splnené všetky podmienky. Typickými príkladmi sú problém ôsmich dám a farbenie grafu.
+
+Person2: Čo znamená konzistencia v takomto probléme?
+
+Person1: Unárna konzistencia znamená, že hodnota premennej neporušuje podmienku týkajúcu sa iba tejto premennej. Binárna, čiže hranová konzistencia, požaduje, aby ku každej uvažovanej hodnote jednej premennej existovala kompatibilná hodnota druhej premennej. Všeobecnejším pojmom je ká konzistencia pre väčšie skupiny premenných.
+
+Person2: Základné riešenie používa backtracking?
+
+Person1: Áno, ide o DFS nad čiastočnými priradeniami. Vyberieme nepriradenú premennú a postupne skúšame jej hodnoty. Ak je hodnota konzistentná, priradíme ju, inferenciou zúžime domény ďalších premenných a rekurzívne pokračujeme. Keď žiadna hodnota nevedie k riešeniu, vraciame sa späť.
+
+Person2: Kde do toho vstupuje forward checking?
+
+Person1: Hneď po priradení hodnoty odstráni z domén súvisiacich premenných hodnoty, ktoré sa s novým priradením nezlučujú. Slepú vetvu tak môže odhaliť skôr, než ju celú rozvinieme. Ak sa niektorá doména vyprázdni, treba okamžite backtrackovať.
+
+Person2: Poradie premenných a hodnôt môže rozhodnúť o množstve práce.
+
+Person1: Preto používame heuristiky. MRV vyberie najviac obmedzenú premennú, teda tú s najmenším počtom zostávajúcich hodnôt. Pri skúšaní hodnôt je výhodná najmenej obmedzujúca hodnota, ktorá nechá ostatným premenným čo najviac možností.
+
+Person2: A algoritmus AC tri vynucuje hranovú konzistenciu?
+
+Person1: Áno. Systematicky kontroluje dvojice premenných a odstraňuje hodnoty bez kompatibilnej hodnoty na druhej strane obmedzenia. Vzhľadom na veľkosť domén má kubickú zložitosť.
+
+Person2: Klasický backtracking sa vždy vracia iba o jednu premennú. Dá sa to zlepšiť?
+
+Person1: Backjumping využije informáciu o skutočnom pôvode konfliktu. Namiesto návratu k poslednej priradenej premennej skočí priamo k premennej z konfliktnej množiny. Preskočí tak priradenia, ktoré chybu nespôsobili.
+
+Person2: Existuje pre CSP aj čisto lokálny prístup?
+
+Person1: Áno, metóda min-conflict začne náhodným, pokojne nekorektným úplným priradením. Potom opakovane vyberá konfliktnú premennú a nastaví ju na hodnotu, ktorá minimalizuje počet konfliktov. Pokračuje, kým konflikty nezmiznú. Pri ôsmich dámach je konfliktom napríklad vzájomné ohrozenie dvojice dám.
+
+Person2: Zhrnuté: stavový priestor môžeme prehľadávať slepo pomocou BFS, DFS, IDS či UCS, alebo cielene pomocou heuristiky a A hviezdičky. Pri neistote potrebujeme belief stavy alebo podmienené AND-OR plány, v hrách minimax a orezávanie, pri lokálnej optimalizácii pracujeme priamo so stavmi a pri CSP kombinujeme obmedzenia, inferenciu, backtracking aj heuristiky.

@@ -1,0 +1,135 @@
+Person1: Témou je generalizácia strojového učenia, teda schopnosť modelu fungovať dobre aj na dátach, ktoré počas tréningu nikdy nevidel. Toto je skutočný cieľ učenia. Nie samotné stlačenie tréningovej chyby na čo najnižšiu hodnotu, ale naučiť sa zákonitosti, ktoré prežijú aj mimo tréningovej množiny.
+
+Person2: Čiže model nechceme naučiť len odpovede naspamäť, ale chceme, aby pochopil pravidlá ukryté v dátach?
+
+Person1: Presne tak. Proti dobrej generalizácii stoja hlavne dva javy: podučenie a preučenie. Podučenie, po anglicky underfitting, znamená, že model je príliš slabý alebo nedostatočne naučený a nevie dobre aproximovať hľadanú funkciu. Preučenie, po anglicky overfitting, je opačný extrém: model sa príliš prispôsobí tréningovým dátam a mimo nich zlyháva.
+
+Person2: Ako ich rozlíšim pri tréningu? Len podľa toho, že model dáva zlé výsledky?
+
+Person1: Treba pozerať na tréningovú aj validačnú chybu. Pri podučení býva zlá už tréningová chyba, loss dostatočne neklesá a validácia je tiež slabá. Príčinou môže byť príliš krátky tréning, nekvalitné dáta alebo príliš jednoduchý model vzhľadom na zložitosť úlohy.
+
+Person2: A preučenie vyzerá tak, že tréningová chyba je pekná, ale validácia sa kazí?
+
+Person1: Áno. Pri preučení tréningová loss ďalej klesá, lebo model si tréningové dáta pamätá stále lepšie. Lenže validačná chyba prestane klesať a začne rásť, alebo zostáva zlá. Príčinou býva príliš dlhý tréning, malá diverzita dát, nedostatok vzoriek alebo zbytočne zložitý model na jednoduchú úlohu.
+
+Person2: To súvisí aj s tým kompromisom medzi biasom a varianciou?
+
+Person1: Áno, je to dobrý pohľad na vec. Príliš jednoduchý model má vysoký bias, teda silné zjednodušenie, a podučí sa. Príliš zložitý model má vysokú varianciu, citlivo reaguje na konkrétne tréningové vzorky a preučuje sa. Čím viac kvalitných dát máme, tým bezpečnejšie si môžeme dovoliť zložitejší model.
+
+Person2: V poznámkach sú ešte miznúce a explodujúce gradienty. Patria tiež ku generalizácii?
+
+Person1: Sú to skôr tréningové problémy, ktoré môžu brániť tomu, aby sa model vôbec dobre naučil. Pri spätnom priechode sieťou sa počítajú gradienty. Ak sú príliš malé, hovoríme o miznúcich gradientoch. Ak sú príliš veľké, hovoríme o explodujúcich gradientoch. Obe situácie môžu viesť k numerickým problémom, hodnotám NaN alebo k praktickému zastaveniu učenia.
+
+Person2: Čo sa s tým dá robiť?
+
+Person1: Pri explodujúcich gradientoch pomáha regularizácia a všeobecne pomáha gradient clipping, teda orezanie gradientov na stanovené minimá a maximá. Dôležitá je aj dobrá inicializácia váh pred tréningom. Niekedy treba zmeniť architektúru, loss funkciu, optimalizátor alebo learning rate.
+
+Person2: Dobre, poďme k dátam. Ako sa správne delia množiny?
+
+Person1: Dáta rozdeľujeme na tri disjunktné množiny: trénovaciu, validačnú a testovaciu. Disjunktné znamená, že vzorky sa medzi nimi neprekrývajú. Trénovacia sada slúži na samotné učenie siete a býva najväčšia. Pri zložitých úlohách môže mať aj milióny vzoriek.
+
+Person2: Validačná sada je tá, ktorú sledujeme počas tréningu?
+
+Person1: Áno. Validačná sada sa používa priebežne počas tréningu na odhad generalizácie a na ladenie hyperparametrov. Napríklad podľa nej môžeme rozhodovať, kedy tréning zastaviť alebo ako nastaviť prah pri binárnej klasifikácii, keď sieť vracia číselnú mieru istoty.
+
+Person2: A testovacia sada sa použije až úplne nakoniec?
+
+Person1: Presne. Testovacia sada má zostať bokom až do konca. Použije sa na otestovanie hotového modelu v podmienkach čo najbližších reálnemu nasadeniu. Pri učení s učiteľom musia mať vzorky anotácie, teda požadovaný výstup pre každú vstupnú vzorku.
+
+Person2: Prečo nestačí mať len tréningovú a validačnú sadu? Veď validácia tiež hovorí, ako model funguje na nevidených dátach.
+
+Person1: Lebo podľa validácie opakovane rozhodujeme o modeli. Volíme hyperparametre, vyberáme architektúru, nastavujeme prahy a rozhodujeme o zastavení tréningu. Tým sa model nepriamo ladí aj na validačnú množinu. Výsledok na validácii už preto nie je úplne nezaujatý. Testovacia sada má byť posledná kontrola na dátach, ktoré neovplyvnili žiadne rozhodnutie.
+
+Person2: A preto sa presnosť nemá merať len na tréningovej sade, lebo tam by model mohol vyzerať lepšie než v realite.
+
+Person1: Presne. Tréningová presnosť často len ukazuje, ako dobre model zvládol vzorky, na ktorých sa učil. Pre reálne použitie je dôležité, čo spraví s novými dátami. Ešte doplním dva pojmy: epocha je jeden prechod celou trénovacou sadou a mini-batch je menšia dávka vzoriek, po ktorej sa spravidla robí aktualizácia váh.
+
+Person2: Pri sledovaní loss teda čakám, že tréningová chyba pôjde dole. Kde presne vidím začiatok preučenia?
+
+Person1: Na grafe, kde je tréningová aj validačná chyba, je začiatok preučenia v bode, kde validačná chyba prestane klesať a začne rásť, zatiaľ čo tréningová chyba klesá ďalej. Tento bod je často najlepší kandidát na zastavenie tréningu. Model sa ešte učí tréningové detaily, ale už sa nezlepšuje na dátach mimo tréningu.
+
+Person2: To rovno súvisí s early stoppingom, však?
+
+Person1: Áno. Včasné ukončenie tréningu, alebo early stopping, znamená, že tréning zastavíme podľa priebežnej validácie ešte pred tým, než sa model výrazne preučí. Je to jednoduchá a praktická technika, ale treba pamätať, že validačná sada nemusí dokonale reprezentovať skutočné dáta z prevádzky.
+
+Person2: Jedno z riešení je augmentácia dát. Ako presne pomáha?
+
+Person1: Augmentácia dát znamená, že tréningové dáta mierne modifikujeme, aby sme zvýšili ich diverzitu. Pri obrázkoch to môže byť náhodná rotácia, posun, škálovanie, drobná úprava farieb alebo rozmazanie. Cieľ je, aby model videl viac realistických variantov tej istej informácie a neučil sa príliš konkrétne detaily pôvodných vzoriek.
+
+Person2: Ale nie každá úprava je dobrá, že?
+
+Person1: Presne. Upravená vzorka musí zostať čitateľná a realistická. Ak augmentácia vytvorí niečo, čo sa v reálnom svete nevyskytuje alebo zmení význam vzorky, model sa môže naučiť nesprávne veci. Každý typ dát podporuje iné vhodné augmentácie.
+
+Person2: Ďalšia veľká téma je regularizácia váh. Ako ju vysvetliť bez vzorcov?
+
+Person1: Regularizácia váh znamená, že k pôvodnej loss pridáme penalizáciu za príliš veľké váhy. Model potom nie je motivovaný len znížiť chybu, ale aj držať parametre rozumne malé. Sila tejto penalizácie sa riadi koeficientom lambda. Ak je lambda príliš veľká, model môže byť zbytočne obmedzený.
+
+Person2: A rozdiel medzi L jedna a L dva regularizáciou?
+
+Person1: L jedna regularizácia používa súčet absolútnych hodnôt váh. Tlačí váhy k nule a často vedie k riedkosti, čiže veľa váh môže byť nulových a príslušné spojenia sa prakticky ignorujú. Sama o sebe môže byť nestabilná alebo neefektívna. L dva regularizácia používa súčet druhých mocnín váh. Hladko tlmí veľké váhy a v praxi býva všeobecne efektívnejšia. Často sa používajú aj kombinácie oboch.
+
+Person2: Čiže regularizácia znižuje šancu, že sieť bude stáť na extrémne silných konkrétnych váhach.
+
+Person1: Áno. Núti model hľadať jednoduchšie a stabilnejšie riešenia. Treba však vedieť, že pri hlbokých sieťach, najmä s ReLU aktiváciami, samotný weight decay nemusí byť hlavný nástroj generalizácie. Veľkú prácu často robí augmentácia, dropout a batch normalizácia.
+
+Person2: Poďme teda na dropout. Čo sa deje počas tréningu?
+
+Person1: Dropout náhodne vypína neuróny počas tréningu. Prakticky sa vybraným neurónom v rámci jednej mini-batch dávky dočasne nastaví nulový výstup. Sieť sa tak nemôže spoliehať na pár konkrétnych neurónov a je nútená vytvárať robustnejšie, redundantné spojenia.
+
+Person2: A počas inferencie, teda pri používaní hotového modelu, sú neuróny zapnuté?
+
+Person1: Áno. Nulovanie sa deje len počas tréningu. Pri inferencii sú neuróny opäť zapnuté a model robí bežný dopredný priechod. Zároveň platí, že dropout sa musí dávkovať opatrne. Ak vypneme priveľa neurónov, model sa môže učiť zle.
+
+Person2: Predtrénovanie je ďalší spôsob, ako nezačínať úplne od nuly.
+
+Person1: Presne. Namiesto náhodných alebo nulových váh použijeme model, ktorý už bol natrénovaný na nejakej širšej úlohe. Pri spracovaní obrazu môže taký model už poznať základné obrazové primitíva, napríklad hrany, tvary alebo textúry. Začíname teda v lepšom bode priestoru parametrov.
+
+Person2: Ako sa potom taký model prispôsobí konkrétnej úlohe?
+
+Person1: Typicky sa použije predtrénovaná páteřná sieť, často sa hovorí backbone, a na jej koniec sa pridá hlava špecifická pre danú úlohu. Tá hlava môže byť napríklad lineárna vrstva pre binárnu alebo viactriednu klasifikáciu a zároveň robí finálnu redukciu dimenzionality.
+
+Person2: A fine-tuning znamená doladenie tejto zostavy?
+
+Person1: Áno. Fine-tuning môže prebiehať tak, že trénujeme len novú hlavu a backbone necháme zmrazený. Alebo trénujeme celú sieť naraz, často s rôznym learning rate pre hlavu a pre backbone. Trénovanie celej siete môže dať lepšie výsledky, ale je citlivejšie a vyžaduje opatrnosť.
+
+Person2: Čo ak predtrénovaný model nemáme? Vtedy je dôležitá inicializácia váh?
+
+Person1: Áno. Ak nepoužijeme predtrénovanie, aspoň váhy musia byť inicializované rozumne. Ak by všetky váhy začali na nule, neuróny by boli symetrické a sieť by sa nedokázala efektívne učiť. Preto sa používajú malé náhodné hodnoty. Jedna z často používaných metód je Xavier initialization.
+
+Person2: Multi-task learning znie trochu inak. Tam model nerieši len jednu úlohu?
+
+Person1: Presne. Pri multi-task learningu sa sieť učí viacero súvisiacich úloh naraz. Úlohy musia mať niečo spoločné. Typicky sa zdieľa spoločná backbone a pre každú úlohu existuje samostatná hlava s vlastnou loss funkciou a často aj vlastnými anotáciami.
+
+Person2: Ale ak ma zaujíma len jedna hlavná úloha, načo pridávať ďalšie?
+
+Person1: Pomocné úlohy nútia backbone vytvárať bohatšie aktivácie. Z nich sa potom dá vytiahnuť viac užitočných informácií aj pre hlavnú úlohu. Príklad je rozpoznávanie tvárí, kde pomocné úlohy môžu byť odhad pohlavia, klasifikácia farby vlasov alebo detekcia rúška. Nejde o to, že všetky výstupy musia byť rovnako dôležité, ale že spoločné reprezentácie lepšie generalizujú.
+
+Person2: V poznámkach je aj batch normalizácia. Tá je skôr stabilizačná technika?
+
+Person1: Áno, batch normalizácia pomáha rýchlejšiemu a stabilnejšiemu učeniu. Vkladá sa ako vrstva medzi ostatné vrstvy a normalizuje výstupy predchádzajúcej vrstvy v rámci jednej mini-batch dávky tak, aby mali strednú hodnotu nula a jednotkový rozptyl.
+
+Person2: Lenže keby sme vždy len normalizovali, nestratí sieť schopnosť posúvať a škálovať hodnoty podľa potreby?
+
+Person1: Preto má batch normalizácia dva učiteľné parametre, gamma a beta. Tie nad normalizovanými dátami urobia dodatočnú lineárnu transformáciu. Sieť teda nie je uzamknutá do pevnej normalizovanej podoby, ale môže si naučiť vhodné posunutie a škálovanie.
+
+Person2: A čo sa deje pri inferencii? Tam predsa mini-batch štatistiky nemusia byť k dispozícii.
+
+Person1: Pri inferencii sa nepoužívajú aktuálne štatistiky mini-batchu. Použijú sa globálne štatistiky z tréningu, typicky running average a smerodajná odchýlka trénovacej sady, ktoré sa po tréningu zafixujú. To umožní stabilné správanie modelu pri nasadení.
+
+Person2: Posledná technika v poznámkach sú reziduálne spojenia. Prečo pomáhajú hlavne hlbokým sieťam?
+
+Person1: V hlbokých sieťach sa informácia pri prechode mnohými vrstvami môže postupne strácať. Reziduálne spojenie spraví to, že k výstupu bloku vrstiev pripočíta pôvodný vstup. Namiesto toho, aby blok musel naučiť celú transformáciu od začiatku, môže sa učiť skôr zmenu voči vstupu.
+
+Person2: Čiže sieť má akoby skratku, cez ktorú sa pôvodná informácia dostane hlbšie.
+
+Person1: Presne. V poznámkach je to vyjadrené ako výstup bloku plus pôvodný vstup. Dôležitá myšlienka je, že reziduálne spojenia znižujú riziko straty informácie a uľahčujú tréning veľmi hlbokých architektúr.
+
+Person2: Sú ešte nejaké všeobecné páky, ktoré si mám pri generalizácii pamätať?
+
+Person1: Áno. Okrem konkrétnych techník je dôležitá samotná štruktúra modelu. Architektúra musí obsahovať prvky schopné vyriešiť daný problém a veľkosť modelu má zodpovedať úlohe aj množstvu dát. Pomôcť môžu syntetické dáta, domain adaptation, keď úloha zostáva rovnaká, ale mení sa distribúcia dát, a pri niektorých modeloch aj regularizácia aktivácií.
+
+Person2: Takže generalizácia nie je jedna funkcia v knižnici, ale kombinácia správnych dát, vhodnej architektúry, kontroly tréningu a regularizačných techník.
+
+Person1: Presne tak. Pri skúške je dobré vedieť vysvetliť najprv cieľ: výkon na nevidených dátach. Potom kontrast podučenia a preučenia, rozdelenie dát na trénovaciu, validačnú a testovaciu množinu, priebeh loss pri preučení a nakoniec techniky ako augmentácia, regularizácia L jedna a L dva, dropout, early stopping, predtrénovanie, fine-tuning, multi-task learning, batch normalizácia a reziduálne spojenia.
+
+Person2: Zhrniem si to takto: model má generalizovať, nie memorovať. Podučenie znamená, že je slabý alebo málo naučený, preučenie znamená, že sa príliš prispôsobil tréningu. Validácia pomáha ladiť a zastaviť tréning, test zostáva až na koniec. A proti zlému zovšeobecneniu používame viac a lepších dát, rozumnú regularizáciu, dropout, early stopping, predtrénovanie, multi-task learning a stabilizačné prvky ako batch normalizáciu či reziduálne spojenia.

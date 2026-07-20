@@ -1,0 +1,139 @@
+Person1: Téma je okruh Neuronové sítě a jejich trénování. Budeme sa držať hlavnej myšlienky: neurónová sieť je veľká derivovateľná funkcia, ktorá berie vstupné dáta a premieňa ich na výstup, ktorý chceme použiť napríklad na klasifikáciu alebo predikciu.
+
+Person2: Čiže sieť si mám predstaviť nie ako niečo magické, ale ako parametrickú funkciu?
+
+Person1: Presne tak. Je to komplexná a flexibilná funkcia s parametrami, hlavne váhami a biasmi. Pri trénovaní tieto parametre meníme tak, aby sa výstup siete čo najviac približoval požadovanému výstupu. Dôležité je, že vstupy aj výstupy musia byť číselné, typicky vo forme floatov, lebo celý tréning stojí na deriváciách.
+
+Person2: Prečo je tá derivovateľnosť taká dôležitá?
+
+Person1: Lebo trénovanie neurónovej siete je optimalizácia pomocou gradientného zostupu alebo jeho variantov. Aby sme vedeli povedať, ako zmeniť váhu, potrebujeme deriváciu, teda informáciu, ktorým smerom sa zmení chyba, keď daný parameter trochu posunieme.
+
+Person2: A v čom je sila neurónových sietí oproti jednoduchším modelom?
+
+Person1: Ich základné výhody sú univerzálnosť a škálovateľnosť. Dajú sa prispôsobiť na veľa typov úloh, od obrazu cez prirodzený jazyk až po rôzne numerické dáta. A pri dostatku dát často platí, že väčší model a viac dát vedú k lepším výsledkom. Teoreticky aj prakticky sa často hovorí, že dostatočne veľká sieť vie aproximovať takmer ľubovoľnú funkciu.
+
+Person2: Začnime úplne od stavebného bloku. Čo je perceptrón?
+
+Person1: Perceptrón je základná idea neurónu. Má vstupy, ku každému vstupu patrí naučená váha, a k tomu sa pridáva bias. Neurón spočíta lineárnu kombináciu vstupov, teda každý vstup vynásobí príslušnou váhou, všetko sčíta a pridá posun. Tomuto sa v poznámke hovorí bázová funkcia.
+
+Person2: Takže keby som mala vstupy ako vlastnosti objektu, váhy hovoria, ktoré vlastnosti sú dôležité?
+
+Person1: Áno. Väčšia váha znamená silnejší vplyv daného vstupu na výstup neurónu. Bias je samostatný posun, ktorý neurónu umožní posunúť rozhodovaciu hranicu mimo počiatku. Bez biasu by bola hranica zbytočne obmedzená, napríklad by pri jednoduchom lineárnom modeli musela prechádzať počiatkom.
+
+Person2: A kde do toho vstupuje aktivačná funkcia?
+
+Person1: Samotná lineárna kombinácia vstupov je stále len lineárna funkcia. Ak by sme za seba poskladali viac lineárnych vrstiev bez nelinearity, výsledok by bol stále len jedna lineárna funkcia. Aktivačná funkcia sa aplikuje na výstup každého neurónu a zavádza nelinearitu, vďaka ktorej sieť vie modelovať zložitejšie než lineárne závislosti.
+
+Person2: Čiže aktivačná funkcia nie je len kozmetická úprava výstupu, ale dôvod, prečo má viac vrstiev vôbec zmysel.
+
+Person1: Presne. Bez nej by hlboká sieť bola len komplikovane zapísaný lineárny model. Aktivačná funkcia musí byť pre trénovanie derivovateľná, aspoň v praktickom zmysle, aby sa cez ňu dali šíriť gradienty. Typické príklady sú ReLU, sigmoida a tanh.
+
+Person2: Vieš ich stručne odlíšiť?
+
+Person1: ReLU vráti nulu pre záporné vstupy a pôvodnú hodnotu pre kladné vstupy. Je veľmi používaná v hlbokých, konvolučných aj rekurentných sieťach. Sigmoida stláča hodnotu do intervalu od nuly po jedna, preto sa hodí napríklad na binárnu klasifikáciu, ale v hlbokých sieťach môže trpieť problémom miznúceho gradientu. Tanh dáva hodnoty približne od mínus jedna po jedna a hodí sa tam, kde má zmysel pracovať aj so zápornými hodnotami.
+
+Person2: Pri binárnej klasifikácii sa často pýta, koľko neurónov má posledná vrstva. Ako je to napríklad pri rozlíšení jablka a granátu?
+
+Person1: Stačí jeden výstupný neurón so sigmoidou. Jeho výstup interpretujeme ako pravdepodobnosť jednej triedy v rozsahu od nuly do jednej. Pravdepodobnosť druhej triedy je doplnok. Ak výstup reprezentuje napríklad pravdepodobnosť, že objekt je jablko, potom zvyšok do jednej reprezentuje granát.
+
+Person2: Teraz viacvrstvová sieť. Čo presne znamená MLP?
+
+Person1: MLP znamená Multilayer Perceptron, teda viacvrstvový perceptrón. Ide o sieť z vrstiev idúcich za sebou. V najbežnejšom základnom variante sú to plne prepojené, alebo dense vrstvy, kde je každý neurón jednej vrstvy spojený s každým neurónom predchádzajúcej vrstvy.
+
+Person2: To znie, že počet spojení môže rásť veľmi rýchlo.
+
+Person1: Áno, a práve preto je dôležitý maticový zápis. Výpočet jedného neurónu je skalárny súčin vstupov a váh plus bias. Výpočet celej vrstvy sa dá zapísať ako jedno maticové násobenie, kde matica váh naraz obsahuje váhy všetkých neurónov vrstvy.
+
+Person2: Ako by si to povedal bez vzorca?
+
+Person1: Predstav si vstupný vektor ako zoznam hodnôt. Vrstva má maticu váh, ktorá z tohto zoznamu vyrobí nový zoznam hodnôt, jednu hodnotu pre každý neurón vrstvy. Potom sa pridá vektor biasov a aplikuje sa aktivačná funkcia. Takto sa dá jeden krok siete efektívne počítať nad celou dávkou dát.
+
+Person2: Preto sa neurónové siete dobre počítajú na GPU?
+
+Person1: Áno. Sieť opakuje rovnaké typy operácií nad veľkým množstvom dát a jadrom sú maticové násobenia. GPU sú práve na takéto paralelné numerické výpočty veľmi vhodné. Mini-batche tréningových dát sa dajú spracovať naraz, čo dobre sedí na paralelnú architektúru.
+
+Person2: Dobre, model máme. Čo ešte potrebujeme na tréning?
+
+Person1: Potrebujeme štyri veci: model, loss funkciu, optimalizátor a dáta. Model definuje, ako sa zo vstupu vypočíta výstup. Loss funkcia meria, ako veľmi je výstup zlý vzhľadom na anotáciu. Optimalizátor rozhoduje, ako upraviť parametre. A dáta sú príklady, z ktorých sa model učí.
+
+Person2: Ako vyzerá tréningový loop?
+
+Person1: Najprv spravíme dopredný priechod, teda vypočítame výstup siete pre vstup. Potom vypočítame loss podľa anotácie. Následne spočítame gradienty spätným priechodom. Nakoniec upravíme parametre siete, aby sa pri ďalšom kroku loss zmenšil.
+
+Person2: Poďme detailnejšie na loss funkciu. Čo presne vyjadruje?
+
+Person1: Loss funkcia meria rozdiel medzi výstupom siete a požadovanou podobou výstupu. Jej tvar závisí od úlohy a treba ju voliť opatrne. Ak loss nehodnotí to, čo naozaj chceme, optimalizácia si môže nájsť skratku a model sa bude zlepšovať v čísle, ale nie v skutočnej úlohe.
+
+Person2: Takže loss nie je to isté ako finálne hodnotenie kvality modelu?
+
+Person1: Presne. Loss slúži hlavne ako navigácia počas trénovania. Hovorí optimalizátoru, ktorým smerom sa má pohnúť. Kvalitu natrénovanej siete môžeme potom hodnotiť inými metrikami, napríklad presnosťou, F skóre alebo inou metrikou podľa úlohy. V poznámke je dôležité, že loss musí dostatočne reprezentovať úlohu a musí byť derivovateľná.
+
+Person2: Aké sú typické príklady loss funkcií?
+
+Person1: Pri klasifikácii je typická cross-entropia, pri regresii alebo predikcii spojitej hodnoty stredná kvadratická chyba, teda MSE. V oboch prípadoch ide o spôsob, ako každému tréningovému príkladu priradiť číselnú chybu. Cez celý dataset sa tieto chyby agregujú do objektívnej funkcie, ktorú chceme minimalizovať.
+
+Person2: Čiže cieľ tréningu je nájsť také parametre siete, pri ktorých je objektívna funkcia čo najmenšia.
+
+Person1: Áno. Parametre siete, teda váhy a biasy, hľadáme tak, aby súčet alebo priemer lossov na dátach bol minimálny. V praxi sa to nerobí naraz dokonale, ale iteratívne: opakovane počítame chybu, gradienty a meníme parametre.
+
+Person2: Teraz výpočtový graf. Čo to je?
+
+Person1: Výpočtový graf je reprezentácia celého výpočtu ako uzlov a hrán. Uzly sú operácie alebo hodnoty a hrany ukazujú tok dát. Dopredný priechod siete vrátane maticových násobení, biasov, aktivácií a loss funkcie sa dá zapísať ako takýto graf. Podmienka je, že je acyklický, teda neobsahuje kruhovú závislosť.
+
+Person2: A prečo je výpočtový graf taký dôležitý pre backpropagation?
+
+Person1: Lebo spätné šírenie chyby je systematické derivovanie zložených funkcií. Sieť je zloženie mnohých operácií, a pri derivovaní používame reťazové pravidlo. Výpočtový graf určuje, v akom poradí sa operácie vykonali dopredu a ako sa majú gradienty šíriť dozadu.
+
+Person2: Takže backpropagation nie je samostatná mágia, ale organizované použitie reťazového pravidla.
+
+Person1: Presne. Pri spätnom priechode sa počítajú derivácie pre každý parameter každej vrstvy. Súčasťou je aj derivácia loss funkcie, lebo práve loss je signál, ktorý hovorí, čo sa má zlepšiť. Výhoda výpočtového grafu je aj v tom, že medzivýsledky z dopredného priechodu sa dajú recyklovať pri výpočte gradientov.
+
+Person2: V poznámke sa spomína, že backpropagation je opäť hlavne maticové násobenie.
+
+Person1: Áno. Derivácie jednotlivých známych operácií sú známe dopredu a pri praktickom výpočte sa veľká časť práce dá zapísať v maticovej forme. Preto je aj spätný priechod dobre paralelizovateľný, podobne ako dopredný priechod.
+
+Person2: Ako do toho zapadá gradientný zostup?
+
+Person1: Gradientný zostup je optimalizačný algoritmus. Predstav si priestor všetkých parametrov siete a v ňom povrch loss funkcie. Gradient ukazuje smer najväčšieho rastu lossu. My chceme loss zmenšiť, preto parametre posúvame opačným smerom než gradient.
+
+Person2: A dĺžku kroku určuje learning rate?
+
+Person1: Áno. Learning rate hovorí, aký veľký krok spravíme pri aktualizácii parametrov. Ak je priveľký, môžeme optimum preskakovať a tréning bude nestabilný. Ak je primalý, učenie bude veľmi pomalé a model môže ľahšie uviaznuť v lokálnom minime alebo sa prakticky nikam neposúvať.
+
+Person2: Lokálne minimum znamená, že algoritmus nájde miesto, ktoré je dobré v okolí, ale nie globálne najlepšie?
+
+Person1: Presne. Gradientný zostup je jednoduchý a dobre paralelizovateľný, ale nemusí vždy nájsť globálne optimum. Napriek tomu sa používa, pretože v kombinácii s vhodnou architektúrou, dátami a optimalizátorom funguje v praxi veľmi dobre.
+
+Person2: Aký je rozdiel medzi klasickým gradientným zostupom, stochastickým a mini-batch variantom?
+
+Person1: Rozdiel je v tom, nad koľkými dátami počítame gradient v jednom kroku. Klasický gradient descent počíta gradient nad celou tréningovou sadou. Je to presnejšie, ale pomalé a často pamäťovo nereálne. Stochastic gradient descent počíta gradient nad jedným náhodným príkladom. Je rýchly, ale kroky sú zašumené. Mini-batch počíta gradient nad malou dávkou príkladov a je kompromisom medzi rýchlosťou a stabilitou.
+
+Person2: Preto sa v praxi používa najmä mini-batch?
+
+Person1: Áno. Mini-batch sa dobre paralelizuje na GPU a gradient je stabilnejší než pri jednom príklade. Zároveň netreba spracovať celý dataset naraz. Okrem toho existujú adaptívne optimalizátory, napríklad Adam, AdamW alebo SGD s momentom, ktoré pomáhajú riešiť problémy s voľbou learning rate.
+
+Person2: Spomenul si problém miznúceho gradientu pri sigmoide. Ako to súvisí s trénovaním hlbokých sietí?
+
+Person1: Pri spätnom priechode sa gradienty násobia cez veľa vrstiev. Môžu preto exponenciálne klesať k nule alebo naopak rásť do nestability. Keď gradient mizne, skoršie vrstvy sa prestávajú učiť. Typicky to hrozilo pri hlbokých sieťach so sigmoidou. Rieši sa napríklad vhodnou aktiváciou ako ReLU, inicializáciou váh, gradient clippingom, batch normalizáciou alebo reziduálnymi spojeniami.
+
+Person2: To je detailnejšie než základ, ale na skúške sa to môže hodiť ako súvislosť.
+
+Person1: Presne. Základ okruhu je loss, výpočtový graf, backpropagation a gradientný zostup, ale miznúce a explodujúce gradienty vysvetľujú, prečo niektoré architektúry a aktivačné funkcie fungujú lepšie než iné.
+
+Person2: Ešte tu máme obmedzenie perceptrónu a problém XOR.
+
+Person1: Jednovrstvový perceptrón dokáže oddeliť len lineárne separovateľné triedy. To znamená, že medzi triedami musí existovať jedna priamka, rovina alebo všeobecne lineárna hranica. Problém XOR lineárne separovateľný nie je, preto ho jednovrstvový perceptrón nevyrieši.
+
+Person2: Ako ho vyrieši viacvrstvová sieť?
+
+Person1: Viacvrstvová sieť so skrytými vrstvami a nelineárnou aktiváciou vie vytvoriť nelineárnu rozhodovaciu hranicu. Skryté neuróny môžu vstupný priestor najprv transformovať a až potom sa rozhoduje vo vyššej reprezentácii. Práve kombinácia viacerých vrstiev a nelinearity je rozdiel medzi jednoduchým lineárnym modelom a sieťou, ktorá zvládne zložitejšie vzťahy.
+
+Person2: Čiže XOR je dobrý príklad na to, prečo samotný perceptrón nestačí.
+
+Person1: Áno. Na skúške je to veľmi užitočný príklad: perceptrón, ktorý má len jednu lineárnu hranicu, nestačí na nelineárne separovateľné dáta. MLP s nelineárnou aktiváciou už dokáže skladať jednoduchšie rozhodnutia do zložitejšej hranice.
+
+Person2: Keď to celé spojím, neurónová sieť je skladanie vrstiev, kde každá vrstva robí maticové násobenie, pridá bias a použije aktivačnú funkciu.
+
+Person1: Správne. Dopredný priechod vypočíta výstup. Loss funkcia povie, ako veľmi sa výstup líši od cieľa. Výpočtový graf zachytí všetky kroky výpočtu. Backpropagation cez reťazové pravidlo spočíta gradienty. A optimalizátor, typicky nejaký variant gradientného zostupu, podľa nich upraví parametre.
+
+Person2: A pri odpovedi treba nezabudnúť na praktické detaily: floatové vstupy a výstupy kvôli deriváciám, význam biasu, nelinearitu aktivačných funkcií, jeden sigmoidový neurón pre binárnu klasifikáciu, mini-batch ako praktický kompromis a to, že loss je tréningový signál, nie nutne finálna metrika kvality. To je za mňa jadro celého okruhu.

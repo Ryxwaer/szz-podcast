@@ -1,0 +1,69 @@
+# Standalone Gemini multi-speaker TTS renderer.
+# Fully independent of szzpod (ElevenLabs) and azure_speech.
+
+# TTS model. gemini-2.5-flash-preview-tts has a free tier; -pro-tts is higher quality
+# but paid-only. gemini-3.1-flash-tts-preview may also be available on your key.
+model: "gemini-3.1-flash-tts-preview"
+
+# Force the output language so the model doesn't slip into English phonetics on short
+# tokens (single letters, abbreviations like SAT). Blank it out if it ever causes a 400.
+language_code: "sk-SK"
+
+# Natural-language style guidance prepended to every chunk (Gemini is prompt-steered,
+# there is no SSML). Structured as Gemini 3.1 "director's notes" (Style / Pace / Accent)
+# per the docs, kept deliberately lean - docs warn that over-specifying degrades output.
+# Preamble + "hovor iba repliky" cue prevents the model from reading these notes aloud.
+# Accent is set here (not via language_code) as docs recommend, using standard literary
+# Slovak = central-Slovak norm. The old per-letter/word anti-garble hacks were for the
+# 2.5-flash model and are unnecessary on 3.1.
+style_prompt: >
+  Syntetizuj reč z nasledujúceho dialógu (podcast).
+  Obaja rečníci sú dospelí a látku poznajú, hovoria ako kolegovia pripravujúci sa
+  na štátnice k inžinierskému titulu.
+  Štýl: pokojný, sústredený študijný podcast - vecný a seriózny, len o niečo živší
+  než spravodajstvo; nie zábavná šou, nie detinský, spevavý ani prehnane nadšený.
+  Tempo: prirodzené, rovnomerné a konštantné od začiatku do konca.
+  Prízvuk a výslovnosť: neutrálna spisovná slovenčina (stredoslovenská výslovnostná
+  norma) so správnou diakritikou; každé slovo vyslov zreteľne a celé. Neprepínaj do
+  angličtiny - cudzie skratky prečítaj alebo vyhláskuj po slovensky.
+
+# Two speakers (Gemini multi-speaker supports up to 2). `alias` must be alphanumeric
+# and is what labels each turn in the prompt; `voice` is a Gemini prebuilt voice.
+# `style` is a per-speaker directive: the API has no structured per-speaker prompt
+# field (speech_config only takes speaker name + voice), so per the docs the guidance
+# is written into the prompt addressed by name - synth.build_prompt renders each as
+# "Pokyny pre rečníka <alias>: <style>" after the global style_prompt.
+# Grounded/neutral voices (avoid the expressive ones like Leda/Puck/Charon):
+#   male   -> Orus, Alnilam (Firm), Algenib (Gravelly/deeper), Schedar (Even),
+#             Sadaltager (Knowledgeable), Iapetus (Clear)
+#   female -> Kore (Firm), Erinome (Clear), Gacrux (Mature), Sulafat (Warm)
+speakers:
+  person1:
+    alias: "Jaro"
+    voice: "Umbriel" # Puck(upbeat) Fenrir(excited) Sadachbia(knowledgeable) Rasalgethi(informative)     # male, firm/grounded -> explainer (try Algenib for deeper)
+    style: "vždy dospelý mužský hlas; vykladač - vysvetľuje a definuje, pokojne a s istotou"
+  person2:
+    alias: "Julia"
+    voice: "Kore"      # Kore, Autonoe, Erinome
+    style: "vždy dospelý ženský hlas; študentka - pýta sa a žiada objasnenie, vecne a so záujmom"
+
+# Chunking. Goal is ~1 okruh/day, so throughput isn't the constraint - we balance
+# tempo drift (worse with big chunks) against fitting one okruh inside one day's free
+# quota (fewer chunks = fewer requests). ~1800 was tempo-acceptable earlier (the drift
+# complaint was at 3000) and keeps the výklad to ~8 chunks. Lower it if tempo still drifts.
+max_chars_per_request: 1800
+
+# Final output encoding (ffmpeg). Gemini returns 24 kHz PCM; we upsample on encode.
+output_sample_rate: 44100
+output_bitrate: "192k"
+
+# Postprocessing: OFF. Gemini audio is already level and natural, so we apply no gain,
+# loudnorm, compression or limiting - chunks are only concatenated and encoded to mp3.
+normalize: false
+target_lufs: -18.0
+dynamics: false
+
+paths:
+  transcripts: "../transcripts"   # reuse existing transcripts, read-only
+  audio: "../audio"               # shared repo-root audio/ so ./szzpod upload finds it
+  cache: ".cache"

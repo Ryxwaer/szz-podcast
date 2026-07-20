@@ -1,0 +1,7 @@
+# Build artifacts / large derived files
+.venv/
+__pycache__/
+.cache/
+audio/
+archive/
+*.mp3

@@ -1,0 +1,119 @@
+Person1: V tomto výklade si prejdeme neurónové siete pre štruktúrované dáta. Zameriame sa na dve rodiny architektúr, ktoré menuje aj zadanie okruhu, na konvolučné siete a na rekurentné siete. Povieme si, prečo vznikli, ako fungujú a na čo sa hodia. Ale skôr, než sa dostaneme k samotným sieťam, treba pochopiť jednu vec, ktorá je pre celý okruh kľúčová, a to, ako vôbec dostaneme štruktúrované dáta do siete.
+
+Person2: Dobre. A čo je na tom háklivé? Nedajú sa dáta hodiť do siete tak, ako sú?
+
+Person1: Nie, a je za tým dobrý dôvod. Neurónová sieť dokáže pracovať len s float hodnotami, teda s desatinnými číslami. Vyplýva to z toho, že sa učí gradientným zostupom, a ten potrebuje, aby bolo všetko derivovateľné, čiže spojité. Takže čokoľvek, čo do siete pošleme, musíme najprv previesť na čísla. A práve tomu prevodu hovoríme kódovanie štruktúrovaných dát.
+
+Person2: Ako teda zakódujeme napríklad obrázok?
+
+Person1: Obrázok máme v podstate hotový, len ho treba upraviť. Pixely sú hodnoty červenej, zelenej a modrej zložky, teda er gé bé kanály, pôvodne celé čísla od nuly po dvestopäťdesiatpäť. Tie prevedieme na float a zvyčajne aj znormalizujeme, často z rozsahu nula až dvestopäťdesiatpäť do rozsahu mínus jedna až jedna. Výsledok si predstav ako kváder s troma rozmermi, šírka krát výška krát počet kanálov. Pri bežnom farebnom obrázku sú tie kanály tri.
+
+Person2: A text? Ten na čísla nevyzerá vôbec.
+
+Person1: Text je zaujímavejší. Rozsekáme ho na primitíva, ktorým hovoríme tokeny, a každý token zakódujeme na vektor čísel. Celá sekvencia potom vznikne ako matica s dvomi rozmermi, dĺžka sekvencie krát rozmer kódovania jedného tokenu. K tomu, ako presne token na vektor previesť, sa ešte podrobne dostaneme pri rekurentných sieťach. A do tretice máme kategorické dáta, kde je počet kategórií vopred známy a reprezentujeme ich ako float pravdepodobnosti jednotlivých tried.
+
+Person2: A prečo teda dve rôzne rodiny sietí? Nestačila by jedna univerzálna?
+
+Person1: Lebo rôzne typy dát majú rôznu štruktúru a oplatí sa ju využiť. Obraz má lokálne vzory, susedné pixely spolu súvisia, a na to sedia konvolučné siete. Text a iné sekvencie majú zas závislosti v čase, a na tie sú stavané rekurentné siete. Poďme postupne, začneme konvolučnými.
+
+Person2: Tak dobre. Aká je motivácia za konvolučnými sieťami?
+
+Person1: Primárne vznikli na spracovanie obrazu, hoci sa dnes používajú aj širšie, napríklad v spracovaní prirodzeného jazyka. Ich veľká výhoda je, že sú relatívne rýchle a efektívne a že vstup analyzujú pomocou lokálnych operácií. Nepozerajú sa na celý obrázok naraz, ale po malých okolitých kúskoch. A jadrom celého prístupu je konvolučný filter, ktorému sa hovorí aj jadro alebo kernel.
+
+Person2: Čo taký filter vlastne robí?
+
+Person1: Predstav si malé okienko, napríklad tri krát tri, ktoré posúvaš po obrázku. V každej polohe vynásobíš hodnoty filtra s hodnotami obrázka pod ním a všetko sčítaš do jedného čísla. Filtrom takto postupne prejdeš celý obraz. A teraz to podstatné, tie hodnoty vo filtri sú učiteľné váhy. To je presne to, čo sa sieť učí, rovnako ako váhy v obyčajných vrstvách. Sieť si sama nájde, aké filtre potrebuje.
+
+Person2: A jedna konvolučná vrstva má jeden taký filter?
+
+Person1: Zvyčajne nie, práve naopak. Vrstva býva zložená z viacerých jadier a každé jadro pri prejdení obrazu vytvorí jednu výstupnú mapu, teda jeden kanál. Takže si zapamätaj jednoduché pravidlo, počet výstupných kanálov sa rovná počtu jadier vo vrstve. Koľko filtrov, toľko výstupných kanálov.
+
+Person2: A ako je to so vstupom? Keď mám farebný obrázok s tromi kanálmi, ako s tým filter naloží?
+
+Person1: Toto je bod, na ktorom sa ľahko potknúť, tak pozorne. Hĺbka jadra sa vždy rovná počtu vstupných kanálov. Takže pri farebnom obrázku s tromi kanálmi je jadro rozmeru en krát en krát tri. [short pause] Ale, a to je dôležité, výstupom takého jadra je aj tak stále jedna jediná float hodnota, lebo cez všetky tri kanály to znova len vynásobíš a sčítaš.
+
+Person2: Takže počet vstupných kanálov neovplyvní počet výstupných kanálov?
+
+Person1: Presne tak, to je tá pointa. Počet vstupných kanálov neurčuje, koľko kanálov vyjde von, to určuje len počet jadier. Vstupné kanály ovplyvnia len to, aké hrubé je jadro, a tým pádom koľko má parametrov. A ako každá vrstva, aj konvolučná potrebuje na konci aktivačnú funkciu, typicky relu.
+
+Person2: Popri konvolúcii sa v takých sieťach spomína aj pooling. Načo je?
+
+Person1: Pooling slúži na redukciu veľkosti informácie. Zoberie širšiu oblasť dát a zhrnie ju do jednej kompaktnejšej hodnoty. Zníži tým priestorové rozlíšenie, obrazne obrázok zmenší, ale, a to si všimni, počet kanálov ostáva rovnaký. Pooling nemení hĺbku, mení len šírku a výšku.
+
+Person2: A ako sa tá oblasť zhrnie?
+
+Person1: Najčastejšie dvomi spôsobmi. Buď max-pooling, ktorý z okna, napríklad dva krát dva, vyberie najväčšiu hodnotu, alebo average-pooling, ktorý spočíta priemer. Max-pooling má navyše peknú vlastnosť, podporuje takzvanú translačnú invariantnosť. To znamená, že keď sa hľadaný vzor v obrázku trochu posunie, sieti to až tak nevadí, lebo maximum z okna zostane podobné.
+
+Person2: Poďme to poskladať dokopy. Ako vyzerá celá konvolučná sieť?
+
+Person1: Typická sieť, klasickým príkladom je architektúra vé gé gé, strieda tri druhy vrstiev, konvolučné vrstvy, relu aktivácie a pooling. A pri prechode sieťou sa deje charakteristická vec. Priestorové rozmery, obrazne veľkosť obrázka, sa postupne zmenšujú, a zároveň rastie počet kanálov. Sieť teda mení šírku a výšku za hĺbku, z veľkého plytkého obrázka robí malú ale hlbokú reprezentáciu príznakov.
+
+Person2: Vieš to ukázať na číslach, nech to má predstavu?
+
+Person1: Jasné. Zápis je vždy šírka krát výška krát počet kanálov. Na vstupe máš napríklad dvestodvadsaťštyri krát dvestodvadsaťštyri krát tri, čiže veľký farebný obrázok. Po pár konvolučných vrstvách z toho môže byť dvestodvadsaťštyri krát dvestodvadsaťštyri krát šesťdesiatštyri, rozmery rovnaké, ale kanálov pribudlo. Potom príde pooling a máš stodvanásť krát stodvanásť krát stodvadsaťosem, rozmery klesli na polovicu, kanálov zase viac. A takto to pokračuje hlbšie a hlbšie.
+
+Person2: A na konci? Ako z tej hlbokej reprezentácie dostaneme napríklad triedu obrázka?
+
+Person1: Na konci býva plne prepojená vrstva, po anglicky fully connected, ktorá funguje ako klasifikačná hlava. Tá z nazbieraných príznakov vyrobí výstup s toľkými hodnotami, koľko máme tried. A keďže klasifikujeme, na výstup dáme softmax. Softmax prevedie tie hodnoty na pravdepodobnostné rozdelenie tried, čiže na kladné čísla, ktoré dokopy dávajú jednotku. Je to vlastne zovšeobecnenie sigmoidy na viac ako dve triedy.
+
+Person2: Dobre, konvolučné siete mi dávajú zmysel. Prejdime na rekurentné. Prečo vznikli tie?
+
+Person1: Rekurentné siete sú stavané na sekvenčné dáta. To je text, zvukové nahrávky, alebo merania v čase. A majú jednu veľmi cennú vlastnosť, celá sekvencia nemusí byť dopredu známa. Vďaka tomu, že dátami prechádzajú iteratívne, kúsok po kúsku, dokážu spracovať aj prúd, ktorý ešte len prichádza. To je pri obraze úplne iná situácia, obrázok máš celý naraz, ale reč ti prichádza postupne.
+
+Person2: Spomínal si, že k textu sa vrátiš. Ako sa teda text prevedie na tie tokeny?
+
+Person1: Sekvenčné dáta treba najprv predspracovať. Text zakódujeme do sekvencie tokenov, čo sú vektorové reprezentácie primitív textu. A pozor, token nemusí byť celé slovo, môže to byť aj časť slova. Spôsobov kódovania je viac a stoja za to tri.
+
+Person2: Poďme na ne.
+
+Person1: Prvý je one-hot encoding, po slovensky by sme povedali jednotka na jednom mieste. Máš en rozmerný vektor, kde en je veľkosť slovníka, a dané slovo má jednotku práve na svojej pozícii a inde samé nuly. Je to jednoduché, ale strašne riedke a veľké. Druhý spôsob je look-up table, teda vyhľadávacia tabuľka. To je tabuľka hustých vektorov, a keď ju prenásobíš one-hot vektorom, vytiahneš z nej hustú, kompaktnú reprezentáciu daného slova. Tá tabuľka ale musí byť vopred vytvorená.
+
+Person2: A ten tretí?
+
+Person1: Tretí je najzaujímavejší, volá sa word2vec, čiže vórd tu vek. Ten navyše zachytáva aj význam slov. Zakódované slová sa potom dajú porovnávať podľa významu, podobné slová ležia blízko seba. A umožňuje aj tie povestné operácie so slovami, keď zoberieš vektor pre kráľ, pripočítaš žena a vyjde ti niečo blízko slova kráľovná. Význam je zakódovaný priamo v tých číslach.
+
+Person2: Dobre, tokeny máme. Ako s nimi pracuje samotná rekurentná sieť?
+
+Person1: Základnej verzii sa hovorí vanilla rekurentná sieť. Funguje ako iteratívny priechod, kde jednu a tú istú časť siete aplikuješ token po tokene. V každom kroku má sieť dva vstupy, aktuálny token a stav z predchádzajúcej iterácie. Vnútri sa to prežene cez aktiváciu tanh, čiže hyperbolický tangens, s naučenými parametrami, váhou vé a biasom bé. A tento priebeh v čase sa zvykne kresliť ako graf, kde je tá istá bunka rozvinutá do reťaze krokov.
+
+Person2: A prečo si vôbec ten stav prenášať z kroku do kroku?
+
+Person1: To je celá motivácia rekurentných sietí. Chceme premietnuť informáciu z predchádzajúcich častí sekvencie do spracovania tých ďalších. Zatiaľ čo konvolučná sieť pozerá lokálne, na blízke okolie, rekurentná sa snaží modelovať globálnejšie závislosti, ktoré sú v texte veľmi časté. Význam slova na konci vety môže závisieť od slova na začiatku.
+
+Person2: To znie ako presne to, čo pri texte chceš. Kde je háčik?
+
+Person1: Háčik je v tom, že táto schopnosť sa s dĺžkou sekvencie stráca. Čím dlhšia sekvencia, tým ťažšie sa informácia z jej začiatku dostane až na koniec. Je to podobný problém ako pri veľmi hlbokých sieťach bez reziduálnych spojení, informácia sa cestou akoby rozriedi.
+
+Person2: A keď chcem rekurentnou sieťou klasifikovať, napríklad celú vetu? Čo použijem ako výstup?
+
+Person1: Intuitívne by si siahol po poslednom výstupnom stave, po tom, čo vyjde z poslednej iterácie. Lenže to nie je ideálne, práve kvôli tomu, čo sme si povedali. Pri veľa iteráciách sa skorá informácia môže takmer stratiť. Lepšie riešenie je agregovať výstupy siete cez všetky iterácie, nespoliehať sa len na ten posledný, ale zohľadniť celý priebeh.
+
+Person2: Spomínal si stratu informácie na dlhých sekvenciách. Tá sa nejako rieši?
+
+Person1: Áno, a to nás vedie k dvom slávnym architektúram, k el es té em, teda long short term memory, a k jej zjednodušenej verzii grú. Riešia tú stratu podobným trikom ako reziduálne spojenia v konvolučných sieťach. Namiesto toho, aby predchádzajúci stav úplne prepísali novým, ho len modifikujú. Pôvodná informácia tak môže cez bunku pretiecť skoro nedotknutá.
+
+Person2: A ako to riadia?
+
+Person1: Cez takzvané brány, po anglicky gates, ktoré umožňujú riadené zabúdanie. Sú tri. Forget gate rozhoduje, koľko z predchádzajúceho stavu si ponechať. Input gate rozhoduje, koľko novej informácie z aktuálneho tokenu pridať. A output gate rozhoduje, čo z vnútra bunky poslať na výstup. Keď to zjednoduším, sieť sa sama naučí, čo si má pamätať, čo zabudnúť a čo práve teraz použiť.
+
+Person2: Ešte som počula pojmy autoregresívna faktorizácia a bidirectional sieť. Čo sú zač?
+
+Person1: To sú dva dôležité režimy použitia. Začnime autoregresívnou faktorizáciou. Tá sa využíva, keď generuješ celú vetu, napríklad pri strojovom preklade. Pravdepodobnosť celej vety si rozložíš na súčin pravdepodobností jednotlivých slov, pričom každé slovo je podmienené tými predchádzajúcimi. A realizuje sa to elegantne, výstup z jednej iterácie, teda vygenerované slovo, priradíš ako vstup do ďalšej iterácie. Sieť si tak generuje vetu slovo po slove a stále nadväzuje na to, čo už povedala.
+
+Person2: A tá obojsmerná, bidirectional?
+
+Person1: Bidirectional rekurentná sieť má dve rekurentné vrstvy. Jedna spracúva sekvenciu v normálnom poradí, zľava doprava, druhá odzadu, sprava doľava. Ich výstupy sa potom konkatenujú, čiže spoja za seba, takže výsledný vektor je dvojnásobne dlhý. Získaš tým kontext z oboch strán, každé slovo vidí aj to, čo bolo pred ním, aj to, čo príde po ňom. Ale má to jednu podmienku, dá sa to použiť len vtedy, keď je koniec sekvencie známy dopredu. Pri prúde, ktorý ešte prichádza, to logicky nejde.
+
+Person2: Poďme trochu k praxi. Na aké úlohy sa tieto siete reálne používajú?
+
+Person1: Konvolučné siete nájdeš všade, kde ide o obraz. Klasifikácia objektov, zvierat či rastlín na fotke, detekcia vád na výrobkoch, rozpoznávanie tvárí, odhad polohy postavy, čiže pose estimation, alebo optical flow, teda odhad pohybu v scéne. Rekurentné siete zas žiaria na sekvenciách, napríklad prevod reči na text v reálnom čase, alebo rozpoznávanie vetných členov v texte.
+
+Person2: A to sú aj tie novšie modely, transformery?
+
+Person1: Transformery sú síce nad rámec tohto okruhu, ktorý menuje len konvolučné a rekurentné siete, ale oplatí sa o nich vedieť, lebo dnes dominujú. Nájdeš ich za chatbotmi typu gé pé té, za prevodom reči na text, za klasifikáciou emócií alebo druhu diela z textu, a existujú aj vision transformery, ktoré klasifikujú objekty v obraze.
+
+Person2: A čím sa transformery líšia od rekurentných sietí?
+
+Person1: Riešia problém globálnych závislostí ešte priamočiarejšie. Namiesto toho, aby informáciu prenášali krok po kroku a riskovali jej stratu, počítajú súvislosti každého tokenu s každým naraz. Cenou za to je, že vstup musí mať dopredu daný pevný rozmer. Jadrom sú attention vrstvy s učiteľnými maticami pre dotaz, kľúč a hodnotu. Majú encoder a decoder časť, a keďže samy o sebe ignorujú poradie slov, dopĺňa sa im poziční kódovanie, poskladané z kombinácií sínusov a kosínusov. Mimochodom, viac attention hláv vedľa seba, takzvaný multihead self-attention, je pekná obdoba viacerých konvolučných jadier vo vrstve.
+
+Person2: Dobre, skúsim to celé zhrnúť. Neurónové siete berú len float hodnoty, takže štruktúrované dáta treba najprv zakódovať, obraz ako šírka krát výška krát kanály, text ako sekvenciu tokenov. Konvolučné siete pracujú lokálne cez učiteľné filtre, kde počet výstupných kanálov určuje počet jadier, striedajú konvolúciu, relu a pooling, rozmery zmenšujú a kanály zväčšujú, a na konci klasifikujú cez plne prepojenú vrstvu a softmax. Rekurentné siete idú na sekvencie iteratívne, prenášajú stav v čase a modelujú globálne závislosti, pričom el es té em a grú cez brány riešia stratu informácie na dlhých sekvenciách. A nad tým všetkým dnes stoja transformery. Myslím, že takto to do seba pekne zapadá.

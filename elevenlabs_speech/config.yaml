@@ -1,0 +1,58 @@
+# Standalone ElevenLabs Text to Dialogue renderer (Eleven v3).
+# Engine-specific settings only; global config (backend switch, R2, canonical
+# paths) lives in the repo-root config.yaml. This renderer just turns a transcript
+# into ../audio/<name>.mp3 - upload and note-embedding stay in the root szzpod tool.
+
+# Dialogue runs only on Eleven v3.
+model_id: "eleven_v3"
+
+# Language sent to the dialogue endpoint (ElevenLabs code; Slovak = "sk"). Without
+# it the API auto-detects, which on SK text peppered with EN terms can slip into
+# English and drop diacritics. Locking the language is a global safety net.
+# NOTE: intentionally NOT part of the chunk cache key, so changing it does not
+# invalidate already-cached chunks - it only affects newly generated chunks.
+language_code: "sk"
+
+# Output format (codec_samplerate_bitrate). 192 kbps requires Creator+.
+output_format: "mp3_44100_192"
+
+# Voices for the two speakers (voice_id from the ElevenLabs account).
+voices:
+  person1: "DXwrzy2wtKORwDTbsMwk"   # Jaro  - male (SK), explainer
+  person2: "9Nd358gE1qQp0pDh8FgP"   # Julia - female (SK), student
+
+# Dialogue API hard limit is 2000 chars per request; transcript is chunked.
+max_chars_per_request: 1800
+
+# Silence inserted between chunks (seconds). 0 = seamless (v3 handles pacing).
+pause_between_chunks: 0.0
+
+# Per-speaker loudness leveling: each voice is measured per chunk (via the API's
+# voice_segments) and gained to `target_lufs`, so the two cloned voices sit at the
+# same level even though ElevenLabs emits them at different, per-chunk varying
+# loudness. Set normalize: false to pass chunks through untouched.
+normalize: true
+
+# Common loudness target for both speakers (integrated LUFS). -18..-16 is typical
+# for spoken word; lower = quieter with more headroom.
+target_lufs: -18.0
+
+# Final dynamics mastering across the whole episode: a gentle compressor tames loud
+# phrase onsets, a dynamic normalizer evens out slower loudness drift, then a
+# true-peak limiter guards against clipping. Set false to keep raw dynamics.
+dynamics: true
+
+# Eleven v3 dialogue settings. Only `stability` is exposed for dialogue.
+#   0.0 = creative, 0.5 = natural, 1.0 = robust. Higher = steadier, less variable.
+settings:
+  stability: 0.5
+
+# Base seed for reproducibility. The per-episode seed is derived from this + the
+# episode name, so reruns are deterministic and hit the same cache.
+seed: 424242
+
+# Filesystem layout (relative to this elevenlabs_speech/ dir unless absolute).
+paths:
+  transcripts: "../transcripts"   # reuse existing transcripts, read-only
+  audio: "../audio"               # shared repo-root audio/ so ./szzpod upload finds it
+  cache: ".cache"

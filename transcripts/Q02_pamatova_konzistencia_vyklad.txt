@@ -1,0 +1,99 @@
+Person1: Dnes si prejdeme okruh Paměťová konzistence - teda pamäťovú konzistenciu, predbiehanie operácií čítania a zápisu, a podporu virtuálneho adresového priestoru. Začneme tým, prečo vôbec chceme meniť poradie load a store inštrukcií, potom sa pozrieme, čo to spôsobuje v multicore prostredí, a nakoniec prejdeme virtuálnu pamäť - od tabuľky stránok cez TLB až po spoluprácu s el jedna cache.
+
+Person2: Dobre. Tak prečo procesor nedodržiava programové poradie čítaní a zápisov?
+
+Person1: Lebo striktné dodržiavanie poradia má negatívny dopad na výkon. Spomeň si, že cache vyrovnáva priepastný rozdiel medzi rýchlosťou vykonávania inštrukcií a rýchlosťou pamäte. Keby sme poradie striktne dodržali, výpadok dátovej cache pri jednom load by zastavil vykonávanie všetkých následných pamäťových aj závislých inštrukcií. Celý procesor by stál a čakal na pomalú pamäť.
+
+Person2: Ale medzi load a store predsa môžu byť závislosti, nie?
+
+Person1: Môžu, a to je presne tá podmienka. Medzi load a store inštrukciami na rovnakú adresu vznikajú rovnaké závislosti ako pri out-of-order vykonávaní s registrami - read after write, write after read a write after write. Tie treba rešpektovať kvôli sémantike programu. Háčik je v tom, že pri registroch vidíš konflikt hneď z mena registra, ale pri pamäti sa dá závislosť detekovať až vtedy, keď sú spočítané adresy operandov. Ak inštrukcie nemanipulujú s rovnakou adresou, závislosť medzi nimi nie je a môžu sa vykonávať mimo poradia.
+
+Person2: A aké prípady predbehnutia rozlišujeme?
+
+Person1: Štyri, podľa toho, čo predbieha čo. Read can pass read - čítanie predbehne čítanie. Read can pass write - čítanie predbehne zápis. Write can pass read - zápis predbehne čítanie. A write can pass write - zápis predbehne zápis. [short pause] Z týchto štyroch je najdôležitejší read can pass write, čiže load predbieha store. To je hlavný zdroj výkonu.
+
+Person2: Prečo práve tento?
+
+Person1: Predstav si cyklus, ktorý v každej iterácii niečo načíta, spracuje a uloží. Hardvér v podstate vykonáva rozbalenie cyklu, pri ktorom sa iterácie čiastočne prekrývajú - load, ktorý načítava dáta pre nasledujúcu iteráciu, môže predbehnúť store aktuálnej iterácie. Nemusíš čakať, kým sa dokončí zápis, a už dopredu ťaháš dáta pre ďalšiu prácu.
+
+Person2: Ale ako procesor vie, že ten load smie predbehnúť store?
+
+Person1: Musí zistiť, či je medzi nimi závislosť - teda či sa adresa čítania rovná adrese zápisu. A tomuto sa hovorí dynamické rozlišovanie adries, po anglicky memory disambiguation. Zapamätaj si tri prípady. [short pause] Prvý: adresy sú rôzne. Vtedy nejde o konflikt read after write a load môže store pokojne predbehnúť. Druhý: adresy sú rovnaké. Vtedy load môže načítať dáta priamo z toho nedokončeného store, ktorý sedí v store bufferi - tomu sa hovorí load from store forwarding. A tretí prípad: odpoveď zatiaľ nepoznáme, lebo adresa store ešte nie je spočítaná. Vtedy sa buď čaká, alebo sa špekulatívne predpokladá, že adresy sú rôzne.
+
+Person2: Spomenul si store buffer. Ako presne funguje store jednotka?
+
+Person1: Store jednotka ukladá rozpracované zápisy do store bufferu, pričom ich adresy sú v ňom v programovom poradí. Každá položka bufferu prechádza stavmi. Available znamená, že položka je voľná. Adr only - je známa len adresa, dáta ešte nie. Ready - známa je adresa aj dáta. A completed - zápis je potvrdený a čaká na prepustenie z čela seraďovacej pamäte, teda reorder bufferu. Keď sa store dostane na čelo reorder bufferu, zápis sa reálne vykoná do dátovej cache a položka sa vráti do stavu available.
+
+Person2: A čo robí load jednotka, keď sa špekuluje?
+
+Person1: To je tá zaujímavejšia časť. Ak nie sú známe niektoré store adresy, load špekuluje - predpokladá, že číta z adresy, na ktorú nikto nezapisuje. Lenže špekuláciu treba overiť. Adresy dokončených špekulatívnych load inštrukcií sa uložia v load jednotke a každá dokončená store inštrukcia potom kontroluje adresy v load jednotke na zhodu. [short pause] Ak dôjde k zhode, špekulácia bola nesprávna - load prečítal starú hodnotu z adresy, na ktorú store medzitým zapisuje. Takto invalidovaný load a všetky závislé inštrukcie treba zrušiť a výpočet zopakovať. Ak k zhode nedôjde, kým sa load nedostane na čelo reorder bufferu, špekulácia bola správna a výsledok sa prepíše z premenovacieho registrového poľa do architektúrneho registrového poľa.
+
+Person2: Ako je ten store buffer postavený, keď sa v ňom musí neustále porovnávať toľko adries?
+
+Person1: Presne kvôli porovnávaniu load a store adries je store buffer typicky organizovaný ako plne asociatívna kruhová fronta - pri každej položke sedí komparátor, takže porovnanie prebehne naraz nad všetkými položkami. A tu si dávaj pozor na dva pojmy, ktoré sa na skúške často pletú. [short pause] Forwarding znamená, že load si vezme dáta z ešte nedokončeného store na rovnakú adresu - priamo zo store bufferu, bez čakania na zápis do cache. Bypassing znamená, že load s inou adresou jednoducho predbehne store. Forwarding je teda o rovnakej adrese a odovzdaní dát, bypassing o rôznych adresách a predbehnutí.
+
+Person2: Dobre, to je jedno jadro. Ale čo sa stane, keď takto poradie mieša viac jadier naraz?
+
+Person1: A tým sa dostávame k pamäťovej konzistencii. Zmena poradia zápisov a čítaní má v multicore prostredí nepríjemné dôsledky, pretože poradie, v akom jednotlivé vlákna vidia zmeny hodnôt pamäťových lokácií, je základom synchronizačných prostriedkov. Zámky, semafory, všetka synchronizácia stojí na tom, že vlákna vidia zmeny v nejakom rozumnom poradí. Pamäťová konzistencia pojednáva o poradí, v akom procesory pozorujú čítania a zápisy na rôzne adresy.
+
+Person2: Na rôzne adresy - to znie ako dôležitý detail.
+
+Person1: Je to kľúčový detail. Konzistencia rieši poradie operácií naprieč rôznymi adresami - tým sa líši od koherencie, ktorá rieši jednu adresu. Rozlišujeme dva základné typy konzistencie. Sekvenčná konzistencia znamená, že čítania a zápisy sa vykonávajú v programovom poradí a všetky procesory to poradie pozorujú rovnako. A relaxovaná konzistencia dovolí, aby sa čítania a zápisy predbiehali, pokým to nemení správnosť programu.
+
+Person2: Čo z relaxovanej konzistencie plynie pre programátora?
+
+Person1: Že zodpovednosť sa presúva na neho. Programátor musí explicitne určiť, kedy je poradie operácií dôležité - napríklad v OpenMP direktívou flush, alebo premennými volatile. Všetky ostatné inštrukcie sa môžu vykonávať mimo poradia. Výhodou je väčší výkon a jednoduchší hardvér. Nevýhodou väčšia záťaž pre programátora a možnosť naozaj záludných chýb - závod dvoch vlákien, ktorý sa prejaví raz za milión behov, sa hľadá veľmi ťažko.
+
+Person2: A čím to poradie programátor vlastne vynúti?
+
+Person1: Pamäťovými zábranami - memory barriers, hovorí sa im aj fences. Sú to špeciálne inštrukcie, ktoré zabraňujú presunom load a store operácií tam, kde je to nežiaduce. Máme tri druhy. [short pause] Plná zábrana: všetky load a store pred ňou sa musia dokončiť skôr, než začnú tie za ňou. Čiastočné zábrany obmedzujú len čítanie, alebo len zápis. A jednosmerné zábrany sú dvojica acquire a release - acquire bráni presunu operácií nahor, ponad seba, release bráni presunu nadol, popod seba. Táto dvojica presne zodpovedá implementácii binárneho zámku: acquire pri zamknutí, release pri odomknutí, a všetko v kritickej sekcii ostane medzi nimi.
+
+Person2: Dobre, poďme na tretiu časť okruhu - virtuálny adresový priestor. Prečo ho vlastne máme?
+
+Person1: Benefity sú štyri. Po prvé, aplikácie nemusia spravovať adresový priestor zdieľaný viacerými procesmi - virtualizácia vytvára ilúziu, že celý adresový priestor patrí procesu. Po druhé, vyššia bezpečnosť vďaka izolácii adresových priestorov aplikácií. Po tretie, možnosť zdieľať knižnice medzi procesmi. A po štvrté, možnosť zdanlivo použiť viac pamäte, než je fyzicky nainštalovanej.
+
+Person2: Ako vyzerá virtuálna a fyzická adresa?
+
+Person1: Virtuálna adresa, s ktorou pracuje program, sa skladá z čísla virtuálnej stránky - virtual page number - a z page offsetu. Fyzická adresa, ktorá sa vystavuje na zbernicu, sa skladá z čísla fyzickej stránky - physical page number - a page offsetu. Samotný page offset sa ďalej delí na číslo bloku na stránke a číslo slova v bloku. A cache sa naviac adresujú pomocou tagu a offsetu. [short pause] Dôležitý fakt: page offset je pri virtuálnej aj fyzickej adrese rovnaký, neprekladá sa. Prekladá sa len číslo stránky. A práve preto sa index bloku v cache dá čiastočne získať ešte pred prekladom - to sa nám zíde na konci pri el jedna cache.
+
+Person2: Kto ten preklad vykonáva?
+
+Person1: Hardvérová jednotka MMU, memory management unit. Tá pri každom prístupe do pamäte prevedie číslo virtuálnej stránky na číslo fyzickej stránky pomocou tabuľky stránok, a posledné preklady si drží v rýchlej cache, ktorá sa volá TLB - k tej sa hneď dostaneme. Tabuľka stránok, page table, je uložená v hlavnej pamäti a jej položky, page table entries, ukladajú mapovanie čísla virtuálnej stránky na číslo fyzickej stránky.
+
+Person2: Aká veľká taká tabuľka vyjde?
+
+Person1: Spočítajme si príklad. Tridsaťdva bitový systém, stránka štyri kilobajty. [short pause] Počet položiek je dva na tridsiatu druhú deleno dva na dvanástu, teda dva na dvadsiatu položiek. Pri veľkosti položky štyri bajty má tabuľka dva na dvadsiatu druhú bajtov, teda štyri megabajty. To sa ešte znesie. Ale pri šesťdesiatštyri bitovom adresovom priestore by plochá tabuľka bola neúnosne veľká, preto sa používajú viacúrovňové tabuľky - x osemdesiatšesť šesťdesiatštyri má štyri úrovne. Tie využívajú fakt, že virtuálny adresový priestor je obsadený riedko, takže prázdne časti podstromu vôbec netreba alokovať. Prechod tabuľkami zaisťuje hardvérový automat, ktorému sa hovorí page table walker. Daňou je, že viac úrovní znamená viac prístupov do pamäte, a teda dlhší preklad.
+
+Person2: Dá sa počet prekladov nejako znížiť väčšími stránkami?
+
+Person1: Dá, napríklad Linux má huge pages s veľkosťou dva megabajty. Väčšie stránky redukujú počet výpadkov TLB pri veľkom working sete - jedna položka TLB pokryje viac pamäte. Ale má to cenu: zvyšuje sa interná fragmentácia, lebo proces dostane celú veľkú stránku aj keď z nej využije kúsok, a pri výpadku stránky treba načítať viac dát z disku.
+
+Person2: Poďme teda na TLB. Čo to presne je?
+
+Person1: Translation lookaside buffer. Prechod viacúrovňovou tabuľkou je časovo náročný, preto sa posledné preklady ukladajú do malej rýchlej cache. TLB je plne asociatívna tabuľka dvojíc číslo virtuálnej stránky a číslo fyzickej stránky, typicky tridsaťdva až stodvadsaťosem položiek. Môže byť rozdelená na inštrukčnú a dátovú časť a môže byť spravovaná hardvérom alebo operačným systémom. A všimni si - je zámerne malá. Plne asociatívne vyhľadávanie je drahé, takže malá veľkosť je podmienkou toho, aby bola dostatočne rýchla.
+
+Person2: Aké sú rádovo ceny prístupu do pamäte s TLB?
+
+Person1: Tá tabuľka stojí za zapamätanie, lebo krásne ukazuje, prečo sa do TLB oplatí investovať. [short pause] Zásah v TLB aj v el jedna cache: jeden až tri takty. Zásah v TLB, výpadok el jedna, zásah v el dva: osem až dvanásť taktov. Zásah v TLB, výpadok oboch cache, zásah v hlavnej pamäti: sedemdesiatpäť až dvestopäťdesiat taktov. Výpadok v TLB so zásahom v tabuľke stránok: rádovo dvetisíc taktov. A výpadok v TLB aj v tabuľke stránok, čiže výpadok stránky, page fault: až desať na ôsmu taktov. [short pause] Medzi najlepším a najhorším prípadom je rozdiel zhruba ôsmich rádov. Preto sa oplatí investovať do TLB aj do minimalizácie výpadkov stránok.
+
+Person2: Čo presne sa deje pri tom page faulte?
+
+Person1: Výpadok stránky nastane, keď hľadaná stránka nie je v hlavnej pamäti. Priebeh má štyri kroky. Prvý: MMU pri preklade zistí, že položka tabuľky stránok neodkazuje na platný rámec v pamäti. Druhý: vyvolá sa prerušenie a riadenie prejde do jadra operačného systému. Tretí: operačný systém načíta stránku z disku, zo swapu, do voľného rámca - a ak voľný rámec nie je, najprv nejaký uvoľní podľa nahrádzacej politiky. Štvrtý: aktualizuje sa tabuľka stránok a riadenie sa vráti k prerušenej inštrukcii, ktorá sa zopakuje - tentoraz už preklad prejde.
+
+Person2: A keď proces siahne na stránku, ktorá mu nepatrí?
+
+Person1: To je iný prípad. Prístup na nepovolenú stránku - mimo pridelený adresový priestor alebo s nedostatočnými právami - operačný systém vyhodnotí ako neplatný a proces dostane signál sigsegv, teda známy segmentation fault.
+
+Person2: Ostáva nám tá spolupráca virtuálnej pamäte s el jedna cache.
+
+Person1: Áno, a to je posledná, dosť skúšková časť. Prístup do el jedna cache musí byť čo najrýchlejší a potrebujeme od virtuálnej adresy dospieť k adrese bloku v cache, teda k indexu a tagu. Na adresáciu môžeme použiť buď virtuálnu adresu, ktorá je k dispozícii ihneď, alebo fyzickú, ktorá je k dispozícii až po preklade. Z toho vychádzajú tri usporiadania. [short pause] Prvé je pé pé cache - fyzický index aj fyzický tag. Sériový prístup, teda najprv TLB a potom cache, je pomalý. Paralelný prístup je možný len vtedy, ak sa index kryje s číslom bloku - lebo page offset sa neprekladá - alebo ak sa spodné bity čísla virtuálnej a fyzickej stránky, takzvané superbity, v indexe zhodujú, čo musí zariadiť operačný systém.
+
+Person2: A tá druhá možnosť?
+
+Person1: Vé pé cache - virtuálny index, fyzický tag. Indexovanie cache začne hneď, súbežne s prekladom v TLB, a na záverečné porovnanie sa použije fyzický tag, ktorý medzitým vyšiel z TLB. Toto je najčastejší kompromis v reálnych procesoroch, lebo lookup v cache beží paralelne s prekladom. Vzniká tu ale problém synoným - viac virtuálnych adries sa môže preložiť na rovnaký fyzický blok, a keby sa indexovali rôznymi virtuálnymi indexmi, tá istá dáta by ležali v cache dvakrát.
+
+Person2: A tretia, čisto virtuálna cache?
+
+Person1: Vé vé cache - virtuálny index aj virtuálny tag. Pri zásahu v el jedna cache nie je preklad vôbec potrebný, TLB sa neuplatní. Výstup TLB sa použije až pri výpadku, keď treba ísť s fyzickou adresou do el dva cache. Znie to lákavo, ale vznikajú tu synonymá aj homonymá. [short pause] A toto rozlíšenie si zapamätaj poriadne, lebo sa pletie. Synonymá: rôzne virtuálne adresy sa mapujú na rovnakú fyzickú - problém vé pé aj vé vé cache. Homonymá: rovnaká virtuálna adresa sa mapuje na rôzne fyzické adresy pri prepínaní kontextov - každý proces má predsa vlastné mapovanie. To je problém čisto virtuálnej cache a rieši sa napríklad identifikátorom adresového priestoru, takzvaným ASID, alebo vyprázdnením cache pri prepnutí kontextu.
+
+Person2: Skúsim si to celé zhrnúť. Striktné poradie load a store operácií by zabíjalo výkon, preto sa smú predbiehať - kľúčový je read can pass write, kde memory disambiguation porovnáva adresy: rôzne adresy znamenajú bypassing, rovnaká adresa forwarding zo store bufferu, a pri neznámej adrese sa špekuluje, pričom store pri dokončení kontroluje adresy v load jednotke a zlá špekulácia sa musí zrušiť a zopakovať. V multicore prostredí toto miešanie poradia rieši pamäťová konzistencia - sekvenčná drží programové poradie, relaxovaná ho uvoľní za cenu toho, že programátor musí dôležité poradie vynútiť zábranami: plnou, čiastočnou, alebo dvojicou acquire a release. A virtuálna pamäť: MMU prekladá číslo stránky cez viacúrovňovú tabuľku stránok, TLB cachuje preklady, lebo page fault stojí až desať na ôsmu taktov, a el jedna cache sa s prekladom skladá troma spôsobmi - pé pé, vé pé s problémom synoným, a vé vé, kde pribúdajú aj homonymá. Idem si to zopakovať.

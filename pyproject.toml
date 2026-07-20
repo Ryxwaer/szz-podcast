@@ -1,0 +1,17 @@
+[project]
+name = "szzpod"
+version = "0.2.0"
+description = "SZZ podcast orchestration CLI (transcript validate + R2 upload; TTS is delegated to a backend)"
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml",
+    "python-dotenv",
+    "termcolor",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

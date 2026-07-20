@@ -1,0 +1,119 @@
+Person1: Témou tohto výkladu je návrh riadený testom, refaktorizácia a vlastníctvo a správa zdrojového kódu v tíme. Spája ich spoločný cieľ: udržať softvér kvalitný a bezpečne meniteľný počas celého vývoja.
+
+Person2: Prečo je bezpečná meniteľnosť taká dôležitá, keď už na začiatku existuje návrh systému?
+
+Person1: Pretože implementácia nie je mechanický prepis diagramov tried a interakcií. Počas kódovania sa objavia technické problémy aj potreba integrácie a návrh sa priebežne mení. Chceme, aby cena zmeny zostávala približne konštantná, namiesto toho, aby s rastúcim projektom prudko rástla.
+
+Person2: A práve rastúcu cenu zmien opisuje technický dlh?
+
+Person1: Áno. Technický dlh vzniká, keď kvôli rýchlosti zvolíme rýchle, ale nečisté riešenie. Neskôr ho splácame drahšou údržbou a opravami. Bez priebežnej starostlivosti návrh kódu degraduje. TDD dodáva istotu pomocou testov a refaktorizácia priebežne čistí štruktúru. Obe praktiky sú preto typické pre iteratívny a inkrementálny vývoj, Unified Process aj extrémne programovanie.
+
+Person2: Začnime teda TDD. Čo presne znamená návrh riadený testom?
+
+Person1: TDD, teda test driven development alebo test first development, znamená, že automatizovaný test napíšeme skôr než produkčný kód. Požiadavku prevedieme na konkrétny test a testovanú jednotku implementujeme práve tak, aby ním prešla.
+
+Person2: Ako tento prístup ovplyvní samotný návrh jednotky?
+
+Person1: Jednotku vnímame ako čiernu skrinku s jasne definovaným rozhraním a správaním. Oboje sa ustáli skôr, než pokračujeme vo vývoji. Jednotka má byť čo najmenšia, pretože malé testy sa ľahšie píšu, čítajú a chápu a chyba sa ľahšie lokalizuje. Použiť možno frameworky ako JUnit, NUnit či CppUnit, pričom napríklad Go má podporu testovania vstavanú.
+
+Person2: TDD teda pracuje najmä s unit testami. Ako sa líšia od akceptačných testov?
+
+Person1: Akceptačný test overuje zákaznícku požiadavku na úrovni celého rysu alebo scenára a systém sleduje ako čiernu skrinku z pohľadu používateľa. Unit test overuje jednu malú jednotku, napríklad triedu alebo metódu. Požiadavky sa môžu najprv zachytiť akceptačnými testami a následne rozložiť na unit testy, s ktorými pracuje TDD.
+
+Person2: Kľúčový je cyklus red, green, refactor. Čo sa deje vo fáze red?
+
+Person1: Najprv pre metódu s jasným rozhraním napíšeme test, ktorý zatiaľ neprejde. Vytvoríme testovaciu inštanciu, zavoláme testovanú metódu a pomocou kontroly výsledku vyjadríme očakávané správanie. Červený výsledok je dôležitý, pretože potvrdí, že test naozaj zachytáva chýbajúcu funkcionalitu.
+
+Person2: Potom nasleduje green. Je v tej chvíli cieľom napísať čo najkrajší kód?
+
+Person1: Nie. Vo fáze green implementujeme iba toľko kódu, aby test prešiel. Ide o riešenie, ktoré je práve dostatočné. Názvy red a green pochádzajú z grafického zobrazovania neúspešného a úspešného behu testov, napríklad v JUnit.
+
+Person2: Čistota teda prichádza až vo fáze refactor?
+
+Person1: Presne. Keď testy svietia nazeleno, vyčistíme štruktúru kódu a potom ich znovu spustíme. Overíme tak, že refaktorizácia nespôsobila regresiu rozhrania ani správania. Pre triedu môžeme mať samostatnú testovaciu triedu s testovacou inštanciou a pri každej metóde opakovať krátky cyklus: test, implementácia, úspešný beh a čistenie.
+
+Person2: Aké konkrétne prínosy má TDD pre kvalitu softvéru?
+
+Person1: Testy tvoria spustiteľnú špecifikáciu. Presne zachytávajú očakávané správanie a kontrolujú ho automaticky a opakovane. TDD zároveň podporuje malé jednotky, jasné rozhrania, nízku previazanosť a celkovo testovateľný návrh.
+
+Person2: A keď sa neskôr kód zmení, testy fungujú ako bezpečnostná sieť?
+
+Person1: Áno. Umožňujú meniť vnútornú štruktúru bez obavy, že sa nepozorovane zmení správanie. Chybu navyše zachytíme už pri zlyhaní testu, nie až v produkcii, takže klesá cena jej opravy.
+
+Person2: Tým sa prirodzene dostávame k refaktorizácii. Ako znie jej presná podstata?
+
+Person1: Refaktorizácia je reštrukturalizácia existujúceho kódu bez zmeny jeho vonkajšieho, pozorovateľného správania. Nepridáva funkcionalitu. Mení nefunkčné vlastnosti, napríklad štruktúru, čitateľnosť, zložitosť a udržateľnosť.
+
+Person2: Prečo sa zdôrazňujú malé kroky?
+
+Person1: Refaktorizácia je iteratívny cyklus malých transformácií. Môžeme odstrániť duplicitu, skrátiť dlhú časť, zaviesť návrhový vzor alebo odstrániť kúzelné číslo. Po každom kroku spustíme testy. Keď sa pomýlime, malý krok sa ľahko nájde a môžeme sa vrátiť. Ak si nie sme istí, prestaneme. Dobrá množina automatických testov je preto predpokladom bezpečnej refaktorizácie.
+
+Person2: Prečo a kedy by sme mali refaktorovať?
+
+Person1: Podľa Martina Fowlera refaktorizácia zlepšuje návrh, ktorý by inak degradoval, robí kód zrozumiteľnejším, pomáha odhaľovať chyby a napokon zrýchľuje programovanie. Vhodná je podľa pravidla troch, teda po treťom výskyte podobnej veci, ďalej pri pridávaní funkcie, oprave chyby a pri code review.
+
+Person2: Ako s tým súvisí Kent Beck a jeho metafora dvoch klobúkov?
+
+Person1: Oddeľuje dve činnosti. S jedným klobúkom pridávame funkcionalitu, s druhým refaktorujeme bez pridania novej funkcie. V každom okamihu máme nasadený iba jeden, takže vieme, či práve meníme správanie, alebo iba štruktúru.
+
+Person2: Potrebu refaktorizácie často signalizujú takzvané code smells. Ktoré sú typické?
+
+Person1: Sú to príznaky zlého kódu, nie automaticky dokázané chyby. Patrí medzi ne duplicitný kód, príliš veľká trieda alebo takzvaný God object s nízkou kohéziou, ale aj lazy class, ktorá robí primálo. Ďalej dlhá metóda, dlhý riadok a priveľa parametrov.
+
+Person2: Aké ďalšie príznaky by som mala vedieť pomenovať?
+
+Person1: Kúzelné čísla a nadmerné používanie literálov, feature envy a inappropriate intimacy, keď trieda priveľmi využíva detaily inej triedy, data clump, teda skupina údajov stále prenášaných spolu namiesto samostatného objektu, a vysoká cyklomatická zložitosť spôsobená množstvom vetvení a cyklov.
+
+Person2: A aké konkrétne transformácie tieto problémy riešia?
+
+Person1: Pri Extract Method vyčleníme súvisiacu skupinu príkazov do metódy s výstižným názvom. Pri Extract Variable uložíme zložitý výraz, napríklad dlhú booleovskú podmienku, do pomenovanej premennej. Kód sa tým číta cez význam názvov namiesto detailov výpočtu.
+
+Person2: Čo urobíme s kúzelným číslom alebo komplikovaným vytváraním objektu?
+
+Person1: Literál nahradíme pomenovanou symbolickou konštantou. Napríklad hodnotu gravitačného zrýchlenia nenecháme anonymne roztrúsenú v kóde, ale dáme jej zmysluplný názov. A ak vytvorenie objektu zahŕňa viac než jednoduchú konštrukciu, môžeme konštruktor nahradiť továrenskou metódou.
+
+Person2: Má refaktorizácia aj hranice, pri ktorých už nejde len o bezpečnú vnútornú úpravu?
+
+Person1: Má. Refaktorizácia perzistentných tried môže zasiahnuť schému databázy a vyžiadať si migráciu dát. Rovnako nemožno ľubovoľne meniť už zverejnené stabilné rozhrania, preto ich nemáme zverejňovať predčasne.
+
+Person2: Presuňme sa od štruktúry kódu k tímu. Čo znamená vlastníctvo kódu?
+
+Person1: Ide o zodpovednosť za správu, nie o právne vlastníctvo. Určuje, kto sa stará o určitú časť a kto ju smie meniť. Jednotkou môže byť komponent, modul, trieda, metóda alebo súbor. Pri žiadnom vlastníctve môže ktokoľvek meniť čokoľvek. Je to rýchle pre malé projekty, ale chýba jasná zodpovednosť a môže sa strácať konzistentnosť návrhu.
+
+Person2: Ako funguje silné alebo individuálne vlastníctvo?
+
+Person1: Každá časť má jedného jednoznačného vlastníka a ten mení svoj kód. Zmenu cudzieho kódu treba vyžiadať od vlastníka. Výhodou je jasná zodpovednosť a kontrola, nevýhodou vysoká cena rozsiahlych zmien naprieč viacerými vlastníkmi. To znižuje motiváciu refaktorovať. Silné vlastníctvo sa hodí najmä pre stabilný kód v režime údržby.
+
+Person2: Slabé a kolektívne vlastníctvo dávajú tímu viac voľnosti?
+
+Person1: Pri slabom vlastníctve stále existuje vlastník, ale iný programátor smie jeho kód zmeniť, ak ho podľa závažnosti požiada o súhlas alebo aspoň informuje. Kolektívne vlastníctvo z extrémneho programovania ide ďalej: každý má vylepšiť akýkoľvek kód, keď sa objaví príležitosť. Vyžaduje disciplínu a hodí sa skôr pre menšie tímy.
+
+Person2: Dá sa vlastníctvo kombinovať na rôznych úrovniach?
+
+Person1: Áno. Vnútri jedného tímu môže byť kolektívne, zatiaľ čo medzi tímami sa uplatní silné alebo slabé vlastníctvo. V malých a stredných tímoch býva zvyčajne najvhodnejšie slabé alebo spoločné vlastníctvo.
+
+Person2: Ako do spolupráce zapadá repozitár a verzovanie?
+
+Person1: Spoločný projekt je uložený v spoločnom repozitári. Tím doň prináša nové rysy, opravy chýb, rýchle opravy incidentov, prípravu vydaní aj čistiace refaktorizácie. Keďže na tom istom kóde nemožno pracovať súbežne v reálnom čase, zmeny sa prenášajú v dávkach, teda patchoch.
+
+Person2: Aký je všeobecný priebeh jednej takej zmeny?
+
+Person1: Vývojár začne nad určitým základným stavom, potom zmenu kóduje. Priebežne svoju kópiu zladí s aktuálnym spoločným kódom a vyrieši nekompatibility, teda vykoná rebase. Hotovú zmenu napokon premietne do spoločného kódu pomocou merge.
+
+Person2: Čím sa líši lineárna história?
+
+Person1: Lineárna história je priamka bez vetiev a verejne existuje iba jedna verzia kódu. Je prehľadná, ale jediný stav musí byť stále preložiteľný a spustiteľný. Do spoločnej histórie možno zaradiť iba hotové zmeny, takže rozpracovanú prácu nemožno jednoducho zverejniť na diskusiu a spolupráca je ťažšia. Pred zaradením zmeny sa vlastné commity preskladajú nad aktuálny spoločný stav pomocou rebase.
+
+Person2: Vetvená história tento problém rieši viacerými súbežnými variantmi?
+
+Person1: Presne. Má podobu acyklického grafu a verejne v nej existuje viac vetiev s rôznymi účelmi. Master môže držať stabilný produkčný kód, development aktuálny spoločný vývoj a release vetva prípravu konkrétneho vydania. Dočasné vetvy môžu slúžiť pre nový rys, opravu chyby, rýchlu opravu incidentu alebo čistenie.
+
+Person2: Aké výhody prináša vetvenie a ktoré modely sa používajú?
+
+Person1: Vetvy možno zdieľať, takže podporujú spoluprácu aj nad rozpracovanou zmenou. Zároveň zlepšujú kontrolu prijatia, pretože zmena môže postupne prechádzať medzi vetvami bez unáhleného začlenenia. GitHub Flow používa jednu hlavnú vetvu a krátke feature vetvy, ktoré sa vracajú cez pull request. Git Flow je zložitejší: má trvalé vetvy master a develop a dočasné feature, release a hotfix vetvy. Lineárnu históriu typicky udržiava rebase, vetvenú históriu spája merge.
+
+Person2: Na záver ešte Git. Čím je špecifický ako verzovací systém?
+
+Person1: Git je decentralizovaný, teda distribuovaný verzovací systém. Každý vývojár má plnú kópiu repozitára aj s históriou a môže commitovať aj bez pripojenia. Commit zaznamená zmenu do histórie a branch vytvorí vetvu pre súbežný vývoj. Pri novom ryse typicky vytvoríme feature branch, zmeny na nej commitujeme, priebežne ju pomocou rebase zlaďujeme s hlavnou vetvou a po dokončení a code review ju cez merge spojíme späť. Na rozdiel od Gitu majú centralizované systémy ako SVN alebo CVS úplnú históriu iba na centrálnom serveri a vývojári držia pracovné kópie.
+
+Person2: Najdôležitejšie teda je pamätať si väzby medzi praktikami. TDD v cykle red, green, refactor vytvára testovanú a spustiteľnú špecifikáciu. Testy chránia refaktorizáciu, ktorá mení štruktúru bez zmeny správania. V tíme potom pravidlá vlastníctva určujú zodpovednosť a repozitár s commitmi, vetvami, rebase a merge umožňuje tieto zmeny bezpečne koordinovať.

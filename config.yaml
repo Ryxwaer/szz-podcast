@@ -1,0 +1,33 @@
+# SZZ podcast - global configuration (backend switch, shared paths, R2).
+#
+# Engine-specific settings (voices, model, mastering, seed, ...) live in each
+# backend's own folder: elevenlabs_speech/config.yaml, gemini_speech/config.yaml,
+# azure_speech/config.yaml. This root file holds only what is shared across the
+# whole pipeline and read by the backend-agnostic `./szzpod upload` / `validate`.
+
+# TTS backend used by `./szzpod tts`. This is the single static switch that decides
+# which generator renders the audio (each is self-contained in its own folder):
+#   elevenlabs -> elevenlabs_speech/ (ElevenLabs Text to Dialogue, default)
+#   gemini     -> gemini_speech/ (Gemini multi-speaker TTS)
+#   azure      -> azure_speech/ (Azure neural voices)
+# `upload` and `validate` always run the szzpod CLI regardless of this, and every
+# backend writes the episode to the repo-root audio/<name>.mp3, so upload + embed
+# are unchanged whichever engine rendered it.
+backend: "gemini"
+
+# Canonical, shared filesystem locations (relative to repo root unless absolute).
+# The backends read the transcript from here and write the mp3 here; `upload`
+# reads the mp3 from here and `validate` reads the transcript from here.
+paths:
+  transcripts: "transcripts"
+  audio: "audio"
+  # Where the orchestrator (agent) finds notes and the committee questions used to
+  # write transcripts. The program itself does not read these.
+  obsidian_szz: "/home/ryxwaer/Documents/obsidian-sync/SZZ"
+  questions_csv: "/home/ryxwaer/Documents/obsidian-sync/Resources/all asked questions and feedback.csv"
+
+# Cloudflare R2 (public bucket) for hosting the generated audio.
+r2:
+  bucket: "szz-audio"
+  base_url: "https://pub-c42e017ba82f4d128508dd4dba599a1d.r2.dev"
+  account_id: "0c4fe32bcbb1416fbcd20ea1af2762e9"

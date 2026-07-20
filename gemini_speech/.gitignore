@@ -1,0 +1,12 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated / derived artifacts
+.cache/
+audio/
+*.mp3
+*.wav

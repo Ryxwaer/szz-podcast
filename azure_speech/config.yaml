@@ -1,0 +1,46 @@
+# Standalone Azure AI Speech dialogue renderer.
+# Fully independent of the ElevenLabs `szzpod` tool; nothing here touches it.
+
+# BCP-47 language for the SSML document (Slovak).
+language: "sk-SK"
+
+# The two Slovak neural voices (only two exist for sk-SK).
+voices:
+  person1: "sk-SK-LukasNeural"     # male, explainer
+  person2: "sk-SK-ViktoriaNeural"  # female, student
+
+# Azure REST audio format used for each chunk. The final episode is re-encoded to
+# output_sample_rate/output_bitrate below, so this only sets the fetch quality.
+azure_output_format: "audio-48khz-192kbitrate-mono-mp3"
+
+# Optional SSML <prosody> defaults. Empty ("0%") = each voice's natural delivery.
+prosody:
+  rate: "0%"    # e.g. "-5%" = a touch slower
+  pitch: "0%"
+
+# Pacing tags in the transcript ([short pause] / [pause] / [long pause]) become
+# SSML <break> of these durations. Any other [tag] is stripped (never spoken).
+breaks:
+  short_pause_ms: 300
+  pause_ms: 500
+  long_pause_ms: 800
+
+# Azure accepts long SSML, but chunking keeps requests small, cacheable, and
+# resumable if a run is interrupted or rate-limited.
+max_chars_per_request: 2000
+
+# Final output encoding (ffmpeg).
+output_sample_rate: 44100
+output_bitrate: "192k"
+
+# Mastering (ffmpeg). Azure voices are already loudness-consistent, so there is no
+# per-speaker leveling; we do a whole-episode loudnorm to target + a gentle master.
+normalize: true       # loudnorm to target_lufs
+target_lufs: -18.0
+dynamics: true        # compressor + dynamic normalizer + true-peak limiter
+
+# Filesystem layout (relative to this azure_speech/ dir unless absolute).
+paths:
+  transcripts: "../transcripts"   # reuse existing transcripts, read-only
+  audio: "../audio"               # shared repo-root audio/ so ./szzpod upload finds it
+  cache: ".cache"

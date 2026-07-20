@@ -1,0 +1,19 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Editor
+.vscode/
+
+# Generated / derived artifacts
+.cache/
+audio/
+archive/
+*.mp3

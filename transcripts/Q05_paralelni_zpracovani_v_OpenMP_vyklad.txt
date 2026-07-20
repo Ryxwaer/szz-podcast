@@ -1,0 +1,151 @@
+Person1: Témou je paralelné spracovanie v OpenMP: slučky, sekcie, tasky a synchronizačné prostriedky. OpenMP je rozhranie pre paralelné programovanie v jazykoch C, C plus plus a Fortran. Je určené predovšetkým pre systémy so zdieľanou pamäťou, zatiaľ čo pri distribuovanej pamäti sa používa napríklad MPI.
+
+Person2: OpenMP a MPI sa teda navzájom nevylučujú?
+
+Person1: Nie. V hybridnom modeli môže MPI komunikovať medzi uzlami klastra a OpenMP paralelizuje výpočet vnútri jedného uzla, kde procesory zdieľajú pamäť. OpenMP sa ovláda troma spôsobmi: direktívami pre prekladač, ktoré sa začínajú zápisom pragma O M P, funkciami z knižnice O M P bodka há a premennými prostredia, napríklad O M P num threads.
+
+Person2: A kam patrí vektorizácia?
+
+Person1: OpenMP podporuje aj SIMD vektorizáciu direktívami simd a declare simd. Kombinácia parallel for simd najprv rozdelí iterácie medzi vlákna a potom vnútri jednotlivých vlákien využije vektorové inštrukcie. Ťažiskom tohto okruhu je však viacvláknové spracovanie v zdieľanom adresovom priestore.
+
+Person2: Čím sa v tomto modeli líši vlákno od procesu?
+
+Person1: Proces má vlastný adresový priestor. Jeho vlákna zdieľajú kód, globálne dáta a haldu, ale každé vlákno má vlastný prúd inštrukcií, instruction pointer, stack pointer, registre a privátny zásobník. Môžu súčasne bežať na rôznych jadrách. OpenMP pracuje s abstraktnými vláknami a jeho runtime ich mapuje na systémové vlákna.
+
+Person2: Ako vyzerá základný model vykonávania?
+
+Person1: Je to model fork-join. Program začína hlavným vláknom, označovaným ako master. Pri vstupe do paralelnej oblasti sa rozvetví na tím pracovných vlákien. Tie vykonávajú prácu paralelne a neskôr sa pri synchronizácii alebo na konci oblasti opäť spoja. Takéto vetvenie a spájanie sa môže počas programu opakovať.
+
+Person2: Ktorá direktíva vytvorí paralelnú oblasť?
+
+Person1: Direktíva pragma O M P parallel. Nasledujúci štruktúrovaný blok vykonajú všetky vlákna tímu. Každé má svoje identifikačné číslo, pričom hlavné vlákno má nulu. Číslo vráti funkcia O M P get thread num. Na konci paralelného bloku je implicitná bariéra, takže vlákna na seba počkajú.
+
+Person2: Ako nastavím počet vlákien a ako zistím skutočnú veľkosť tímu?
+
+Person1: Pre konkrétnu paralelnú oblasť slúži klauzula num threads. Pre nasledujúce oblasti možno zavolať O M P set num threads a globálne nastavenie môže prísť z premennej prostredia O M P num threads. Aktuálnu veľkosť tímu vráti O M P get num threads.
+
+Person2: Pri zdieľanej pamäti je asi zásadné určiť, ktoré premenné sú spoločné a ktoré súkromné.
+
+Person1: Presne. Klauzula private vytvorí pre každé vlákno vlastnú lokálnu kópiu. Tá nie je inicializovaná a po skončení sa jej hodnota nikam neprenesie; v C plus plus sa použije predvolený konštruktor. Premenné deklarované priamo v paralelnej oblasti sú štandardne privátne.
+
+Person2: Čo zmení firstprivate?
+
+Person1: Funguje ako private, ale každá kópia sa inicializuje pôvodnou zdieľanou hodnotou, v C plus plus pomocou kopírovacieho konštruktora. Naopak shared znamená, že všetky vlákna pristupujú k tej istej premennej. Premenné deklarované pred paralelnou oblasťou sú štandardne zdieľané.
+
+Person2: Dá sa vynútiť, aby programátor viditeľnosť premenných uviedol výslovne?
+
+Person1: Áno, pomocou default none. Potom treba pre každú viditeľnú premennú explicitne určiť dátové prostredie. Default shared nastaví zdieľanie ako východiskový režim. Ďalšie dôležité klauzuly parallel sú reduction na spojenie čiastkových výsledkov, if na podmienené vytvorenie tímu a už spomínané num threads.
+
+Person2: Vykoná obyčajný parallel automaticky rôznu prácu na rôznych vláknach?
+
+Person1: Nie. Samotná paralelná oblasť zodpovedá modelu SPMD: všetky vlákna vykonávajú rovnaký program a bez ďalšieho rozdelenia by prácu redundantne zopakovali. Ručne sa môžu riadiť svojím číslom a veľkosťou tímu. Vlákno s číslom id začne iteráciou id a potom index zvyšuje o počet vlákien. Tak vznikne cyklické rozdelenie iterácií.
+
+Person2: Pohodlnejšie riešenie je teda worksharing direktíva for?
+
+Person1: Áno. Pragma O M P for rozdelí iterácie slučky medzi vlákna existujúceho tímu. Ak paralelná oblasť obsahuje iba túto slučku, skrátený zápis parallel for tím vytvorí a zároveň rozdelí prácu.
+
+Person2: Aké podmienky musí taká slučka spĺňať?
+
+Person1: Musí mať kanonický tvar a počet iterácií musí byť určiteľný pri vstupe. Všetky iterácie sa musia dokončiť a musia byť navzájom nezávislé, alebo musia byť závislosti korektne vyriešené, napríklad redukciou. Dôležitá záludnosť je, že kompilátor OpenMP dátové závislosti nekontroluje. Za správnosť zodpovedá programátor.
+
+Person2: Je riadiaca premenná slučky zdieľaná?
+
+Person1: Nie, index paralelnej slučky je implicitne privátny. Medzi klauzuly for patria private, firstprivate, lastprivate, reduction, schedule a collapse. Klauzula nowait odstráni implicitnú bariéru na konci slučky. Jednotkový krok nie je všeobecnou podmienkou, hoci býva výhodný pre lokalitu dát aj SIMD. Nepravidelný prístup môže pri vektorizácii vyžadovať drahšie operácie gather a scatter.
+
+Person2: Ako sa iterácie plánujú medzi vlákna?
+
+Person1: Schedule static pridelí iterácie pevne ešte pred vykonávaním. Bez určenej veľkosti bloku dostane každé vlákno približne rovnaký súvislý úsek. Ak uvedieme chunk size, bloky tejto veľkosti sa vláknam prideľujú cyklicky. Static má najnižšiu réžiu a hodí sa, keď majú iterácie podobnú náročnosť.
+
+Person2: Čo ak je náročnosť iterácií veľmi rozdielna?
+
+Person1: Vtedy pomáha schedule dynamic. Vlákna si za behu preberajú ďalšie bloky práce; predvolená veľkosť bloku je jedna iterácia. Má vyššiu réžiu pri prideľovaní, ale dobre vyvažuje nerovnomernú prácu.
+
+Person2: A guided je kompromis?
+
+Person1: Áno. Schedule guided tiež prideľuje bloky dynamicky, no začína väčšími blokmi a postupne ich zmenšuje, najmenej po určenú veľkosť. Má menšiu réžiu než dynamic a pritom vie reagovať na nevyváženie. Schedule runtime prevezme stratégiu aj veľkosť bloku z premennej O M P schedule. Schedule auto ponechá rozhodnutie runtime systému.
+
+Person2: Spomínali sme redukciu. Ako presne zabráni súbežnému zápisu do jedného výsledku?
+
+Person1: Každé vlákno dostane privátny čiastkový výsledok inicializovaný neutrálnou hodnotou operátora. Pri sčítaní je to nula, pri násobení jedna. Vlákna počítajú oddelene a na konci OpenMP ich výsledky spojí zadaným operátorom do pôvodnej zdieľanej premennej. Tak je redukcia vhodná napríklad na súčet poľa.
+
+Person2: A lastprivate prenáša hodnotu z vlákna, ktoré skončilo posledné?
+
+Person1: Nie, a to je ľahko zameniteľné. Lastprivate po skončení for prenesie hodnotu z logicky poslednej iterácie v pôvodnom sekvenčnom poradí. Pri sections prenesie hodnotu z lexikálne poslednej sekcie. Fyzické poradie dokončenia vlákien nerozhoduje.
+
+Person2: Prejdime teda k sekciám. Na čo slúžia?
+
+Person1: Sections rozdeľuje niekoľko odlišných úsekov kódu. Každú direktívou section označenú sekciu vykoná práve raz niektoré vlákno tímu. Počet sekcií je pevne zapísaný v programe, takže sa za behu nemení. Na konci sections je implicitná bariéra, pokiaľ ju neodstránime pomocou nowait.
+
+Person2: Ako sa od sections líši single?
+
+Person1: Blok single vykoná iba jedno ľubovoľné vlákno, ktoré vyberie runtime. Ostatné ho preskočia. Na konci je implicitná bariéra, ak nepoužijeme nowait. Klauzula copyprivate môže práve na tejto bariére rozoslať privátne hodnoty vykonávajúceho vlákna ostatným.
+
+Person2: A blok master?
+
+Person1: Ten vykoná výlučne hlavné vlákno tímu s identifikačným číslom nula. Ostatné vlákna ho preskočia a na jeho konci nie je implicitná bariéra. Rozdiel si teda zapamätaj takto: sections rozdelí pevný zoznam blokov, single vyberie ľubovoľné jedno vlákno a master vždy hlavné vlákno.
+
+Person2: Tasky riešia prácu, ktorej množstvo dopredu nepoznáme?
+
+Person1: Presne. Task je jednotka práce obsahujúca kód aj dátové prostredie. Runtime ho môže vykonať hneď alebo neskôr niektorým vláknom tímu. Na rozdiel od pevného počtu sekcií môže taskov vzniknúť dynamický počet. Preto sa hodia na while slučky, nepravidelnú prácu, rekurziu, quicksort alebo priechod stromom či spájaným zoznamom.
+
+Person2: Ako sa task vytvorí a kto ho vykoná?
+
+Person1: Vytvorí ho direktíva pragma O M P task. Bežný vzor je vytvoriť paralelnú oblasť a v nej nechať blok master alebo single generovať tasky. Ostatné vlákna tímu ich priebežne spracúvajú. Na konci parallel je garantované dokončenie taskov patriacich do tejto oblasti.
+
+Person2: Aké pravidlá viditeľnosti premenných platia v tasku?
+
+Person1: Premenná, ktorá bola pri vstupe do tasku privátna, je v tasku implicitne firstprivate, čiže task dostane jej aktuálnu hodnotu. Premenné zdieľané pred direktívou task ostávajú zdieľané. Premenné deklarované priamo v tele tasku sú privátne.
+
+Person2: Prečo je firstprivate dôležité pri priechode spájaným zoznamom?
+
+Person1: Jedno vlákno môže v slučke posúvať ukazovateľ a pre každý prvok vytvárať task. Každý task potrebuje vlastnú kópiu ukazovateľa na konkrétny prvok, preto musí byť ukazovateľ firstprivate. Keby tasky neskôr čítali jednu meniacu sa zdieľanú hodnotu, nemuseli by spracovať správne prvky. Single nowait pritom dovolí ostatným vláknam začať pracovať bez čakania na koniec generovania; definitívne sa tasky dokončia pri bariére na konci parallel.
+
+Person2: Ak potrebujem na tasky počkať skôr, aké možnosti mám?
+
+Person1: Bariéra čaká aj na tasky patriace do daného paralelného regiónu. Taskwait čaká na priame deti aktuálneho tasku, nie automaticky na všetkých ich potomkov. Taskgroup je širší: na konci skupiny čaká na tasky vytvorené v jej oblasti aj na ich potomkov.
+
+Person2: Pri rekurzívnom Fibonacciho výpočte by sa teda použil taskwait?
+
+Person1: Áno. Dva tasky vypočítajú dve rekurzívne vetvy a pred ich sčítaním musí rodič zavolať taskwait. Premenné pre oba výsledky musia byť pre tasky zdieľané, pretože implicitné firstprivate by vytvorilo kópie a rodič by výsledné hodnoty nevidel. Pre malé vstupy sa navyše oplatí prepnúť na sekvenčný výpočet, aby réžia taskov neprevážila prínos paralelizmu.
+
+Person2: Ako sa vyjadrí poradie medzi taskmi založené na dátach?
+
+Person1: Klauzulou depend medzi skôr vytvorenými súrodeneckými taskmi. Task s depend in nad určitým miestom čaká na predchádzajúci task, ktorý rovnaké miesto označil ako depend out alebo depend inout. Runtime tak môže vykonať nezávislé tasky súčasne a závislé v správnom poradí.
+
+Person2: Sú tasky viazané na vlákno, ktoré ich vytvorilo?
+
+Person1: Nie. Štandardne sú tied k vláknu, ktoré ich začne vykonávať, nie k tvorcovi. Direktíva taskyield dovolí dočasne uprednostniť iný task. Výpočet možno ovládať aj direktívami cancel a cancellation point, ale task sa po začatí vždy dokončí celý.
+
+Person2: Tým sa dostávame k synchronizácii a problému data race.
+
+Person1: Data race vzniká, keď viac vlákien pristupuje k rovnakému pamäťovému miestu, aspoň jedno zapisuje a prístupy nie sú správne synchronizované. Výsledok potom môže závisieť od nepredvídateľného časovania. Synchronizácia chráni zdieľané dáta, umožňuje čakať na udalosť a vynucuje poradie akcií.
+
+Person2: Kedy sa používa critical?
+
+Person1: Critical chráni ľubovoľný blok kódu tak, že ho v jednom okamihu vykonáva najviac jedno vlákno. Rovnako pomenované kritické sekcie sa navzájom vylučujú, zatiaľ čo sekcie s rôznymi názvami môžu bežať súčasne. Poradie vstupu vlákien nie je garantované.
+
+Person2: Atomic je užšie zamerané?
+
+Person1: Áno. Atomic chráni podporovanú operáciu nad jedným pamäťovým miestom, typicky jednoduché čítanie, zápis alebo aktualizáciu hodnoty. Prístupy k tomu istému miestu sa serializujú, no operácie nad rôznymi miestami môžu pokračovať paralelne. Atomic býva rýchlejšie, často využíva hardvérovú inštrukciu. Critical je všeobecnejšie, ale pre zámok má zvyčajne vyššiu réžiu.
+
+Person2: Aký presný význam má bariéra?
+
+Person1: Pri pragma O M P barrier čaká každé vlákno tímu, kým na rovnaké miesto nedorazia ostatné. Implicitná bariéra je na konci parallel, for, sections a single. Pri posledných troch ju možno potlačiť klauzulou nowait, ak ďalší výpočet na dokončenie ostatných vlákien nezávisí.
+
+Person2: A ordered zachová poradie iterácií?
+
+Person1: Označená časť paralelnej slučky sa pri ordered vykoná v pôvodnom sekvenčnom poradí iterácií. Hodí sa napríklad na usporiadaný výstup, ale iba túto časť serializuje a môže tým obmedziť zrýchlenie.
+
+Person2: Flush si ľudia niekedy mýlia s bariérou.
+
+Person1: Flush nie je bariéra. Je to pamäťová zábrana, ktorá zaisťuje poradie pamäťových operácií a konzistentnú viditeľnosť určených premenných. Sama osebe však nenúti vlákna, aby na seba čakali.
+
+Person2: Je pri akumulácii lepšie použiť critical, atomic alebo redukciu?
+
+Person1: Ak sa problém dá prirodzene vyjadriť redukciou, tá je spravidla vhodnejšia než synchronizovať každú iteráciu cez critical alebo atomic. Napríklad najnižší index nulového prvku možno získať redukciou minimum: každé vlákno hľadá svojho kandidáta a výslední kandidáti sa na konci spoja operáciou minima.
+
+Person2: Poskytuje OpenMP aj explicitné zámky?
+
+Person1: Áno. Typ zámku je O M P lock t a životný cyklus pokrývajú rutiny init lock, set lock, test lock, unset lock a destroy lock. Pri vlastnej synchronizácii však treba dávať pozor na deadlock: ak vlákna získavajú viac zámkov v rozdielnom poradí, môžu navzájom čakať bez možnosti pokračovať.
+
+Person2: Zhrniem si to. OpenMP používa fork-join nad zdieľanou pamäťou; parallel vytvorí tím, for rozdelí iterácie a schedule určí spôsob prideľovania. Pevné rôzne bloky riešia sections, dynamickú nepravidelnú prácu tasky. Správne dátové prostredie, redukcie a závislosti chránia výsledky, kým critical, atomic, bariéra, ordered, flush a prípadne zámky riešia konkrétne formy synchronizácie. Najdôležitejšie je nezabudnúť, že dátové závislosti musí rozpoznať a korektne ošetriť programátor.

@@ -1,0 +1,127 @@
+Person1: Vitaj pri opakovaní okruhu Architektúra superskalárnych procesorov, spracovanie inštrukcií mimo poradia, riešenie dátových a riadiacich konfliktov a predikcia skokov. Začnime tým, odkiaľ superskalarita získava výkon.
+
+Person2: Najprv si teda pripomeňme bežné spracovanie inštrukcie. Aké fázy má skalárny procesor?
+
+Person1: Inštrukcia postupne prejde načítaním, teda instruction fetch, dekódovaním instruction decode, vykonaním execute, prístupom do pamäte memory access a nakoniec zápisom výsledku write back. Skalárny procesor vykonáva inštrukcie po jednej, no nie každá inštrukcia využíva neskoršie fázy a funkčné jednotky rovnako. Jedna potrebuje ALU, iná jednotku FPU a ďalšia pristupuje do pamäte.
+
+Person2: Čiže v procesore existujú nezávislé prostriedky, ktoré by mohli pracovať súčasne?
+
+Person1: Presne. Tento funkčný paralelizmus superskalár využíva replikáciou funkčných jednotiek a paralelným spracovaním viacerých inštrukcií za jeden takt. Subskalárny procesor je opačný prípad: na jednu inštrukciu potrebuje viac taktov.
+
+Person2: Ako sa superskalárny procesor člení?
+
+Person1: Na front-end a back-end. Front-end zodpovedá načítaniu a dekódovaniu. Prechádzajú ním všetky inštrukcie a dokáže ich načítať aj dekódovať viac naraz. Ak z front-endu môžu za takt odísť najviac em inštrukcie, hovoríme o em cestnom superskalári. Napríklad štvorcestný superskalár dekóduje až štyri inštrukcie za takt.
+
+Person2: A back-end vykonáva už konkrétnu prácu?
+
+Person1: Áno. Pokrýva vykonanie, prístup do pamäte a zápis výsledku. Keďže rôzne inštrukcie používajú rôzne časti, back-end ich môže vykonávať a dokončovať paralelne. Superskalár tak kombinuje časový paralelizmus zreťazenej linky s priestorovým paralelizmom viacerých funkčných jednotiek.
+
+Person2: Kde sa do toho zapája spracovanie v poradí a mimo poradia?
+
+Person1: Pri in-order spracovaní opúšťajú inštrukcie front-end v programovom poradí. Pri out-of-order spracovaní, skrátene OoO, toto poradie rešpektovať nemusia. Inštrukcia sa môže spustiť hneď, ako má pripravené operandy a voľnú príslušnú funkčnú jednotku. Dlhá alebo čakajúca inštrukcia teda nemusí blokovať nezávislú prácu za ňou.
+
+Person2: Vyšší výkon však asi vyžaduje ďalší hardvér.
+
+Person1: Vyžaduje. Typické OoO jadro používa hardvérové premenovanie registrov, dynamické plánovanie, rezervačné stanice, seraďovaciu pamäť a špekulatívne spracovanie. Premenovanie odstraňuje nepravé dátové konflikty. Rezervačné stanice držia čakajúce inštrukcie. Seraďovacia pamäť, teda reorder buffer alebo ROB, neskôr zabezpečí zápis výsledkov v programovom poradí.
+
+Person2: Poďme si presne oddeliť pravé a nepravé dátové konflikty.
+
+Person1: [short pause] RAW, teda read after write, je jediný pravý konflikt. Neskoršia inštrukcia potrebuje výsledok, ktorý musí najprv vytvoriť skoršia inštrukcia. Dáta medzi nimi skutočne tečú, preto túto závislosť nemožno odstrániť. Procesor musí počkať alebo čas prekryť vykonávaním inej nezávislej práce.
+
+Person2: A WAR a WAW sú iba konfliktmi mien?
+
+Person1: Áno. WAR znamená write after read: neskoršia inštrukcia chce prepísať register, z ktorého skoršia ešte potrebuje prečítať pôvodnú hodnotu. WAW znamená write after write: dve inštrukcie zapisujú do rovnakého registra a neskorší zápis by mohol predbehnúť skorší. Obe závislosti vznikajú opätovným použitím mena registra. Ak neskoršiemu výsledku priradíme iný fyzický cieľ, konflikt zmizne.
+
+Person2: Dôležitá pomôcka teda je, že iba RAW predstavuje skutočný tok dát.
+
+Person1: Presne. WAR a WAW odstráni premenovanie registrov, RAW nie. Ešte pred dynamickým plánovaním však dátové konflikty rieši aj obyčajná zreťazená linka. Najjednoduchšie riešenie je stall, čiže čakanie. Závislá inštrukcia sa zastaví, kým sa výsledok nezapíše vo fáze write back, a do linky sa vložia prázdne takty alebo bubliny.
+
+Person2: To je jednoduché, ale výkonovo drahé. Ako pomôže forwarding?
+
+Person1: Forwarding, nazývaný aj bypass, vytvorí skratku pre dáta. Výsledok sa vedie priamo z výstupu ALU po fáze execute alebo z výstupu pamäťovej fázy na vstup ALU nasledujúcej inštrukcie. Netreba čakať, kým prejde až do write back. Pri bežnej závislosti výpočet a následné použitie môže byť pokuta nulová.
+
+Person2: Rozpozná sa to zhodou cieľového registra jednej inštrukcie so zdrojovým registrom nasledujúcej?
+
+Person1: Áno. Podľa pôvodu dát ide napríklad o bypass z execute do execute alebo z memory access do execute. Výnimkou je konflikt načítanie a použitie. Pri inštrukcii load sú dáta dostupné až po pamäťovej fáze, takže bezprostredne nasledujúca závislá inštrukcia musí jeden takt počkať. Riešením je kombinácia jedného zastavenia a následného forwardingu.
+
+Person2: Pri OoO spracovaní sa plánovanie rieši najmä dvoma historickými algoritmami, však?
+
+Person1: Áno. Prvým je scoreboarding, Thorntonov algoritmus z roku tisíc deväťsto šesťdesiatštyri. Druhým sú rezervačné stanice, teda Tomasulov algoritmus z roku tisíc deväťsto šesťdesiatsedem. Scoreboarding bol použitý v CDC šesťtisícšesťsto, Tomasulov prístup v IBM System tristošesťdesiat, model deväťdesiatjeden.
+
+Person2: Ako funguje scoreboarding?
+
+Person1: Scoreboard je tabuľka rozpracovaných inštrukcií. Eviduje stav inštrukcie, obsadenosť funkčnej jednotky, operáciu, cieľový register, dva zdrojové registre a bity ich platnosti. Sleduje všetky konflikty RAW, WAR aj WAW. Registre však nepremenováva, takže konflikty rieši čakaním.
+
+Person2: Prejdime životný cyklus jednej inštrukcie.
+
+Person1: Pri vydaní vo fáze dekódovania si inštrukcia rezervuje cieľový register v registrovom súbore tým, že jeho bit platnosti nastaví na nulu. Ak už je nulový, cieľ rezervovala iná inštrukcia a front-end čaká. Takto sa rieši WAW. Ak sú oba zdrojové operandy platné, teda ich bity majú hodnotu jedna, operácia a adresy operandov môžu ísť do funkčnej jednotky. Inak inštrukcia čaká na RAW závislosť.
+
+Person2: Čo sa deje po vykonaní operácie?
+
+Person1: Funkčná jednotka vytvorí výsledok aj adresu cieľového registra. Pred zápisom sa však kontroluje WAR. Ak niektorá skoršia inštrukcia ešte neprečítala starú hodnotu z rovnakého registra, zápis musí počkať. Keď už nič nebráni zápisu, výsledok sa uloží do registrového súboru, cieľ sa označí ako platný a scoreboard označí príslušné operandy čakajúcich inštrukcií za pripravené. Dokončený záznam sa potom vymaže.
+
+Person2: Scoreboard teda povoľuje vykonávanie mimo poradia, ale bez premenovania platí za konflikty čakaním.
+
+Person1: Správne. Tomasulov algoritmus ide ďalej. Používa rezervačné stanice pri funkčných jednotkách a nepravé konflikty WAR a WAW rieši premenovaním pomocou tagov. Pravý konflikt RAW rieši tak, že závislú inštrukciu odloží v rezervačnej stanici a procesor môže zatiaľ pokračovať s ďalšími inštrukciami.
+
+Person2: Čo presne sa stane, keď inštrukcia opustí front-end?
+
+Person1: Jej cieľovému registru sa priradí nový tag. Ten sa uloží do registrového súboru aj do položky rezervačnej stanice a bit platnosti cieľa sa nastaví na nulu. Ak je zdrojový operand už platný, do stanice sa skopíruje jeho hodnota. Ak platný nie je, uloží sa namiesto hodnoty tag inštrukcie, ktorá ho vytvorí.
+
+Person2: Kedy môže inštrukcia z rezervačnej stanice odísť?
+
+Person1: Keď má pripravené oba zdrojové operandy a príslušná funkčná jednotka je voľná. Funkčná jednotka po výpočte rozhlási výsledok spolu s cieľovým tagom a adresou na spoločnej dátovej zbernici CDB, teda Common Data Bus.
+
+Person2: A čakajúce stanice túto zbernicu neustále sledujú?
+
+Person1: Áno. Každá porovná tagy chýbajúcich operandov s tagom na CDB. Pri zhode zachytí hodnotu a označí operand za platný. CDB sleduje aj registrový súbor. Výsledok sa do cieľového registra zapíše iba vtedy, ak jeho aktuálny tag stále súhlasí s vysielaným tagom.
+
+Person2: Prečo by tag už nemusel súhlasiť?
+
+Person1: Pretože ten istý architektúrny register mohla medzičasom premenovať ešte novšia inštrukcia. Starší výsledok vtedy nesmie prepísať novšie mapovanie. Jeho hodnota však zostane zachytená v rezervačných staniciach, ktoré na ňu čakali. Tieto polia staníc preto fungujú ako tagom premenované registre.
+
+Person2: Premenovanie teda mapuje registre viditeľné programátorovi na interné položky rezervačných staníc.
+
+Person1: Presne. Typicky môže ísť približne o pätnásť až šesťdesiat položiek. Kľúčový rozdiel si zapamätaj takto: scoreboard nepremenováva a pri WAR aj WAW čaká, kým Tomasulo používa tagy a tým umožňuje vyšší paralelizmus. Jedným z obmedzení Tomasulovho návrhu môže byť CDB. Ak ňou za takt prejde iba jeden výsledok, stáva sa úzkym hrdlom, preto reálne procesory používajú viac zberníc alebo portov.
+
+Person2: Výsledky sa teda môžu vypočítať mimo poradia. Prečo ešte potrebujeme ROB?
+
+Person1: Architektúrny stav, teda registre a pamäť viditeľné programu, sa musí meniť v programovom poradí. ROB drží dokončené výsledky, kým sa príslušná inštrukcia nedostane na jeho čelo. Až vtedy sa výsledok prepustí, teda commituje, do registrov. Zápis do pamäte sa obdobne uvoľní do dátovej keše.
+
+Person2: ROB má význam aj pri špekulácii a výnimkách?
+
+Person1: Áno. Pri nesprávnej špekulácii umožní zahodiť výsledky, ktoré sa ešte necommitli. A keďže sa architektúrny stav aktualizuje v programovom poradí, ROB podporuje presné prerušenia: pri výnimke zostáva stav procesora jednoznačne definovaný.
+
+Person2: Tým sa dostávame k riadiacim konfliktom. Prečo ich spôsobujú skoky?
+
+Person1: Pri vetvení procesor nevie, ktorú inštrukciu má načítať ako nasledujúcu, kým nepozná výsledok podmienky a cieľovú adresu. Naivné riešenie je zastaviť linku a vkladať bubliny až do vyhodnotenia skoku. Pri každom skoku však vzniká veľká strata výkonu.
+
+Person2: Dá sa zdržanie skrátiť aj bez pokročilej dynamickej predikcie?
+
+Person1: Áno. Dodatočná sčítačka vo fáze dekódovania môže vypočítať cieľovú adresu skôr, bez čakania na execute a write back, takže pokuta klesne na jeden takt. Ďalšou možnosťou je pevná záporná predikcia: procesor pokračuje inkrementáciou programového čítača, akoby sa skok nevykonal.
+
+Person2: Skoky však bývajú opakovateľné, napríklad pri cykloch a návratoch z podprogramov.
+
+Person1: Preto sa oplatí dynamická predikcia. Pri správnom odhade sa procesor zdržaniu vyhne. Predpovedať musí dve odlišné veci: pri podmienenom skoku rozhodnutie skočiť alebo neskočiť a pri skokoch tiež cieľovú adresu.
+
+Person2: Aké prediktory rozhodujú o podmienke skoku?
+
+Person1: Adaptívne prediktory sledujú jeden skok izolovane. Patrí sem jednobitový prediktor a dvojbitový prediktor s tabuľkou BHT, teda Branch History Table, ktorá uchováva stav automatu. Dvojbitový prediktor možno rozšíriť tabuľkou vzorov PHT, teda Pattern History Table, ktorá sa učí zložitejšie vzory. Korelačné prediktory navyše zohľadňujú globálnu históriu predchádzajúcich skokov.
+
+Person2: Prečo sa často používa práve dvojbitový prediktor?
+
+Person1: Má štyri stavy, dva smerujú k predikcii skoč a dva k predikcii neskoč. Jediný odlišný výsledok preto predikciu hneď neprevráti, iba ju oslabí. Pri opakovanom cykle môže jednobitový prediktor urobiť chybu pri vstupe aj pri opustení cyklu, zatiaľ čo dvojbitový typicky iba pri opustení.
+
+Person2: Ako procesor odhaduje cieľovú adresu?
+
+Person1: Používa BTAC, teda Branch Target Address Cache, ktorá uchováva predchádzajúce cieľové adresy skokov. Pre návraty z podprogramov slúži zásobníkový RSB, Return Stack Buffer. Adresa sa predikuje už vo fáze fetch, keď procesor rozpozná, že programový čítač ukazuje na skok. Časť adresy sa použije ako index a tag do BTAC. Pri podmienenom skoku sa obdobne vo fáze fetch konzultuje BHT.
+
+Person2: Front-end teda špekulatívne vyberie ďalšiu vetvu ešte pred skutočným vykonaním skoku.
+
+Person1: Áno. Predikčná jednotka B jedna vo front-ende odhaduje podmienku cez BHT a cieľ cez BTAC. Inštrukcie z odhadnutej vetvy sa môžu načítať a vykonávať, ale ich výsledky čakajú v ROB. Až jednotka B dva vo fáze execute skutočne overí, či bola špekulácia správna.
+
+Person2: Čo presne nasleduje po zlej predikcii?
+
+Person1: Všetky špekulatívne výsledky z nesprávnej vetvy sa zahodia, procesor obnoví správnu cestu vykonávania a pokračuje správnou vetvou. Zároveň aktualizuje BHT a BTAC, aby budúca predikcia využila novú skúsenosť.
+
+Person2: [short pause] Najdôležitejšie teda je, že superskalár spracúva viac inštrukcií za takt vďaka paralelným linkám a funkčným jednotkám. OoO vykonávanie spúšťa pripravenú prácu mimo programového poradia, RAW ostáva pravou závislosťou, kým WAR a WAW odstraňuje premenovanie. Scoreboard konflikty sleduje a čaká, Tomasulo používa rezervačné stanice, tagy a CDB, ROB zasa commituje v poradí a chráni architektúrny stav. Riadiace konflikty zmierňuje skorý výpočet cieľa a predikcia podmienky aj adresy skoku.

@@ -1,0 +1,155 @@
+Person1: Téma je porozumenie dátam a ich príprava pre data mining. Budeme sa držať toho, čo je pri skúške dôležité: prečo dáta pripravujeme, ako im rozumieme cez charakteristiky a grafy, čo znamená korelačná analýza, ako čistíme dáta, ako ich redukujeme, riešime nevyvážené triedy a nakoniec normalizujeme.
+
+Person2: Čiže nejde len o nejaké technické upratanie tabuľky, ale o celú fázu pred samotným modelovaním?
+
+Person1: Presne. V modeli CRISP-DM, teda v štandardnom životnom cykle analytického projektu, máš šesť fáz. Najprv pochopenie kontextu, kde sa určia ciele projektu, kritériá úspešnosti a dostupné zdroje. Potom porozumenie dátam, čiže získanie informácií o dostupných dátach a exploračná analýza. Nasleduje príprava dát: výber, čistenie, integrácia zdrojov, úpravy dátovej sady a transformácia.
+
+Person2: A až potom prichádza modelovanie?
+
+Person1: Áno. Štvrtá fáza je modelovanie, teda výber modelovacej techniky, vytvorenie a ohodnotenie modelu. Potom zhodnotenie výsledkov vzhľadom na ciele projektu a nakoniec použitie, teda nasadenie získaných znalostí v praxi. Dôležité je, že fázy nie sú striktne sekvenčné. Medzi porozumením dátam a prípravou dát sa typicky iteruje.
+
+Person2: Aký je teda hlavný cieľ prípravy dát?
+
+Person1: Cieľ je pripraviť dáta pre dolovací algoritmus v čo najvyššej kvalite a v takej podobe, akú zvolený algoritmus vyžaduje. Kvalitné dáta majú byť presné, teda majú zodpovedať realite. Majú byť úplné, a to do šírky aj do hĺbky: nechýbajú atribúty ani záznamy. Majú byť konzistentné, čiže bez vzájomných rozporov. A popri tom majú byť aktuálne, vierohodné, interpretovateľné a relevantné.
+
+Person2: Lenže reálne dáta také pekné väčšinou nie sú.
+
+Person1: Väčšinou nie. Reálne dáta bývajú špinavé: neúplné, zašumené, nekonzistentné, s chybami a odľahlými hodnotami. Niekedy ich je priveľa, inokedy primálo. Platí jednoduché pravidlo: nízka kvalita dát vedie k nízkej kvalite výsledkov. Preto príprava dát často tvorí veľkú časť práce analytického projektu. V dátových skladoch sa pre podobnú prácu používa pojem ETL proces: extrahovať, transformovať a načítať dáta.
+
+Person2: Aké konkrétne aktivity patria do prípravy dát?
+
+Person1: Typicky výber dát, čistenie dát, integrácia dát z viacerých zdrojov, úprava dátovej sady, napríklad redukcia alebo riešenie nevyváženosti, a transformácia dát, napríklad normalizácia, diskretizácia alebo kódovanie.
+
+Person2: Pred tým ale potrebujeme dátam porozumieť. Čo presne sa v tejto fáze robí?
+
+Person1: Porozumenie dátam je druhá fáza CRISP-DM. Vstupom sú dostupné dátové zdroje a dokumentácia, výstupom sú informácie o vlastnostiach dát a podklady pre počiatočnú dátovú sadu. Zahŕňa rozpracovanie informácií o dátach, teda význam, dostupnosť, cenu a vierohodnosť. Potom popis dát, teda štruktúru, formát a množstvo. Ďalej prieskumnú, alebo exploračnú analýzu: popisné charakteristiky, grafy a korelácie. A nakoniec zhodnotenie kvality dát, hlavne chýbajúce hodnoty a šum.
+
+Person2: Keď povieme dátová sada, máme si predstaviť tabuľku?
+
+Person1: Pri tradičných dátach áno. Dátová sada je kolekcia dát vybraných na dolovanie a skladá sa z dátových objektov. V tabuľke sú riadky dátové objekty a stĺpce sú atribúty, teda rysy alebo príznaky. Atribúty môžu byť kategorické alebo numerické.
+
+Person2: Začnime kategorickými. Ako sa delia?
+
+Person1: Kategorické, teda kvalitatívne atribúty, môžu mať podobu reťazca alebo celočíselnej hodnoty. Binárny atribút má dva stavy. Ak sú oba stavy rovnako dôležité, je symetrický, napríklad pohlavie. Ak je jeden stav významnejší, je asymetrický, napríklad výsledok testu pozitívny alebo negatívny. Nominálny atribút má kategórie bez usporiadania, napríklad farbu. Ordinálny atribút má definované usporiadanie, ale rozdiel medzi susednými hodnotami nie je definovaný, napríklad úroveň vzdelania.
+
+Person2: A numerické atribúty?
+
+Person1: Numerické, teda kvantitatívne atribúty, môžu byť intervalové alebo pomerové. Pri intervalových vieme hodnoty usporiadať a určiť rozdiel, ale chýba prirodzený nulový bod, takže podiel nemá zmysel. Príklad je teplota v stupňoch Celzia alebo dátum. Pri pomerových existuje prirodzená nula, hodnoty sú kladné a podiel už zmysel má. Príklad je teplota v Kelvinoch, počet detí alebo suma.
+
+Person2: Keď už poznáme typ atribútu, prichádzajú popisné charakteristiky?
+
+Person1: Áno. Popisné charakteristiky pomáhajú zistiť rozloženie hodnôt atribútu. Prvá skupina sú miery polohy, ktoré hovoria, kde je stred dát. Patrí sem aritmetický priemer, ktorý je súčet hodnôt delený ich počtom, ale je citlivý na odľahlé hodnoty. Ďalej vážený, geometrický a harmonický priemer. Veľmi dôležitý je medián, teda prostredná hodnota v usporiadanom súbore, a modus, teda najčastejšia hodnota. A patria sem aj kvantily.
+
+Person2: Priemer, medián a modus si ľudia často pletú. Prečo je medián špeciálny?
+
+Person1: Medián je odolnejší voči odľahlým hodnotám. Ak máš väčšinu platov okolo bežnej úrovne a jeden extrémne vysoký plat, priemer sa posunie nahor, ale medián zostane lepším obrazom typickej hodnoty. Zároveň je medián holistická miera, pretože na jeho presný výpočet potrebuješ celý usporiadaný súbor, nie len čiastkové súčty.
+
+Person2: A čo miery variability?
+
+Person1: Tie opisujú rozptýlenosť okolo stredu. Patrí sem rozpätie, teda rozdiel medzi maximom a minimom. Medzikvartilové rozpätie je rozdiel medzi tretím a prvým kvartilom. Rozptyl meria priemernú štvorcovú odchýlku od priemeru a smerodajná odchýlka je odmocnina z rozptylu. Ďalej sa používa priemerná alebo mediánová absolútna odchýlka, často označená MAD, a variačný koeficient. Ďalšie charakteristiky sú šikmosť a špičatosť.
+
+Person2: Spomenul si kvantily. Ako ich povedať bez vzorcov?
+
+Person1: Kvantily delia usporiadaný súbor na približne rovnako početné časti. Kvartily delia dáta na štyri časti, decily na desať a percentily na sto. Prakticky dôležitá je sumarizácia piatimi číslami: minimum, prvý kvartil, medián, tretí kvartil a maximum. Túto sumarizáciu vizualizuje krabicový graf.
+
+Person2: A z krabicového grafu vieme vidieť aj odľahlé hodnoty?
+
+Person1: Áno. Typické pravidlo hovorí, že odľahlá je hodnota výrazne pod prvým kvartilom alebo výrazne nad tretím kvartilom, konkrétne za hranicou jeden a pol násobku medzikvartilového rozpätia. Pri normálnom rozdelení je tiež užitočné pamätať si, že približne šesťdesiat osem percent hodnôt leží do jednej smerodajnej odchýlky od priemeru, približne deväťdesiat päť percent do dvoch a približne deväťdesiat deväť celých sedem desatín percenta do troch.
+
+Person2: Prejdime ku grafom. Aké vizualizácie sa používajú pri jednom atribúte?
+
+Person1: Pri kvantitatívnych atribútoch sa používa krabicový graf, histogram, graf hustoty, husľový graf a kvantilový graf. Krabicový graf dobre ukazuje päťčíselnú sumarizáciu. Histogram ukazuje, koľko hodnôt padá do jednotlivých intervalov. Graf hustoty je hladší pohľad na rozloženie. Husľový graf spája informáciu o rozložení a tvare hustoty. Pri kategorických atribútoch sa typicky používa histogram alebo stĺpcový graf početností.
+
+Person2: A keď chceme skúmať viac atribútov naraz?
+
+Person1: Potom nás zaujíma porovnanie rozložení a vzťahy medzi atribútmi. Môžeme rozšíriť krabicový alebo husľový graf tak, že porovnávame kvantitatívny atribút podľa kategórie. Používa sa kvantilovo-kvantilový graf, bodový graf, krivka lokálnej regresie Loess alebo kombinované grafy. Ďalej môžeme využiť vizuálne rysy ako farbu, veľkosť alebo tvar bodu, prípadne zostavy grafov: oddiely, maticu grafov alebo systém paralelných súradníc.
+
+Person2: Kde do toho zapadá korelačná analýza?
+
+Person1: Korelačná analýza vyjadruje štatistickú závislosť dvoch atribútov. Môže byť číselná alebo vizuálna. Pri kvantitatívnych atribútoch je základom Pearsonov korelačný koeficient. Ten meria silu a smer lineárneho vzťahu a má rozsah od mínus jedna po plus jedna. Kladná hodnota znamená pozitívnu koreláciu, záporná negatívnu koreláciu a hodnota blízko nuly znamená, že lineárny vzťah nevidíme.
+
+Person2: Dôležité je slovo lineárny, však?
+
+Person1: Presne. Pearson zachytáva lineárny vzťah. Ak je vzťah monotónny, ale nie úplne lineárny, lepší môže byť Spearmanov koeficient poradia. Ten nepracuje priamo s hodnotami, ale s ich poradím. Preto vie zachytiť situáciu, kde s rastúcim jedným atribútom rastie aj druhý, aj keď nie podľa priamky.
+
+Person2: A čo kategorické atribúty?
+
+Person1: Pri kategorických atribútoch sa používa test dobrej zhody, často chí-kvadrát test. Jeho nulová hypotéza hovorí, že atribúty sú nezávislé. Porovnáva sa pozorovaná početnosť s očakávanou početnosťou, ak by závislosť neexistovala. Pri ordinálnych atribútoch môže dávať zmysel aj Spearmanov koeficient. Vizuálne sa korelácie často ukazujú bodovým grafom alebo maticou korelačných koeficientov s tepelnou mapou.
+
+Person2: A nesmieme zabudnúť na vetu, že korelácia nie je kauzalita.
+
+Person1: Áno, to je pri skúške dobrý signál. Korelácia neznamená príčinnosť. Napríklad počet nemocníc a počet ukradnutých áut v meste môžu korelovať, ale nie preto, že nemocnice spôsobujú krádeže. Obe hodnoty sú ovplyvnené veľkosťou mesta. Korelačná analýza je však veľmi užitočná aj pri integrácii dát, napríklad na detekciu redundantných atribútov.
+
+Person2: Prejdime k čisteniu dát. Čo všetko sa tým myslí?
+
+Person1: Čistenie dát znamená zvyšovanie ich kvality. Riešime chýbajúce hodnoty, identifikujeme odľahlé hodnoty, vyhladzujeme zašumené dáta, upravujeme nekonzistencie a riešime redundanciu, ktorá často vznikne po integrácii viacerých zdrojov.
+
+Person2: Začnime chýbajúcimi hodnotami. Prečo vôbec vznikajú?
+
+Person1: Dôvodov je viac. Údaj mohol byť voliteľný, používateľ ho nemusel pochopiť, mohlo zlyhať zariadenie, alebo sa hodnota vypustila, pretože bola nekonzistentná. Jedna možnosť je ignorovať celý záznam. To sa typicky robí, keď chýba návestie triedy pri klasifikácii alebo chýba viac atribútov jedného objektu. Problém je, že ak by po odstránení zostalo primálo dát, je to neefektívne.
+
+Person2: Druhá možnosť je hodnotu doplniť?
+
+Person1: Áno. Doplnenie môže byť ručné, čo je presné, ale pracné a často neuskutočniteľné. Alebo automatické. Môžeme doplniť globálnu konštantu, napríklad hodnotu neznáma. Môžeme použiť strednú hodnotu atribútu: priemer, medián alebo modus. Môžeme použiť strednú hodnotu záznamov tej istej triedy. A môžeme odhadnúť najpravdepodobnejšiu hodnotu napríklad bayesovskou klasifikáciou alebo rozhodovacím stromom.
+
+Person2: Ako sa čistí šum a odľahlé hodnoty?
+
+Person1: Šum je náhodná chyba alebo odchýlka zaznamenaných hodnôt. Môže vzniknúť poruchou zariadenia, chybou pri vstupe alebo pri prenose. Pri numerických atribútoch sa používa plnenie, teda binning, regresia alebo analýza odľahlých objektov. Regresia vyhladzuje dáta podľa regresnej funkcie. Analýza odľahlých objektov ich môže detegovať a odstrániť, napríklad pomocou zhlukovania.
+
+Person2: A pri kategorických atribútoch?
+
+Person1: Tam často opravujeme textové hodnoty podľa známeho oboru hodnôt. Napríklad rovnakú kategóriu zapísanú rôznymi spôsobmi zjednotíme. Málopočetné hodnoty môžeme odstrániť alebo zlúčiť podľa potreby.
+
+Person2: Vysvetlime binning, lebo na ten sa komisia často pýta.
+
+Person1: Binning je vyhladenie dát pomocou košov. Najprv dáta usporiadame a rozdelíme do intervalov. Pri rozdelení s rovnakou šírkou rozdelíme rozsah hodnôt na zvolený počet intervalov rovnakej veľkosti. Je to jednoduché, ale odľahlé hodnoty môžu veľmi ovplyvniť šírku intervalov. Pri rozdelení s rovnakou hĺbkou má každý interval približne rovnaký počet hodnôt, takže lepšie reaguje na rozloženie dát.
+
+Person2: A čo sa potom v koši urobí?
+
+Person1: Hodnoty v koši sa nahradia hladšou reprezentáciou. Môžeme ich nahradiť priemerom koša, mediánom koša alebo najbližšou hraničnou hodnotou koša. Predstav si zoradené čísla rozdelené do troch košov po štyri hodnoty. Ak prvý kôš obsahuje hodnoty štyri, deväť, pätnásť a dvadsaťjeden, pri vyhladení priemerom ich všetky nahradíme približne dvanástkou. Binning sa dá použiť aj na diskretizáciu numerických atribútov.
+
+Person2: Teraz redukcia dát. Prečo ju potrebujeme?
+
+Person1: Veľké dátové sady môžu byť časovo náročné na analýzu. Cieľom redukcie je získať menšiu reprezentáciu, ktorá dáva takmer rovnaké výsledky ako pôvodné dáta. Stratégie sú redukcia dimenzionality, kompresia dát, redukcia objemu dát cez vzorkovanie, agregáciu alebo parametrické metódy, a tiež diskretizácia.
+
+Person2: Pri redukcii dimenzionality sú tri pojmy: konštrukcia, extrakcia a výber rysov.
+
+Person1: Áno. Konštrukcia rysov vytvára nový atribút z existujúcich. Napríklad celkovú útratu vypočítaš z útraty za ubytovanie a stravu. Extrakcia rysov transformuje dáta do nového priestoru s menším počtom atribútov, ktoré čo najlepšie opisujú pôvodné dáta. Typický príklad je PCA. Výber rysov iba hľadá najmenšiu užitočnú podmnožinu pôvodných atribútov a zvyšok odstráni.
+
+Person2: Čiže rozdiel je v tom, čo sa stane s pôvodnými atribútmi.
+
+Person1: Presne. Konštrukcia odvodzuje nové atribúty z existujúcich. Extrakcia transformuje dáta do nového, menšieho priestoru. Výber rysov netransformuje, len vyberá podmnožinu pôvodných atribútov. Pri výbere sa používajú heuristiky ako postupný výber, postupná eliminácia, ich kombinácia alebo indukcia rozhodovacím stromom.
+
+Person2: Poďme k PCA. Čo je jeho hlavná myšlienka?
+
+Person1: PCA, teda analýza hlavných komponentov, znižuje dimenzionalitu ortogonálnou transformáciou pôvodných objektov do nového priestoru s menším počtom rozmerov. Tento nový priestor je definovaný hlavnými komponentami. Komponenty sú lineárne nezávislé a volia sa tak, aby chyba projekcie bola čo najmenšia. Inak povedané, snažíme sa zachovať čo najviac informácie v menšom počte rozmerov.
+
+Person2: Ako vyzerá postup PCA slovne?
+
+Person1: Najprv sa z dát vypočíta kovariančná matica, ktorá opisuje, ako sa atribúty menia spolu. Potom sa vypočítajú vlastné čísla a príslušné vlastné vektory. Vlastné vektory sa zoradia zostupne podľa vlastných čísel, lebo väčšie vlastné číslo znamená väčší vysvetlený rozptyl. Vyberie sa prvých k vlastných vektorov a nimi sa pôvodné dáta transformujú do menšieho priestoru.
+
+Person2: Súvisí s tým aj SVD?
+
+Person1: Áno, SVD, teda singulárny rozklad, sa často používa na implementáciu PCA. V poznámkach sú spomenuté aj ďalšie metódy redukcie dimenzionality: LDA, ktorá je riadená a pracuje s informáciou o triede, a ICA, teda analýza nezávislých komponentov.
+
+Person2: Ďalšia téma je nevyváženosť dát pri klasifikácii. Prečo je problémová?
+
+Person1: Mnohé klasifikačné algoritmy predpokladajú vyvážené zastúpenie tried, ale reálne dáta ho často nemajú. Napríklad bežné a podvodné transakcie alebo zdraví a chorí pacienti. Pri trénovaní je potom klasifikátor zahltený majoritnou triedou a má tendenciu ignorovať minoritnú triedu. Výsledkom môže byť model, ktorý vyzerá úspešne podľa celkovej presnosti, ale zlyháva práve na triede, ktorá nás zaujíma.
+
+Person2: Ako sa distribúcia tried upravuje?
+
+Person1: Dve základné možnosti sú podvzorkovanie a nadvzorkovanie. Podvzorkovanie majoritnej triedy znižuje počet jej príkladov. Môže byť náhodné alebo heuristické, kde sa snažíme odstrániť menej dôležité dáta a šum. Nadvzorkovanie minoritnej triedy naopak zvyšuje počet jej príkladov. Môže byť náhodné s návratom, teda duplikácia dát, alebo heuristické, napríklad pomocou metódy SMOTE.
+
+Person2: Čím je SMOTE iný než obyčajná duplikácia minoritných príkladov?
+
+Person1: SMOTE, teda Synthetic Minority Over-sampling Technique, negeneruje kópie, ale syntetické dáta. Vychádza z myšlienky, že dáta blízko minoritnej triedy budú pravdepodobne tiež patriť do minoritnej triedy. Pre každú inštanciu minoritnej triedy nájde jej k najbližších susedov, náhodne vyberie jedného suseda a vytvorí nový bod na spojnici medzi pôvodnou inštanciou a týmto susedom. Ten bod vznikne ako náhodná interpolácia medzi nimi.
+
+Person2: Posledná veľká téma je normalizácia dát. Na čo slúži?
+
+Person1: Normalizácia prevádza hodnoty atribútov do určitého rozsahu alebo meradla, aby atribúty s veľkým rozsahom hodnôt neprevažovali nad ostatnými. Je to dôležité najmä pri metódach citlivých na vzdialenosti alebo veľkosť hodnôt. Min-max normalizácia prevedie hodnotu z pôvodného rozsahu medzi minimum a maximum do nového rozsahu, často od nuly po jednotku. Zachováva poradie hodnôt, ale je citlivá na extrémy.
+
+Person2: A z-score normalizácia?
+
+Person1: Z-score normalizácia, alebo štandardizácia, od hodnoty odčíta priemer a výsledok vydelí smerodajnou odchýlkou. Výsledok hovorí, o koľko smerodajných odchýlok je hodnota od priemeru. Hodí sa najmä pri približne normálnom rozložení. Dôležité je uchovať parametre normalizácie, teda napríklad priemer a smerodajnú odchýlku, aby sa rovnaká transformácia dala použiť aj na nové dáta. Existujú aj ďalšie možnosti, napríklad zmena dekadického meradla alebo kvantilová normalizácia založená na poradí hodnôt.
+
+Person2: Zhrniem si to takto: najprv musíme pochopiť kontext a dáta, potom ich vybrať, vyčistiť, prípadne integrovať, zmenšiť a transformovať. Pri porozumení dátam používame typy atribútov, popisné charakteristiky, grafy a koreláciu. Pri príprave riešime chýbajúce hodnoty, šum, binning, redukciu cez rysy a PCA, nevyvážené triedy cez podvzorkovanie, nadvzorkovanie a SMOTE, a nakoniec normalizáciu, napríklad min-max alebo z-score. Najdôležitejšia pointa je, že dobrý model nezačne algoritmom, ale kvalitne pripravenými dátami.

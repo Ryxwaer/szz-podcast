@@ -1,0 +1,207 @@
+Person1: Témou je priestorová databáza a indexácia, nielen priamo v priestorových databázach. Budeme riešiť, aké priestorové dáta sa ukladajú, aké operácie nad nimi databáza robí, prečo sa obyčajné B stromy a B plus stromy nehodia, a potom prejdeme kD strom, Grid File a R strom s ich variantmi.
+
+Person2: Čiže nejde len o to, že databáza niekde drží mapu alebo súradnice, ale o to, že vie s nimi aj rozumne pracovať?
+
+Person1: Presne. Priestorová databáza je databázový systém, ktorý vie efektívne uchovávať, vyhľadávať a manipulovať priestorové dáta. Typicky ide o body, úsečky, polygóny, plochy alebo objemy. Dôležitá časť definície je, že výpočet prebieha priamo v databázovom systéme. Ak aplikácia len načíta súradnice a všetku geometriu si dopočíta sama, tak samotná databáza ešte nie je priestorová.
+
+Person2: Aké výpočty máš na mysli? Vzdialenosť, prienik, či je objekt vnútri iného objektu?
+
+Person1: Áno, presne také. Databáza má vedieť zistiť vzdialenosti, prieniky, susednosti, vnorenie, alebo napríklad nájsť najbližšie objekty. Priestorové dáta sú v databáze prirodzený dátový typ, podobne ako je v bežnej relačnej databáze prirodzené pracovať s číslami alebo reťazcami.
+
+Person2: V poznámke sa spomína abstrakcia a rekonštrukcia. Ako to súvisí?
+
+Person1: Keď modelujeme reálny svet, priestor zjednodušujeme. Vyberieme len vlastnosti, ktoré potrebujeme, a tým strácame časť detailov. Napríklad pri hranici mesta nás nemusí zaujímať každý fyzický detail v teréne, ale uložíme jej geometrickú reprezentáciu. To je abstrakcia. Rekonštrukcia znamená, že časť stratených informácií vieme znova odvodiť výpočtom nad uloženými priestorovými dátami, napríklad susednosť, vzťahy alebo prieniky.
+
+Person2: Poďme teda k dátam. Bod je asi najjednoduchší prípad.
+
+Person1: Bod je základný priestorový objekt. Môže reprezentovať mesto na mape, koncový bod vektora, planétu alebo atóm. Pri priestorových databázach typicky pracujeme aspoň v dvojrozmernom priestore, lebo jednorozmerné dáta sa dajú spracovať jednoduchšie klasickými technikami.
+
+Person2: A úsečky sú spojenia bodov, napríklad cesty?
+
+Person1: Áno. Úsečka alebo lomená čiara vzniká spojením aspoň dvoch bodov. Používa sa pre cesty, vedenia, prepojenia alebo hranice. Má premenlivú dĺžku, pretože počet bodov, ktoré ju opisujú, sa môže líšiť. Dôležité je, že body a úsečky sa typicky nemiešajú v jednom spracovaní len preto, že obe sú priestorové. Sú to rozdielne typy objektov.
+
+Person2: Potom sú tam polygóny, plochy, objemy a mapy. V čom sa líšia?
+
+Person1: Polygón je uzavretá lomená čiara, ktorá tvorí hranicu plochy. Potrebuje aspoň tri body a typicky opisuje hranice mesta alebo štátu. Plocha už reprezentuje samotnú oblasť, napríklad les, pole alebo jazero. Objem je trojrozmerný objekt a potrebuje zložitejšiu reprezentáciu. Mapy alebo regióny sú zložené štruktúry, napríklad plocha s dierami alebo viacero plôch patriacich k jednému celku.
+
+Person2: Prečo sa zdôrazňuje, že v jednej tabuľke by mali byť rovnorodé objekty?
+
+Person1: Pretože nad rovnorodými objektmi sa ľahšie definujú operácie, indexy aj očakávané dotazy. Ak mám tabuľku miest ako bodov, pracujem s bodmi. Ak mám hranice štátov ako polygóny, pracujem s polygónmi. Miešať body, úsečky a oblasti v jednej tabuľke by komplikovalo ukladanie aj dotazovanie.
+
+Person2: Aké operácie nad týmito dátami databáza podporuje?
+
+Person1: Môžeme ich rozdeliť na viac skupín. Prvá skupina sú číselné charakteristiky, napríklad dĺžka, plocha, objem, priemer alebo obvod. Tie sa často oplatí predpočítať už pri ukladaní. Druhá skupina sú priestorové charakteristiky, napríklad stred alebo ťažisko, ktoré samy vytvárajú novú priestorovú hodnotu.
+
+Person2: A čo metriky a predikáty?
+
+Person1: Metrika dá číselný výsledok, ktorý často nevieme rozumne predpočítať pre všetky možné kombinácie. Napríklad vzdialenosť dvoch úsečiek alebo priemer množiny bodov závisí od konkrétneho dotazu. Predikáty dávajú pravdivostnú odpoveď, napríklad či sú objekty rovnaké, či sa pretínajú, či jeden leží v druhom, alebo či spolu susedia.
+
+Person2: A nové objekty znamenajú, že výsledkom operácie je zase geometria?
+
+Person1: Presne. Prienik dvoch polygónov môže byť nový polygón. Rozdiel oblastí je nový objekt. Podobne sa môžu počítať Voronoiove diagramy alebo konvexné obálky. Dôležité je, že zložitosť týchto operácií sa veľmi líši, preto sa pri ukladaní snažíme predpočítať užitočné medzivýsledky, ktoré neskôr zrýchlia dotazy.
+
+Person2: Teraz prichádza problém mapovania priestoru. V realite máme spojitý priestor, ale počítač nie.
+
+Person1: Áno. Matematicky si priestor často predstavujeme ako euklidovský priestor s reálnymi číslami. Počítač však pracuje len s konečnou podmnožinou reprezentovateľných čísel. To znamená, že výsledok geometrickej operácie nemusí byť presne reprezentovateľný.
+
+Person2: Čiže chyba zaokrúhlenia môže zmeniť odpoveď dotazu?
+
+Person1: Presne. Typický príklad je otázka, či bod leží na úsečke. V ideálnej matematike môže byť odpoveď jasná, ale po diskretizácii a zaokrúhlení môže bod vyjsť nepatrne mimo. Preto treba mať starostlivo navrhnutý, dostatočne jemný grid a presne definované podmienky, ktoré musí objekt spĺňať pred uložením do databázy.
+
+Person2: Tu grid neznamená ešte Grid File ako index, ale všeobecne mriežku na aproximáciu priestoru?
+
+Person1: Áno, presne. V tejto chvíli hovoríme o všeobecnom mapovaní spojitého priestoru na diskrétnu reprezentáciu. Grid File je neskôr konkrétna indexačná štruktúra, ktorá tiež pracuje s mriežkou, ale to je iná úroveň problému.
+
+Person2: Ako sa priestorové dáta ukladajú, keď sú také premenlivé?
+
+Person1: Bežná relačná databáza má rada riadky pevnej veľkosti. Priestorové objekty však často pevné nie sú. Polygón môže mať pár vrcholov alebo tisíce vrcholov. Región môže byť zložený z viacerých častí. Preto sa často uloží malá pevná časť a odkaz na premenlivú časť s úplnými dátami.
+
+Person2: Čo býva v tej malej pevnej časti?
+
+Person1: Napríklad počet vrcholov, predpočítané hodnoty a hlavne MBB, teda minimálny ohraničujúci obdĺžnik. Je to najmenší obdĺžnik rovnobežný s osami, ktorý daný objekt celý obsahuje. Pri zložitej oblasti je oveľa lacnejšie najprv porovnať jej MBB, než hneď počítať presný prienik celej geometrie.
+
+Person2: Takže MBB je aproximácia. Môže povedať, že objekty možno súvisia, ale presný výsledok treba ešte overiť.
+
+Person1: Presne. Ak sa dva MBB neprekrývajú, tak sa nemôžu prekrývať ani samotné objekty. Ak sa MBB prekrývajú, ešte to neznamená, že sa prekrývajú aj presné objekty. Preto je MBB dobrý filter. Podobne môže pomôcť konvexná obálka alebo iná jednoduchšia aproximácia. Cieľ je rýchlo vylúčiť veľa nezaujímavých kandidátov.
+
+Person2: Teraz otázka, prečo na toto nestačí klasická indexácia. Prečo nepoužiť B strom?
+
+Person1: Klasické indexy ako B strom, B plus strom alebo hashovanie sú navrhnuté hlavne pre jednorozmerné hodnoty. Čísla alebo reťazce vieme usporiadať, máme predchodcu a nasledovníka, a vieme spraviť rozsahový dotaz. Pri dvojrozmernom alebo viacrozmernom priestore však prirodzené jedno poradie chýba.
+
+Person2: Mohli by sme indexovať napríklad len podľa x súradnice.
+
+Person1: Mohli, ale stratili by sme susednosť v ostatných dimenziách. Dva body môžu mať podobnú x súradnicu, ale byť veľmi ďaleko podľa y súradnice. Alebo naopak môžu byť v priestore blízko, no po zoradení podľa jednej súradnice skončia ďaleko od seba. Priestorová blízkosť sa tým rozbije.
+
+Person2: A mapovanie viacrozmerných dát do jedného rozmeru sa nedá použiť?
+
+Person1: Teoreticky existujú rôzne mapovania, ale poznámka zdôrazňuje praktický problém: na zachovanie susednosti sú pre takéto použitie nevhodné. Pri priestorových dotazoch je práve susednosť kľúčová. Preto potrebujeme indexy, ktoré dekomponujú priestor a snažia sa zachovať informáciu o tom, čo je blízko čoho.
+
+Person2: Čiže princíp priestorovej indexácie je rozdeliť priestor na podpriestory?
+
+Person1: Áno. Indexujeme kvôli dotazom ako výber v oblasti, priestorový join, najbližší sused, vzdialenosť, prienik alebo vnorenie. Väčšinou pracujeme s aproximáciami, napríklad s MBB alebo s obsadenými bunkami mriežky. Priestor dekomponujeme na podpriestory s obmedzenou kapacitou tak, aby dotaz nemusel prechádzať všetky objekty.
+
+Person2: A dobrá dekompozícia má zvládnuť aj nerovnomerné rozloženie dát.
+
+Person1: Presne. V ideálnom prípade zachováva susednosť, zvláda zhluky bodov a zároveň drží počet objektov v jednotlivých častiach pod kontrolou. Teraz si prejdeme tri hlavné prístupy: kD strom, Grid File a R strom.
+
+Person2: Začnime kD stromom. Čo je základná myšlienka?
+
+Person1: kD strom delí indexovaný priestor nadrovinami rovnobežnými s osami. V dvojrozmernom priestore sú to zvislé a vodorovné priamky. Pri prechode stromom sa strieda dimenzia delenia. Raz porovnávame podľa x súradnice, potom podľa y súradnice, potom zase podľa x, a tak ďalej.
+
+Person2: Vnútorný uzol teda obsahuje bod a podľa neho sa priestor rozdelí?
+
+Person1: V základnom kD strome áno. Každá deliaca nadrovina musí obsahovať aspoň jeden bod a vnútorné uzly nesú body. Pri vkladaní alebo vyhľadávaní porovnáme hľadaný bod v aktuálnej dimenzii a ideme doľava alebo doprava, až kým nájdeme miesto alebo výsledok.
+
+Person2: Ak je strom vyvážený, vyhľadávanie je rýchle?
+
+Person1: Áno. Ak je strom blízky vyváženému, vyhľadávanie je logaritmické vzhľadom na počet bodov. To je príjemné. Problém je, že tvar stromu závisí od poradia vkladania. Ak vkladáme nešťastne, napríklad body ležia skoro na jednej priamke alebo prichádzajú zoradené, strom môže degenerovať až na zoznam.
+
+Person2: A mazanie je tiež problémové.
+
+Person1: Áno. Keď odstránime bod z vnútorného uzla, nestačí ho len vymazať. Treba znova ustanoviť časť stromu od zmazaného bodu nadol, aby ostala zachovaná štruktúra delenia. Nie celý strom, ale stále je to komplikovanejšie než pri jednoduchom zozname.
+
+Person2: Ako sa rieši nevyváženosť?
+
+Person1: Jedna možnosť je strom prebudovať s iným poradím výberu bodov. Adaptívny kD strom ide ďalej. Volí deliacu nadrovinu tak, aby na oboch stranách zostal rovnaký počet bodov. Dáta sú uložené len v listoch a vnútorné uzly nesú len deliace hodnoty, nie samotné body.
+
+Person2: To znie lepšie pre vyváženie. Má to háčik?
+
+Person1: Je to veľmi vhodné pre statické dáta, kde štruktúru vybudujeme a potom hlavne vyhľadávame. Pri nerovnomerne rozprestrených dátach však môže nastať problém. Pri delení sa kontroluje, či sa minimum a maximum v danej dimenzii rovnajú. Ak áno, ďalšie zmysluplné delenie v tej dimenzii nejde a všetky body skončia v jednom listovom uzle.
+
+Person2: Aké ďalšie varianty kD stromu sa spomínajú?
+
+Person1: Bin strom je varianta kD stromu. BSP strom, teda binary space partitioning strom, dovoľuje deliace nadroviny, ktoré nemusia byť kolmé na osi. To je flexibilnejšie, lebo deliaca čiara alebo rovina sa môže lepšie prispôsobiť dátam. Quad strom zase v dvojrozmernom priestore nedelí priestor na dve časti, ale na štyri podpriestory.
+
+Person2: Quad strom si teda môžem predstaviť ako opakované delenie mapy na štyri kvadranty?
+
+Person1: Áno, to je dobrá predstava. Keď je niektorá oblasť príliš plná, rozdelí sa na štyri menšie. Je to prirodzené pre obrazové dáta, mapy alebo priestorové rozklady, kde sa opakuje štvrtenie priestoru.
+
+Person2: Prejdime ku Grid File. Ten vychádza z adaptívneho hashovania?
+
+Person1: Áno. Grid File pokryje priestor viacrozmernou mriežkou, ktorá nemusí byť pravidelná. Bunky môžu mať rôznu veľkosť. Nad tým je adresár, ktorý každej bunke priraďuje odkaz na dátovú jednotku, teda bucket. Viac buniek môže odkazovať na ten istý bucket, podľa toho, koľko bodov je v dátach.
+
+Person2: Ako prebieha vyhľadávanie?
+
+Person1: Zo súradníc vypočítame, do ktorej bunky bod patrí. Z adresára získame odkaz na príslušný bucket a ten prejdeme. Poznámka uvádza dôležitú vlastnosť: adresár je veľký a je uložený na disku, ale na získanie bodu stačia najviac dve čítania z disku.
+
+Person2: A čo vkladanie?
+
+Person1: Najprv nájdeme cieľovú bunku. Ak jej bucket nie je plný, bod vložíme. Ak je bucket plný, máme dve situácie. Buď už existuje vhodné delenie a rozdelí sa len bucket, alebo treba rozdeliť celý priestor v plnej šírke podľa jednej dimenzie. Tým sa aktualizuje mriežka a adresár.
+
+Person2: Tá plná šírka znie ako zdroj problémov.
+
+Person1: Presne. Hlavnou nevýhodou Grid File je zhlukovanie bodov. Ak je veľa bodov sústredených v malej oblasti, delenie cez celý priestor vytvára množstvo prázdnych alebo skoro prázdnych buniek inde. Štruktúra tak rastie aj tam, kde to dátovo nedáva veľký zmysel.
+
+Person2: V poznámke je uvedené, že systém pracuje rozumne len do približne šesťdesiat deväť percent zaplnenia.
+
+Person1: Áno. Po tejto hranici sa začína prejavovať spomalenie, práve pre pretečenia, delenie a zhlukovanie. Grid File má peknú ideu rýchleho prístupu cez adresár, ale distribúcia dát ho vie výrazne potrápiť.
+
+Person2: Na to reaguje two-level grid file?
+
+Person1: Two-level grid file pridáva druhú úroveň správy adresára. Koreňový adresár neukazuje priamo na dátové jednotky, ale na podadresáre, a tie až na bucket. Výhoda je, že zmeny môžu byť lokálnejšie. Keď sa mení jedna oblasť priestoru, nemusí sa tak často prestavovať celý veľký adresár. Problémy s pretečením a podtečením to však nerieši úplne.
+
+Person2: A twin grid file je iný prístup?
+
+Person1: Áno. Twin grid file je zdvojená štruktúra, ale nie hierarchická. Nemá nadadresár a podadresáre. Body sa rozdeľujú medzi dva súbory. Jeden je primárny a druhý je prepadový, overflow. Ich role sa môžu vymeniť a heuristika sa snaží oba súbory zapĺňať rovnomerne.
+
+Person2: Tým sa lepšie zvládajú zhluky?
+
+Person1: Presne. Twin grid file sa lepšie vyrovnáva so zhlukmi a podľa poznámky dosahuje zaplnenie až okolo deväťdesiat percent bez spomalenia. Algoritmy sú pritom prakticky podobné ako pri Grid File. Oba súbory sa môžu prehľadávať paralelne a ak ktorýkoľvek vráti nájdený výsledok, objekt považujeme za nájdený.
+
+Person2: Teraz R strom. Ten je inšpirovaný B stromom, ale používa MBB?
+
+Person1: Áno. R strom je automaticky vyvážená stromová štruktúra pre viacrozmerné objekty, hlavne plochy a oblasti. Každý vnútorný uzol obsahuje MBB svojich potomkov. Listy potom odkazujú na skutočné objekty. Koreň obaľuje väčšie oblasti, nižšie uzly obaľujú menšie skupiny objektov.
+
+Person2: Čiže ak hľadám objekty, ktoré pretínajú dotazovú oblasť, prechádzam len tie vetvy, ktorých MBB sa s dotazom prekrýva.
+
+Person1: Presne. To je základná sila R stromu. Najprv lacno testujeme obdĺžniky. Ak sa MBB vetvy s dotazom neprekrýva, celú vetvu zahodíme. Ak sa prekrýva, musíme ísť hlbšie, a až na konci overiť presnú geometriu objektov.
+
+Person2: Hlavná nevýhoda je, že MBB uzlov sa môžu prekrývať.
+
+Person1: Áno. Ak sa MBB vnútorných uzlov prekrývajú, k jednému relevantnému objektu alebo oblasti dotazu môže viesť viac ciest. Vyhľadávanie potom musí prejsť všetky uzly, ktorých MBB sa prekrýva s dotazom. Pri veľkom prekrytí sa výhoda indexu znižuje, lebo prechádzame príliš veľa vetiev.
+
+Person2: Ako sa vkladá nový objekt do R stromu?
+
+Person1: Vyberie sa vetva, ktorej MBB sa po vložení musí zväčšiť čo najmenej. Intuícia je jednoduchá: nechceme zbytočne nafukovať oblasť uzla, lebo väčší obdĺžnik bude pretínať viac dotazov a spôsobí viac zbytočných prechodov. Ak sa uzol preplní, rozdelí sa, teda spraví sa split, a zmena sa propaguje smerom ku koreňu.
+
+Person2: Čiže podobnosť s B stromom je vo vyváženosti a štiepení uzlov, ale obsah uzlov je geometrický.
+
+Person1: Presne. Nie sú tam jednoduché kľúče v jednom usporiadaní, ale obdĺžnikové aproximácie skupín objektov. R strom je preto prirodzený pre polygóny, regióny a iné objekty, ktoré sa nedajú dobre reprezentovať jedinou súradnicou.
+
+Person2: Aké varianty R stromu treba poznať?
+
+Person1: R hviezdičkový strom sa snaží o menšie prekrytie a tesnejšie MBB. Inak povedané, chce mať obdĺžniky čo najmenej prekryté a čo najviac podobné kompaktným tvarom, ideálne nie príliš natiahnuté. Tým znižuje počet vetiev, ktoré treba pri dotaze prechádzať.
+
+Person2: A R plus strom?
+
+Person1: R plus strom používa orezávanie, po anglicky clipping. MBB vnútorných uzlov sa nesmú prekrývať. To zjednodušuje vyhľadávanie, pretože dotaz nemusí kvôli prekrytom prechádzať toľko alternatívnych ciest. Cena je však duplikácia. Ak objekt zasahuje do dvoch podpriestorov, musí sa v indexe objaviť vo viacerých častiach.
+
+Person2: Čiže R strom má prekrytie, ale neduplikuje takým spôsobom, R plus strom prekrytie zakáže, ale zaplatí duplikáciou.
+
+Person1: Presne. To je dobré skúškové porovnanie. Pri R strome je problém veľa ciest kvôli prekryvu MBB. Pri R plus strome sa prekryv rieši orezávaním podpriestorov, ale objekt môže byť uložený viackrát v indexovej štruktúre.
+
+Person2: Ako by si porovnal kD strom, Grid File a R strom na vysokej úrovni?
+
+Person1: kD strom delí priestor postupne nadrovinami a dobre sa hodí na bodové dáta, najmä keď vieme udržať rozumnú vyváženosť. Grid File používa mriežku, adresár a buckety, takže vie rýchlo nájsť bunku podľa súradníc, ale trpí zhlukmi. R strom obaľuje objekty pomocou MBB a je prirodzený pre rozsiahle priestorové objekty, napríklad plochy a polygóny.
+
+Person2: A všetky tri vlastne riešia rovnakú základnú vec: nenechať dotaz prechádzať celú databázu.
+
+Person1: Áno. Priestorový index je filter a navigačná štruktúra. Najprv sa lacno rozhoduje, ktoré časti priestoru môžu byť relevantné, a až potom sa robia drahšie presné geometrické výpočty. Preto sú aproximácie ako MBB také dôležité.
+
+Person2: V zadaní je aj indexácia nielen v priestorových databázach. Kde sa tieto štruktúry hodia mimo nich?
+
+Person1: Vždy, keď sa problém dá chápať ako viacrozmerné vyhľadávanie. Poznámka uvádza akceleráciu intervalových alebo rozsahových dotazov. Ak má dotaz viac rozmerov, môžeme ho mapovať na priestorové vyhľadávanie. Potom sa techniky podobné priestorovým indexom dajú použiť aj mimo klasických geografických alebo geometrických dát.
+
+Person2: Čiže viacrozmernosť nemusí znamenať len mapu. Môže ísť o objekt opísaný viacerými atribútmi a rozsahový dotaz nad nimi.
+
+Person1: Presne. Priestorové databázy sú najviditeľnejší príklad, ale myšlienka je všeobecnejšia: viac dimenzií, potreba zachovať susednosť alebo blízkosť, a snaha rýchlo nájsť kandidátov bez úplného prehľadávania.
+
+Person2: Ešte sa vrátim k častej zámene. MBB nie je presná geometria objektu, však?
+
+Person1: Nie. MBB je len minimálny ohraničujúci obdĺžnik, teda aproximácia pevnej veľkosti, ktorá objekt obalí. Používa sa na indexáciu a rýchle filtrovanie. Presný objekt môže byť oveľa zložitejší a je uložený v premenlivej časti dát. Preto dotaz často prebieha v dvoch krokoch: najprv kandidáti podľa aproximácie, potom presné overenie.
+
+Person2: A pri diskretizácii priestoru si treba pamätať, že zaokrúhľovanie môže ovplyvniť aj logické predikáty, nielen číselnú presnosť.
+
+Person1: Áno. To je podstatné. Priestorové operácie nie sú len aritmetika. Odpoveď na otázku, či sa objekty dotýkajú, pretínajú alebo či bod leží na úsečke, môže byť citlivá na reprezentáciu. Preto priestorová databáza musí riešiť aj modelovanie a podmienky uloženia dát, nie iba index.
+
+Person2: Ak by som mala celé opakovanie zhrnúť, priestorová databáza je databáza, ktorá priestorové dáta nielen drží, ale aj nad nimi počíta. Dáta môžu byť body, úsečky, polygóny, plochy, objemy a regióny. Operácie zahŕňajú charakteristiky, metriky, predikáty aj tvorbu nových objektov. Spojitý priestor sa musí aproximovať diskrétne, zložité objekty sa ukladajú cez pevnú časť, odkazy a MBB. Klasické B stromy nestačia, lebo strácajú viacrozmernú susednosť. kD strom delí priestor po dimenziách, Grid File používa mriežku, adresár a buckety, R strom indexuje MBB objektov. A rovnaké princípy sa dajú použiť aj pri viacrozmerných rozsahových dotazoch mimo priestorových databáz.

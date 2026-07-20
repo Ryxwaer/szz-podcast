@@ -1,0 +1,6 @@
+pyyaml
+python-dotenv
+termcolor
+# External, not pip-installable:
+#   wrangler - via `npx wrangler` (Cloudflare R2 upload)
+# TTS backends have their own requirements.txt (each needs `requests` + `ffmpeg`).

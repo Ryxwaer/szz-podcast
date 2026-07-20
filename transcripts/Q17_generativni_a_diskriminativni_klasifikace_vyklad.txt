@@ -1,0 +1,119 @@
+Person1: V tomto výklade si prejdeme generatívnu a diskriminatívnu klasifikáciu. Jadrom okruhu sú dva principiálne odlišné prístupy k tomu, ako klasifikovať dáta, a ako ich zástupcov si ukážeme gaussovský klasifikátor na generatívnej strane a logistickú regresiu na diskriminatívnej. Ale najprv sa krátko ukotvíme v strojovom učení, aby sme vedeli, o čom sa vlastne bavíme.
+
+Person2: Dobre. Ako by sme vôbec definovali, že sa program niečo učí?
+
+Person1: Klasická definícia hovorí, že program sa učí zo skúsenosti vzhľadom na nejakú úlohu, ktorú meriame nejakým kritériom výkonnosti. Ak sa jeho výkonnosť na úlohách daného typu s pribúdajúcou skúsenosťou zlepšuje, tak sa učí. Typická úloha je natrénovať model, ktorý dostane na vstupe obvykle déčko-rozmerný vektor čísel a vráti nejaký výstup.
+
+Person2: A podľa čoho rozlišujeme druhy učenia?
+
+Person1: Podľa toho, aké máme trénovacie dáta. Pri učení s učiteľom, teda supervised, sú vstupom dvojice vstup a očakávaný výstup, čiže anotované dáta. Sem patrí klasifikácia, kde vstup priraďujeme do niektorej z tried, aj regresia, kde predpovedáme hodnotu nejakej funkcie. Potom máme učenie bez učiteľa, unsupervised, kde dáta nie sú anotované, napríklad clustering alebo detekcia anomálií. Medzistupeň je semi-supervised, kde je malá časť dát anotovaná a veľká časť nie. A napokon posilované učenie, kde sa model učí cez pozitívne a negatívne odmeny za svoje akcie.
+
+Person2: Nás teraz zaujíma klasifikácia. Čo je jej cieľom?
+
+Person1: Cieľom klasifikácie je nájsť rozhodovaciu hranicu, ktorá oddelí dáta jednej triedy od ostatných. A hneď tu treba myslieť na generalizáciu. Hranica, ktorá dokonale rozdelí trénovacie dáta, býva priveľmi agresívna, snaží sa pohltiť aj odľahlé hodnoty, ktoré náhodne vypadli z rozloženia. Taká hranica potom na nových dátach klasifikuje zle. Hovoríme, že je preučená.
+
+Person2: Takže dokonalé rozdelenie trénovacích dát nie je cieľ.
+
+Person1: Presne tak, to je dôležitá intuícia do celého okruhu. A teraz sa dostávame k jadru, k dvom prístupom ku klasifikácii. Diskriminatívny model sa učí priamo pravdepodobnosť triedy za daného vstupu. Inými slovami, učí sa rovno rozhodovaciu hranicu medzi triedami. Nedokáže generovať nové dáta, vie len priradiť triedu. Zástupcovia sú napríklad ká najbližších susedov alebo logistická regresia.
+
+Person2: A generatívny model to robí inak?
+
+Person1: Áno, ide na to oklukou. Generatívny model modeluje rozloženie pravdepodobnosti samotných sledovaných dát, teda ako vyzerajú dáta v rámci každej triedy, plus apriórne pravdepodobnosti tried. A až z týchto dvoch vecí cez Bayesov vzorec dopočíta pravdepodobnosť triedy za daného vstupu. Keďže pozná rozloženie dát, vedel by z neho aj generovať nové dáta podobné trénovacím. Odtiaľ názov generatívny. Typický zástupca je práve gaussovský klasifikátor.
+
+Person2: Čiže rozdiel je, čo model modeluje. Diskriminatívny rovno hranicu, generatívny najprv rozloženie dát a hranicu odvodí.
+
+Person1: Presne. A z toho plynie aj praktické porovnanie. Generatívne modely majú menšiu tendenciu preučiť sa pri malom množstve dát, pretože nesú silnejší predpoklad o tom, ako dáta vyzerajú. Diskriminatívne modely zas fungujú lepšie pri dostatku dát, lebo neplytvajú kapacitou na modelovanie celého rozloženia a sústredia sa priamo na hranicu.
+
+Person2: A to generovanie dát, ktoré vie generatívny model, pomáha nejako pri trénovaní?
+
+Person1: To je dobrá poznámka na okraj. Samotné generovanie dát nemá z pohľadu trénovania žiadnu výhodu a nezvýši presnosť klasifikácie. Je to len vlastnosť, ktorá vyplýva z toho, že generatívny model náhodou pozná celé rozloženie dát. Nie je to nástroj na zlepšenie klasifikátora.
+
+Person2: Spomenul si ká najbližších susedov. Poďme naň, znie ako dobrý úvodný príklad.
+
+Person1: Je to najjednoduchší klasifikátor a zároveň názorný príklad diskriminatívneho a neparametrického prístupu. Neparametrický znamená, že sa neučí žiadne parametre. Jeho parametrami sú efektívne všetky trénovacie dáta, ktoré si musí zapamätať, a to je jeho hlavná nevýhoda. Novému vstupu priradí triedu tak, že nájde ká najbližších susedov a vyberie medzi nimi najviac zastúpenú triedu.
+
+Person2: A nájsť tých susedov v mnohorozmerných dátach nie je drahé?
+
+Person1: Naivne áno, ale hľadanie susedov sa dá efektívne implementovať pomocou takzvaného kej-dé stromu. A je tu ešte jedna dôležitá vec, na ktorú sa ľahko zabudne, nutnosť normalizovať príznaky. Predstav si, že jedna dimenzia je výška v centimetroch a druhá váha v kilogramoch. Pri výpočte vzdialenosti, napríklad euklidovskej, by potom dimenzia s väčšími číslami dominovala nad ostatnými. Preto sa príznaky typicky normalizujú, napríklad do rozsahu od nuly po jednotku.
+
+Person2: Dobre. Diskriminatívnu stranu máme naznačenú. Ako sa dostaneme ku generatívnemu, gaussovskému klasifikátoru?
+
+Person1: Cez pravdepodobnosti, keďže generatívny model modeluje rozloženie dát. Ukážme si to najprv na diskrétnom príklade. Máme stopäťdesiat pozorovaní objektov a podľa váhovej kategórie klasifikujeme, či ide o jablko alebo o granát. Prvý pojem je spoločná, teda joint pravdepodobnosť. To je pravdepodobnosť, že nastanú dva javy zároveň, napríklad že objekt je granát a súčasne ťažký. Ak takých je dvanásť zo stopäťdesiatich, tak spoločná pravdepodobnosť je dvanásť ku stopäťdesiat.
+
+Person2: A marginálna pravdepodobnosť?
+
+Person1: Marginálna je v tomto kontexte apriórna, teda prior, pravdepodobnosť samotnej triedy. Napríklad ak je zo stopäťdesiatich objektov päťdesiat granátov, prior granátu je päťdesiat ku stopäťdesiat. Tretí pojem je podmienená pravdepodobnosť, čo je aposteriórna, teda posterior. Je to pravdepodobnosť triedy za predpokladu, že sme niečo pozorovali. Ak máme osemnásť ťažkých vzoriek a z nich je dvanásť granátov, tak pravdepodobnosť granátu za predpokladu, že je objekt ťažký, je dvanásť ku osemnásť. [short pause] Všeobecne, podmienenú pravdepodobnosť áčka za béčka dostaneme ako spoločnú pravdepodobnosť áčka a béčka [short pause] delenú pravdepodobnosťou béčka.
+
+Person2: Z toho asi vychádzajú tie základné pravidlá pre pravdepodobnosti.
+
+Person1: Áno, sú tri a treba ich vedieť. Sum rule, pravidlo súčtu, hovorí, že celkovú, marginálnu pravdepodobnosť získame sčítaním spoločných pravdepodobností, obrazne cez celý riadok tabuľky. Product rule, pravidlo súčinu, hovorí, že spoločná pravdepodobnosť ixa a ypsilon sa dá rozložiť ako podmienená pravdepodobnosť ixa za ypsilon krát pravdepodobnosť ypsilon, a rovnako aj naopak. Intuitívne, s pravdepodobnosťou heavy som v stĺpci ťažkých a pýtam sa, s akou pravdepodobnosťou som zároveň v riadku granátov.
+
+Person2: A tretie pravidlo je Bayes.
+
+Person1: Presne. Bayesovo pravidlo priamo vychádza z pravidla súčinu. Keďže spoločnú pravdepodobnosť viem rozložiť dvomi smermi a obidva sa rovnajú, môžem to prehodiť a vyjadriť posterior. A práve to je základ celého generatívneho prístupu. Pri klasifikácii nás zaujíma posterior, teda pravdepodobnosť triedy za daného pozorovania. Podľa Bayesa ho vyjadríme z dvoch vecí, ktoré vieme odhadnúť. [short pause] Z likelihood, čo je pravdepodobnosť pozorovania za danej triedy, a z prioru, čo je apriórna pravdepodobnosť triedy.
+
+Person2: A ten menovateľ v Bayesovom vzorci, čo tam robí?
+
+Person1: To je evidence. Slúži len na normalizáciu výsledku, aby posteriory pekne dávali dokopy jednotku, teda aby pravdepodobnosť granátu za ťažkého plus pravdepodobnosť jablka za ťažkého dala jedna. Evidence sa dá vyčísliť práve cez pravidlo súčtu a súčinu z jednotlivých likelihoodov a priorov. A keď už máme posteriory, klasifikátor typu maximum aposteriori, skrátene em-á-pé, jednoducho vyberie triedu s najvyšším posteriorom. Pri klasifikácii medzi dvomi triedami sú navyše posteriory komplementárne, takže stačí porovnať jeden s polovicou.
+
+Person2: Tento príklad bol diskrétny, s váhovými kategóriami. Čo keď máme presnú váhu, teda spojité číslo?
+
+Person1: Vtedy platia úplne tie isté vzťahy, len operátor sumy nahradíme integrálom. Bayesov vzorec zostáva bez zmeny. A pri viacrozmerných dátach modelujeme pravdepodobnosť celého vektora vstupu za danej triedy, kde ten vstup je vektor viacerých príznakov.
+
+Person2: Dobre, teoreticky teda vieme, čo chceme počítať. Ale to rozloženie pozorovaní za danej triedy zvyčajne priamo nepoznáme, však?
+
+Person1: Nepoznáme, máme len trénovacie dáta a z nich ho musíme odhadnúť. Postup má dva kroky. Najprv si vyberieme rozloženie, o ktorom si myslíme, že mu dáta zodpovedajú, a potom z dát odhadneme jeho parametre. Najtypickejšia voľba je normálne, čiže Gaussovské rozloženie, a od neho je odvodený gaussovský klasifikátor.
+
+Person2: Prečo práve normálne rozloženie a nie nejaké iné?
+
+Person1: Z dvoch dôvodov. Po prvé, javy v prírode mu často naozaj zodpovedajú. A po druhé, podľa centrálnej limitnej vety súčet mnohých nezávislých náhodných premenných smeruje ku Gaussovmu rozloženiu, takže je to veľmi rozumný predvolený predpoklad.
+
+Person2: Ako vyzerá to jednorozmerné normálne rozloženie?
+
+Person1: Je určené dvomi parametrami, strednou hodnotou a rozptylom. Vzorec má dve časti. Charakteristickú exponenciálnu časť, ktorá dáva ten typický tvar klobúka, a normalizačnú časť, ktorá zabezpečí, že plocha pod krivkou je jednotková. Netreba si pamätať vzorec symbol po symbole, dôležité je vedieť, že tvar riadi stredná hodnota, ktorá určuje polohu vrcholu, a rozptyl, ktorý určuje šírku.
+
+Person2: A keď máme viac dimenzií?
+
+Person1: Zovšeobecníme to. Namiesto skalárnej strednej hodnoty máme vektor stredných hodnôt a namiesto jedného rozptylu takzvanú kovariančnú maticu. Na jej diagonále sú rozptyly v jednotlivých smeroch a mimo diagonály sú korelácie medzi dimenziami. Matica je symetrická podľa diagonály. A práve kovariančná matica určuje tvar rozloženia, teda ako je ten klobúk roztiahnutý a natočený v priestore.
+
+Person2: Spomínal si, že parametre odhadneme z dát. Ako presne?
+
+Person1: Metódou maximum likelihood estimation, skrátene em-el-í. Je to spôsob, ako z dát odhadnúť parametre rozloženia. Hľadáme také parametre, pre ktoré majú naše trénovacie dáta najvyššiu hustotu pravdepodobnosti. Inak povedané, hľadáme rozloženie, pod ktorým sú pozorované dáta najpravdepodobnejšie.
+
+Person2: A ako sa to počíta prakticky?
+
+Person1: Využijeme, že vzorky sú nezávislé, takže pravdepodobnosť celej množiny dát je súčin pravdepodobností jednotlivých vzoriek. So súčinom mnohých čísel sa ale pracuje ťažko, preto výraz zlogaritmujeme. Logaritmus je rastúca funkcia, takže zachováva polohu maxima, a pritom nám súčin premení na sumu logaritmov, ktorej hovoríme log-likelihood. Odhad konkrétneho parametra potom dostaneme tak, že parciálnu deriváciu log-likelihood podľa toho parametra položíme rovnú nule.
+
+Person2: A vyjde z toho niečo intuitívne?
+
+Person1: Práve to je pekné, áno. Pre Gaussovské rozloženie tak vyjde stredná hodnota jednoducho ako priemer dát [short pause] a rozptyl ako priemerná kvadratická odchýlka od priemeru. Čiže matematicky náročný postup dá presne to, čo by človek odhadol aj zdravým rozumom. Mimochodom, em-el-í sa nemusí použiť len na Gauss. Pri kategorickom, teda diskrétnom rozložení, kde dáta padajú do kategórií, vyjdú parametre, čiže pravdepodobnosti kategórií, ešte jednoduchšie, ako počet dát v danej kategórii delený celkovým počtom dát.
+
+Person2: Poďme to teraz spojiť dokopy. Ako v praxi klasifikuje gaussovský klasifikátor?
+
+Person1: V štyroch krokoch. Najprv odhadneme apriórne pravdepodobnosti tried, jednoducho z pomeru tried v trénovacích dátach. Potom pre každú triedu zvlášť cez em-el-í odhadneme jej rozloženie hustoty, teda strednú hodnotu a rozptyl, respektíve kovariančnú maticu. Ďalej pre nový vstup podľa Bayesovho vzorca spočítame hodnotu hustoty pre každú triedu a z nej aposteriórne pravdepodobnosti. A napokon vyberieme triedu s maximálnou aposteriórnou pravdepodobnosťou, prípadne rovno vrátime tú pravdepodobnosť.
+
+Person2: Takže pri dvoch triedach potrebujem dve Gaussovské rozdelenia.
+
+Person1: Presne, jedno pre každú triedu, plus ich apriórne pravdepodobnosti. To je celý generatívny gaussovský klasifikátor. A teraz prejdime na druhú stranu, k regresii a logistickej regresii, kde nás čaká diskriminatívny prístup. Ale začneme lineárnou regresiou, ktorá, pozor, nie je klasifikácia.
+
+Person2: Aha, takže lineárna regresia rieši inú úlohu.
+
+Person1: Áno, rieši regresiu, nie klasifikáciu. Cieľom je nájsť lineárnu funkciu, obrazne priamku, ktorá čo najlepšie sedí na dáta. Predpoklad je, že dáta majú lineárny trend až na nejaký Gaussovský šum, teda pozorovaná hodnota je hodnota priamky plus náhodná odchýlka. Váhy priamky hľadáme minimalizáciou súčtu štvorcov odchýlok, čomu sa hovorí aj stredná kvadratická chyba.
+
+Person2: A dá sa to vyriešiť rovno, alebo treba iterovať?
+
+Person1: Pri lineárnej regresii máme šťastie, pre optimálne váhy existuje uzavretý vzorec, ktorý ich spočíta priamo, cez takzvanú Moore-Penroseovu pseudoinverziu. A ešte jedna dôležitá vec ku slovu lineárna. Znamená to lineárna vzhľadom na koeficienty, nie nutne priamka v pôvodných premenných. Vďaka tomu vie modelovať aj zložitejšie funkcie, napríklad polynomiálna regresia je len jej špeciálny prípad.
+
+Person2: Dobre, a teraz tá logistická regresia. To už je klasifikácia?
+
+Person1: Áno, a je to diskriminatívny model. Snaží sa naučiť priamo pravdepodobnosť triedy za daného vstupu, na rozdiel od generatívneho prístupu, kde sme odhadovali rozloženie dát za triedy a prior a až potom počítali posterior. Postup je nasledovný. Na vstup aplikujeme, podobne ako pri lineárnej regresii, lineárnu kombináciu natrénovaných váh. Lenže výsledok by mohol byť akékoľvek číslo, a my chceme pravdepodobnosť. Preto ho pretransformujeme logistickou sigmoidou, čo je funkcia v tvare eska, ktorá čokoľvek stlačí do rozsahu od nuly po jednotku. Tým modelujeme pravdepodobnosť triedy a pravdepodobnosť druhej triedy je jej komplement.
+
+Person2: A ako sa trénujú tie váhy?
+
+Person1: Minimalizáciou nejakej chyby. Dala by sa použiť stredná kvadratická chyba, ale vhodnejšia je cross-entropia, ku ktorej sa dá dôjsť odvodením z em-el-í a zlogaritmovaním. Háčik je v tom, že pre cross-entropiu, na rozdiel od lineárnej regresie, neexistuje uzavretý vzorec na optimálne váhy.
+
+Person2: Takže to treba riešiť numericky.
+
+Person1: Presne, používa sa numerická optimalizácia, konkrétne gradientný zostup. Ten postupne posúva váhy proti smeru gradientu chyby, veľkosť kroku riadi derivácia cross-entropie a takzvaný learning rate, čiže rýchlosť učenia. Krok po kroku sa tak dopracujeme k váham, ktoré chybu minimalizujú. A tým máme uzavretý aj diskriminatívny zástupca.
+
+Person2: Skúsim to celé zhrnúť. Klasifikácia hľadá rozhodovaciu hranicu a treba pri tom myslieť na generalizáciu, nie na dokonalé rozdelenie trénovacích dát. Diskriminatívne modely, ako ká najbližších susedov a logistická regresia, sa učia hranicu priamo a vyhrávajú pri dostatku dát. Generatívne modely, ako gaussovský klasifikátor, modelujú rozloženie dát a prior a hranicu odvodia cez Bayesa, pričom sú odolnejšie pri málo dátach. Pod tým všetkým sú pravdepodobnostné pravidlá súčtu, súčinu a Bayes, odhad parametrov cez maximum likelihood, a pri logistickej regresii trénovanie cez cross-entropiu a gradientný zostup. Takto to dáva zmysel ako celok.

@@ -1,0 +1,83 @@
+Person1: Poďme si prejsť okruh Datový paralelismus SIMD a SIMT, jejich hardwarová implementace a softwarová podpora na CPU a GPU. Začneme tým, čo dátový paralelizmus vlastne je, potom sa pozrieme na SIMD architektúry, model SIMT na grafických kartách, inštrukčné sady v moderných procesoroch, a nakoniec na softvérovú podporu vektorizácie a Roofline model výkonnosti.
+
+Person2: Dobre. Tak čo presne znamená dátový paralelizmus?
+
+Person1: V praxi existuje veľa výpočtových problémov, kde potrebuješ vykonať rovnakú, navzájom nezávislú transformáciu nad celou množinou prvkov. Predstav si, že máš pole miliónov čísel a každé chceš vynásobiť dvomi. To je dátový paralelizmus - tá istá operácia, iné dáta. A hardvér ho adresuje replikáciou funkčných jednotiek. [short pause] Kľúčový trik je v tom, že keďže operácia nad všetkými prvkami je rovnaká, nemusíme replikovať plnohodnotné procesory, každý s vlastnou riadiacou jednotkou. Stačí pridať výpočtové jednotky a všetky riadi jedna spoločná riadiaca jednotka. Tým sa šetrí miesto na čipe aj cena.
+
+Person2: A z toho zdieľania riadiacej jednotky vyplýva aj názov SIMD, však?
+
+Person1: Presne. Zdieľanie riadiacej jednotky znamená, že všetky výpočtové jednotky pracujú synchrónne a v danom okamihu vykonávajú tú istú inštrukciu. Preto Single Instruction, Multiple Data - jedna inštrukcia, viacero dát. Silné stránky tohto prístupu sú spracovanie vektorov, matíc a tenzorov. Slabé stránky sú transformácie s veľkým množstvom podmienok - k tomu sa ešte vrátime pri vetvení.
+
+Person2: SIMD je jedna z kategórií Flynnovej klasifikácie. Pripomenieme si aj ostatné?
+
+Person1: Určite, to je klasika, ktorú komisie radi počujú. Flynnova klasifikácia delí architektúry podľa počtu prúdov inštrukcií a počtu prúdov dát. SISD je klasický skalárny procesor - jedna inštrukcia, jedny dáta. SIMD - jedna inštrukcia nad viacerými dátami, to je náš prípad. MISD - viac inštrukcií nad jednými dátami - sa v praxi takmer nevyskytuje; občas sa ako príklad uvádzajú systolické polia alebo redundantné systémy odolné voči chybám. A MIMD - viac inštrukcií nad viacerými dátami - to je napríklad bežné viacjadrové CPU.
+
+Person2: A kam presne zapadá SIMD medzi ostatné typy paralelizmu v procesore?
+
+Person1: Dobrá otázka, lebo v CPU rozlišujeme dva základné typy paralelizmu. Prvý je funkčný paralelizmus - rôzne inštrukcie používajú rôzne časti procesora, takže sa dajú vykonať paralelne, pokiaľ medzi nimi nie sú závislosti. Príkladom sú superskalárne procesory, kde paralelizmus riadi hardvér cez out-of-order vykonávanie, alebo VLIW, teda Very Long Instruction Word, kde paralelizmus riadi kompilátor. [short pause] Druhý typ je dátový paralelizmus, a ten sa dá realizovať v čase - to je zreťazené spracovanie, pipelining - alebo v priestore, čo je práve replikácia funkčných jednotiek, čiže SIMD. A dá sa kombinovať v oboch dimenziách naraz - paralelné vektorové linky, prípadne SIMT, Single Instruction Multiple Threads, ku ktorému sa dostaneme pri GPU.
+
+Person2: Dobre, tak poďme na samotné SIMD architektúry. Ako vyzerajú vnútri?
+
+Person1: SIMD architektúra obsahuje veľký počet výpočtových jednotiek - hovorí sa im processing elements, skrátene PE - a jednu riadiacu jednotku. Na CPU a GPU býva počet týchto jednotiek typicky štyri až tridsaťdva. Pri návrhu je dilema, aké zložité tie jednotky majú byť. Čím zložitejšie PE, tým viac miesta na čipe zaberie a tým menej sa ich tam zmestí. Preto sa typicky realizuje veľký počet jednotiek pre základné výpočty - sčítanie, odčítanie, porovnanie - a len malý počet jednotiek pre náročnejšie operácie ako delenie, sínus alebo odmocnina.
+
+Person2: A fungujú tieto architektúry ako samostatné procesory?
+
+Person1: Nie, a to je dôležité. Vystupujú ako koprocesory - napríklad GPU alebo AVX jednotky v CPU - alebo ako hardvérové akcelerátory. Keby mali fungovať ako univerzálne, general purpose CPU, boli by pre niektoré výpočty pomalé. Sú to špecialisti, nie univerzáli.
+
+Person2: Spomínal si organizáciu pamäte. Aké varianty tam sú?
+
+Person1: Dve. Prvá je SIMD so zdieľanou pamäťou - každý processing element má rovnaký prístup k pamäťovým modulom cez dynamickú prepojovaciu sieť, napríklad crossbar. Komunikácia medzi jednotkami prebieha cez zdieľanú pamäť. Príklady sú AVX jednotky v CPU alebo SM procesory, streaming multiprocesory, v GPU. [short pause] Druhá je SIMD s distribuovanou pamäťou - každý processing element má vlastný pamäťový modul a počíta nad lokálnymi dátami, čo znamená rýchly prístup. Komunikácia prebieha cez statickú prepojovaciu sieť, typicky mriežku alebo torus. Klasický príklad je procesor IBM Cell v Sony PlayStation.
+
+Person2: Poďme na GPU. Tam sa hovorí o SIMT - v čom sa líši od SIMD?
+
+Person1: GPU používa model SIMT, Single Instruction Multiple Threads. Dáta sa rozdelia medzi obrovské množstvo vlákien a tie sa zoskupujú do takzvaných warpov - typicky tridsaťdva vlákien vo warpe. Vlákna vo warpe vykonávajú spoločnú inštrukciu synchrónne, takže hardvérovo je to veľmi podobné SIMD. Rozdiel je v abstrakcii - programátor pracuje s predstavou nezávislých vlákien, každé vlákno má svoj kód, a nemusí riešiť žiadne vektorové registre.
+
+Person2: Takže rozdiel je hlavne v tom, kto rieši mapovanie na hardvér?
+
+Person1: Presne tak, to je tá podstata. SIMD explicitne pracuje s vektorovými registrami pevnej šírky - vektorizáciu robí programátor alebo kompilátor. SIMT jednotlivé vlákna abstrahuje a mapovanie na hardvér rieši runtime GPU. Vďaka tomu SIMT jednoduchšie škáluje na tisíce vlákien. [pause] Ale tá abstrakcia má aj svoju cenu. Keď kód obsahuje vetvenie a vlákna v jednom warpe sa rozhodnú rôzne, dochádza k divergencii warpu. Vetvy sa potom vykonávajú sériovo s maskovaním - najprv sa vykonajú vlákna, ktoré spĺňajú podmienku, teda vetva then, a neaktívne vlákna sú medzitým maskované. Potom sa role vymenia a vykoná sa vetva else. Výsledkom je pokles výkonu, preto sa vetveniu na GPU vyhýbame, ak sa dá.
+
+Person2: A ako sa GPU vlastne programujú? Aká je tam softvérová podpora?
+
+Person1: GPU sa programujú špecializovanými rozhraniami. Najznámejšia je CUDA, ktorá funguje len pre GPU od NVIDIE. Prenositeľné alternatívy sú OpenCL a SYCL. Model programovania je vo všetkých podobný - programátor napíše takzvaný kernel, čo je kód jedného vlákna, a runtime ho spustí nad mriežkou, po anglicky grid, blokov vlákien.
+
+Person2: Dobre, vráťme sa na CPU. Aké inštrukčné sady SIMD nájdeme v moderných procesoroch?
+
+Person1: Na architektúre x86 je to historicky rad rozšírení. Začalo to sadou SSE, SIMD Streaming Extensions, so stodvadsaťosem bitovými registrami - pôvodne štyri single precision floaty, neskoršie verzie ako SSE2 a SSE3 pridali ďalšie interpretácie toho istého registra: dva double, šestnásť bajtov, štyri tridsaťdva bitové integery a podobne. Potom prišlo AVX, ktoré rozširuje šírku registra na dvestopäťdesiatšesť bitov, a AVX512 na päťstodvanásť bitov. [short pause] Na ARM architektúre je to ARM Neon, ktorý kombinuje šesťdesiatštyri bitové a stodvadsaťosem bitové operácie.
+
+Person2: Takže počet prvkov v jednej inštrukcii je daný tým, koľko sa ich zmestí do registra?
+
+Person1: Presne. Do jednej vektorovej inštrukcie sa vojde toľko prvkov, koľko sa zmestí do registra. Napríklad AVX512 s päťstodvanástimi bitmi pojme šestnásť floatov po tridsaťdva bitov, alebo osem doublov po šesťdesiatštyri bitov.
+
+Person2: A ako sa k tým inštrukciám dostane programátor? Predsa nebude písať všetko v assembleri.
+
+Person1: To je ďalšia dôležitá časť okruhu - softvérová podpora vektorizácie. Možnosti si zoraďme od najjednoduchšej po najnižšiu úroveň. Prvá možnosť: vektorizované knižnice - niekto to už vektorizoval za teba. Druhá: automatická vektorizácia kompilátorom - tu sa ale treba uistiť, že kompilátor kód naozaj zvektorizoval, nie len dúfať. Tretia: pragma hinty kompilátoru - napríklad pragma omp simd nad cyklom povie kompilátoru, že tento cyklus má vektorizovať. Štvrtá: vektorové intrinsic funkcie - hlavičkový súbor pridá céčkové funkcie podobné assembleru a dátové typy, ktoré odrážajú SIMD registre. A posledná možnosť je priamo assembler.
+
+Person2: Pri tej automatickej vektorizácii - čo vlastne kompilátor dokáže zvektorizovať a čo nie?
+
+Person1: Sú tam dosť konkrétne podmienky, oplatí sa ich vedieť vymenovať. Kompilátor dokáže vektorizovať cykly so známym počtom iterácií, ktorý sa počas behu nemení. Cykly s jedným vstupom a jedným výstupom. Cykly bez zložitého vetvenia - jednoduché podmienky sa dajú vektorizovať maskovaním. Ďalej iba najvnútornejšie cykly. A cykly bez volania funkcií - s výnimkou intrinsic matematiky, inline funkcií a OMP SIMD funkcií. Ak chceme funkciu určenú na vektorizáciu, označíme ju direktívou pragma omp declare simd, a to platí aj pri inlinovaní.
+
+Person2: Spomenul si maskovanie podmienok. Ako to funguje?
+
+Person1: Predstav si cyklus, kde sa podľa podmienky do prvku poľa zapíše buď výsledok výpočtu, alebo nula. Kompilátor to zvektorizuje tak, že podmienku vyhodnotí pre celý SIMD register naraz. Výsledkom je binárna maska - a tá určí, do ktorých prvkov sa zapíše výsledok vetvy then a do ktorých výsledok vetvy else. Obe vetvy sa teda spočítajú, ale zapíše sa vždy len tá správna. Všimni si, že je to presne ten istý princíp, akým GPU rieši divergenciu warpu - maskovanie je univerzálna odpoveď SIMD sveta na podmienky.
+
+Person2: A kde automatická vektorizácia zlyháva?
+
+Person1: Štyri hlavné prípady. [short pause] Prvý: nejednotkový rozostup - prvky musia byť v pamäti za sebou s konštantným rozostupom, a keď je rozostup väčší ako jedna, treba použiť inštrukcie gather a scatter, ktoré nesú penalizáciu. Druhý: nezarovnané dátové štruktúry. Tretí: dátové závislosti medzi iteráciami - keď iterácia potrebuje výsledok predchádzajúcej, paralelne to nejde. A štvrtý: pointer aliasing - kompilátor nevie dokázať, že sa dve pamäťové oblasti neprekrývajú, takže za behu treba testovať, či sa použité pamäťové lokality môžu prekrývať.
+
+Person2: To zarovnanie pamäte znie ako niečo, na čom sa dá ľahko pohorieť. Prečo je také dôležité?
+
+Person1: Zlé zarovnanie je jeden z hlavných dôvodov slabého výkonu vektorizovaného kódu. Kompilátor totiž pri nezarovnanom poli vloží test na zarovnanie a generuje trojicu častí: peal, body a remainder. Body je vektorizovaný výpočet na zarovnanej časti pamäte. Peal je nevektorizovaný kód, ktorý spracuje časť poľa pred zarovnanou oblasťou, a remainder spracuje časť za ňou. [short pause] Aby sa tie nevektorizované časti vôbec negenerovali, treba zarovnanie explicitne deklarovať - na troch miestach. Pri alokácii dát, napríklad aligned alloc namiesto malloc. Pri deklarácii nového ukazovateľa. A pri deklarácii funkcie, ktorej parameter je ukazovateľ.
+
+Person2: S rozložením dát v pamäti súvisí aj rozdiel medzi poľom štruktúr a štruktúrou polí, však?
+
+Person1: Áno, a to je pojem, ktorý sa oplatí mať istý, lebo skratky sa ľahko popletú. AoS, Array of Structures, je pole štruktúr - prvky rovnakého atribútu nie sú v pamäti za sebou, čo vedie na nejednotkový rozostup a bráni efektívnej vektorizácii. SoA, Structure of Arrays, je štruktúra polí - každý atribút má vlastné pole, prvky sú za sebou s jednotkovým rozostupom, ideálne pre SIMD. [pause] Ukážem to na príklade poľa trojrozmerných bodov. V AoS máš v pamäti iks, ypsilon, zet prvého bodu, potom iks, ypsilon, zet druhého bodu a tak ďalej. Keď chceš sčítať všetky iksové súradnice, máš rozostup tri a potrebuješ gather. V SoA máš všetky iksové súradnice v jednom súvislom bloku - ideálny vektorový load.
+
+Person2: Ostáva nám Roofline model. Na čo slúži?
+
+Person1: Roofline model odhaduje dosiahnuteľný výkon výpočtu na základe troch faktorov. Prvý je aritmetická intenzita - počet operácií na jeden prenesený bajt z pamäte. Druhý je priepustnosť pamäte. A tretí je výpočtový výkon, teda maximálny výkon výpočtových jednotiek. [short pause] Každý výpočet je potom buď obmedzený pamäťou - memory-bound - keď pri nízkej aritmetickej intenzite limituje priepustnosť pamäte, alebo obmedzený výpočtom - compute-bound - keď pri vysokej intenzite limituje výpočtový výkon.
+
+Person2: A ako to súvisí s vektorizáciou, o ktorej sme celý čas hovorili?
+
+Person1: Veľmi prakticky. Výpadky v cache znižujú aritmetickú intenzitu. Preto vektorizácia dáva zmysel najmä vtedy, keď sa dáta zmestia do cache a opakovane sa využijú. Ak je výpočet memory-bound, réžia prístupu do pamäte je drahá a urýchlenie zo SIMD sa jednoducho neprejaví - jednotky čakajú na dáta. Takže skôr než začneš vektorizovať, oplatí sa cez Roofline model zistiť, či ťa vôbec limituje výpočet.
+
+Person2: Dáva zmysel. Tak si to zhrňme. Dátový paralelizmus znamená rovnakú operáciu nad množinou dát a hardvér ho rieši replikáciou výpočtových jednotiek pod jednou riadiacou jednotkou - to je SIMD z Flynnovej klasifikácie. SIMD architektúry majú viacero processing elementov, so zdieľanou alebo distribuovanou pamäťou, a vystupujú ako koprocesory. GPU používa model SIMT, kde vlákna zoskupené do warpov vykonávajú spoločnú inštrukciu a pri vetvení hrozí divergencia warpu; programujú sa cez CUDA, OpenCL alebo SYCL. Na CPU máme inštrukčné sady SSE, AVX a AVX512 na x86 a Neon na ARM. Vektorizovať sa dá cez knižnice, automatickú vektorizáciu, pragmy, intrinsic funkcie alebo assembler - a pozor na nejednotkový rozostup, zarovnanie pamäte, dátové závislosti a pointer aliasing. Preferujeme štruktúru polí pred poľom štruktúr. A Roofline model nám povie, či je výpočet obmedzený pamäťou alebo výpočtom - vektorizácia sa oplatí hlavne vtedy, keď dáta sedia v cache. Držím palce pri skúške!

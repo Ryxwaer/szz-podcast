@@ -1,0 +1,251 @@
+Person1: V tomto výklade si prejdeme získavanie a modelovanie požiadaviek. Budeme hovoriť o tom, prečo sa požiadavky menia, ako sa získavajú od zákazníka, ako ich triedi model FURPS plus, a ako sa v Unified Process vytvára model prípadov použitia.
+
+Person2: Čiže cieľ nie je iba vedieť nakresliť use-case diagram, ale pochopiť celý tok od požiadaviek až po artefakty v analýze?
+
+Person1: Presne tak. Požiadavky sú prvý vážny krok životného cyklu vývoja systému. Ide o to, aby sme získali a zapísali, čo zákazník od systému očakáva. A hneď na začiatku treba rozlíšiť funkčné a nefunkčné požiadavky.
+
+Person2: Funkčné požiadavky sú tie, ktoré hovoria, čo má systém robiť?
+
+Person1: Áno. Funkčná požiadavka opisuje správanie alebo schopnosť systému. Napríklad systém umožní vytvoriť objednávku, zaregistrovať používateľa alebo schváliť platbu. Tieto požiadavky sa zisťujú od zákazníka vo fáze získavania požiadaviek a typicky to robí obchodný analytik.
+
+Person2: A nefunkčné požiadavky sú skôr o kvalite systému?
+
+Person1: Presne. Nefunkčné požiadavky nehovoria priamo, akú funkciu systém vykoná, ale aký má systém byť. Môžu sa týkať použiteľnosti, znovupoužiteľnosti, spoľahlivosti, výkonu, efektivity, podporovateľnosti a ďalších kvalitatívnych oblastí.
+
+Person2: Skúsme to rozobrať, lebo tieto kategórie sa ľahko miešajú.
+
+Person1: Použiteľnosť hovorí o tom, ako jednoducho sa systém používa. Patria sem požiadavky na dokumentáciu, prístupnosť helpu, školenia používateľov alebo vzhľad používateľského rozhrania. Typický príklad je požiadavka, aby bol text v rozhraní čitateľný z určitej vzdialenosti.
+
+Person2: Čiže použiteľnosť je o človeku pred systémom.
+
+Person1: Áno. Znovupoužiteľnosť je o tom, či môžeme časť softvéru alebo aspoň myšlienku použiť v novšej verzii systému. Môže ísť o triedy, rozhrania alebo balíčky. Spoľahlivosť rieši frekvenciu a vážnosť zlyhaní, dostupnosť systému počas údržby, zotavenie po výpadku alebo presnosť výsledkov.
+
+Person2: Výkon potom bude odozva, priepustnosť a podobné veci?
+
+Person1: Správne. Výkon zahŕňa dobu odozvy, priechodnosť transakcií, spotrebu pamäte alebo počet paralelne pripojených používateľov. Efektivita súvisí s pomerom ceny, času a potrebného výkonu, teda napríklad s nákladmi na hardvér, softvér, ľudí a ďalšie zdroje. A podporovateľnosť hovorí, ako rýchlo vieme systém pochopiť, opraviť alebo rozšíriť.
+
+Person2: Toto je dôležité aj pre architektúru, však?
+
+Person1: Veľmi. Niekedy práve nefunkčné požiadavky rozhodujú o architektúre viac než samotné funkcie. Ak systém musí byť vysoko dostupný, škálovateľný alebo ľahko rozšíriteľný, ovplyvní to návrh od začiatku.
+
+Person2: V poznámke je aj evolúcia požiadaviek. Prečo sa vôbec požiadavky berú ako niečo nestále?
+
+Person1: Pretože v reálnom projekte sa požiadavky menia. Zákazník na začiatku často nevie presne formulovať, čo chce. Jeho predstavy môžu byť nejasné, neúplné, nerealizovateľné alebo navzájom konfliktné.
+
+Person2: A nejde len o zákazníka, ale aj o to, že sa počas vývoja viac učí analytik aj zákazník.
+
+Person1: Presne. Pochopenie problému rastie počas vývoja. Prototypy, priebežné iterácie a spätná väzba ukážu nové požiadavky alebo spresnia tie staré. Okrem toho sa mení okolie: biznis prostredie, trh, legislatíva, dostupné technológie alebo konkurencia.
+
+Person2: Čiže vodopádový model, ktorý chce všetko zafixovať vopred, s tým má problém.
+
+Person1: Áno. Vodopád predpokladá, že požiadavky sa najprv úplne definujú a potom sa ide ďalej. Lenže ak sa požiadavky vyvíjajú, tak ich zmrazenie príliš skoro vedie k problémom. Unified Process na to reaguje iteratívnym a inkrementálnym vývojom.
+
+Person2: Unified Process má tie štyri fázy: inception, elaboration, construction a transition?
+
+Person1: Áno. V slovenčine si ich môžeš predstaviť ako začatie, rozpracovanie, konštrukciu a prechod do prevádzky. Najznámejšou podobou je RUP. Dôležité je, že Unified Process požiadavky nemrazí raz navždy, ale priebežne ich upresňuje v krátkych iteráciách.
+
+Person2: A z toho plynie, že požiadavky treba spravovať počas celého vývoja, nie len na začiatku.
+
+Person1: Presne. Musia sa systematicky zbierať, dokumentovať, organizovať a monitorovať. Pri väčších projektoch je to riadenie požiadaviek samo o sebe významná disciplína.
+
+Person2: Poďme teda k získavaniu požiadaviek. Kto sa ho zúčastňuje?
+
+Person1: Získavanie požiadaviek prebieha v spolupráci obchodného analytika, zákazníka a znalca odboru. Zákazník prináša predstavy a potreby. Znalec odboru prináša obchodné pravidlá a znalosti domény, ktoré bývajú často stabilnejšie než konkrétne požiadavky na systém.
+
+Person2: A výsledkom je obchodný model použitia a diagram tried?
+
+Person1: Áno, vo vysokej úrovni abstrakcie. Obchodný model použitia zachytáva procesy bez ohľadu na ich technickú realizáciu a obchodný diagram tried zachytáva hlavné obchodné objekty.
+
+Person2: Aké sú tradičné techniky získavania požiadaviek?
+
+Person1: Medzi tradičné techniky patria interview, prieskumy a dotazníky, pozorovanie a analýza úloh, doménových dokumentov alebo existujúceho systému. Sú jednoduché a efektívne hlavne pri jednoduchších systémoch.
+
+Person2: Interview asi znie najpriamočiarejšie.
+
+Person1: Je to rozhovor so zákazníkom alebo expertom. Od zákazníka získavame požiadavky na použitie systému, od odborníka znalosti o problematike. Rozhovor so zákazníkom však môže byť náročný, lebo jeho predstavy môžu byť nejasné, nezrozumiteľné, nerealizovateľné alebo v konflikte s požiadavkami iných rolí.
+
+Person2: Interview môže byť štruktúrované alebo neštruktúrované?
+
+Person1: Áno. Štruktúrované interview má pripravené otázky, niekedy aj pripravené odpovede na výber. Neštruktúrované je voľnejšie. V oboch prípadoch treba klásť nezaujaté otázky a účastníci musia byť trpezliví.
+
+Person2: Dotazníky sú pasívnejšie, však?
+
+Person1: Presne. Prieskumy a dotazníky sa často používajú spolu s interview, ale majú menšiu výpovednú hodnotu, pretože chýba priama interakcia. Výhodou je, že zákazník má čas odpovedať a premyslieť si odpoveď. Nevýhodou je, že sa ťažšie vysvetľujú nejasné otázky alebo spresňujú nejasné odpovede.
+
+Person2: Preto by mali mať otázky s dopredu danými odpoveďami alebo škálou?
+
+Person1: Áno, často je vhodný výber z možností alebo hodnotenie na stupnici. Inak sa odpovede ťažko vyhodnocujú a porovnávajú.
+
+Person2: Kedy sa používa pozorovanie?
+
+Person1: Keď nie je možné získať dostatok požiadaviek rozhovorom alebo dotazníkom, alebo keď používateľ vie úlohu robiť, ale nevie ju dobre opísať. Pozorovanie môže byť pasívne, aktívne alebo demonštratívne.
+
+Person2: Pasívne znamená, že analytik len sleduje?
+
+Person1: Áno, buď priamo, alebo napríklad cez kameru, bez zásahu do činnosti používateľa. Aktívne pozorovanie znamená, že analytik sa zúčastní pozorovanej úlohy. Demonštratívne pozorovanie je situácia, keď používateľ pri vykonávaní úlohy zároveň vysvetľuje, čo robí.
+
+Person2: Nevýhoda je, že ľudia sa pri pozorovaní správajú inak.
+
+Person1: Presne. Aby boli dáta spoľahlivejšie, pozorovanie by malo byť dlhodobé, v rôznych časoch a s rôznymi používateľmi. To je však drahé a náročné na spracovanie.
+
+Person2: A analýza dokumentov?
+
+Person1: Tá sa sústredí na existujúce úlohy, doménu alebo existujúci systém. V organizácii bývajú dokumenty, reporty, formuláre, žiadosti, interné pravidlá alebo popisy procesov. Z nich sa dá pochopiť vnútorná štruktúra organizácie, procesy, artefakty a zdroje.
+
+Person2: A doménové znalosti môžu byť aj z kníh, časopisov alebo odbornej literatúry.
+
+Person1: Áno. Táto analýza je oveľa jednoduchšia v procesne zrelých organizáciách, kde sú procesy dobre zdokumentované. V poznámke je k tomu odkaz na Capability Maturity Model: čím zrelšia organizácia, tým ľahšie sa analyzujú jej procesy.
+
+Person2: Teraz moderné metódy. Prečo sa im hovorí moderné a kedy sa oplatia?
+
+Person1: Sú drahšie, ale poskytujú lepší prehľad požiadaviek. Oplatia sa najmä pri rizikových projektoch, napríklad keď sú požiadavky nejasné alebo vývojári nemajú s doménou skúsenosť. Patria sem prototypovanie, brainstorming a JAD, teda Joint Application Design alebo Joint Application Development.
+
+Person2: Prototypovanie je asi najlepšie na spätnú väzbu od používateľov.
+
+Person1: Áno. Prototyp umožní používateľom vidieť a vyskúšať si niečo konkrétne. Je veľmi vhodný pri iteratívnom vývoji. Existujú zahadzované prototypy, ktoré slúžia len na učenie, a evolučné prototypy, ktoré sa ďalej používajú pri implementácii.
+
+Person2: Evolučný prototyp môže urýchliť vývoj, ale pri veľmi nejasných požiadavkách môže byť problém, lebo ešte nevieme, čo vlastne staviame.
+
+Person1: Presne. Prototypovanie môže byť drahé, preto sa používa hlavne vtedy, keď požiadavky nejde získať inak, keď sú konfliktné, alebo keď viazne komunikácia medzi analytikom a koncovým používateľom. Pomôcť môžu aj RAD nástroje, teda nástroje pre rýchly vývoj aplikácií.
+
+Person2: Brainstorming je o hľadaní nápadov a kompromisov?
+
+Person1: Áno. Pomáha pri hľadaní nových riešení a pri konfliktoch medzi používateľmi. Typický postup je moderovaná diskusia: predstaví sa problém, účastníci anonymne napíšu nápady, tie sa zozbierajú, skupina o nich hlasuje a najlepšie nápady sa môžu poslať späť do ďalšieho kola.
+
+Person2: Tento konkrétny postup sa volá nominal group technique?
+
+Person1: Áno, je to jedna štruktúrovaná forma brainstormingu. Výhoda anonymity je, že znižuje tlak autorít a dáva priestor aj tichším účastníkom.
+
+Person2: A čo JAD?
+
+Person1: JAD vychádza z myšlienky, že používateľ najlepšie rozumie svojej práci a vývojári najlepšie rozumejú technológii. Najlepší softvér vzniká, keď sú biznis ľudia a vývojári rovnocenní a pracujú ako jeden tím s jedným cieľom.
+
+Person2: Kto sa JAD workshopu zúčastňuje?
+
+Person1: Malá skupina kľúčových ľudí, typicky osem až pätnásť účastníkov. Spoločne navrhujú koncept produktu a sponzor robí finálne rozhodnutie. JAD je dobrý najmä na špecifikáciu systémových detailov z biznis perspektívy, nie z čisto technickej.
+
+Person2: Teraz model FURPS. Ako si ho zapamätať?
+
+Person1: FURPS je klasifikácia požiadaviek. Písmeno F je functionality, teda funkčnosť, a to je funkčná časť. Zvyšné písmená U, R, P a S sú nefunkčné alebo kvalitatívne požiadavky: usability, reliability, performance a supportability.
+
+Person2: Čo všetko patrí pod functionality?
+
+Person1: Funkčnosť sa hodnotí podľa schopností systému, teda množiny funkcií. V poznámke sa pod ňou spomína aj znovupoužiteľnosť v zmysle kompatibility, interoperability a prenositeľnosti, a bezpečnosť, teda vystavenie rizikám.
+
+Person2: Usability je použiteľnosť, reliability spoľahlivosť, performance výkon a supportability podporovateľnosť.
+
+Person1: Áno. Usability rieši ľudské faktory, dokumentáciu, konzistenciu a responzivitu. Reliability rieši dostupnosť, zotaviteľnosť, predvídateľnosť a presnosť. Performance zahŕňa priepustnosť, kapacitu, rýchlosť, efektivitu a spotrebu zdrojov. Supportability rieši servis, udržateľnosť, testovateľnosť a flexibilitu.
+
+Person2: A FURPS plus pridáva ďalšie kategórie, ktoré sa do týchto piatich nehodia.
+
+Person1: Presne. Plus znamená ďalšie požiadavky: implementačné, napríklad jazyky, nástroje a metódy; požiadavky na rozhrania, napríklad integráciu s iným systémom; prevádzkové požiadavky; fyzické obmedzenia, napríklad úložisko alebo topológiu; a legálne požiadavky, napríklad licencie a prístupy.
+
+Person2: A znovu platí, že kvalitatívne požiadavky môžu zásadne ovplyvniť architektúru.
+
+Person1: Áno. Preto sa musia analyzovať už v prvej fáze, teda v inception. Ak ich odložíme, môžeme neskôr zistiť, že architektúra neunesie výkon, dostupnosť alebo rozšíriteľnosť, ktorú zákazník potrebuje.
+
+Person2: Prejdime k use-case modelu. Poznámka zdôrazňuje, že prípady použitia sú v Unified Process hlavne textové dokumenty.
+
+Person1: To je kľúčové. Use-case model nie je primárne kreslenie oválov v diagrame. Diagram je len prehľad. Skutočná práca je písanie textových prípadov použitia, ktoré opisujú ciele používateľov a scenáre dôležité z ich pohľadu.
+
+Person2: Koncoví používatelia sa musia zúčastniť získavania špecifikácie požiadaviek, lebo práve ich ciele sú jadrom modelu.
+
+Person1: Presne. Prípad použitia má vyjadrovať, čo chce primárny používateľ so systémom dosiahnuť. Nie ako je naprogramované menu, tlačidlo alebo databázový insert.
+
+Person2: Textový popis prípadu použitia môže byť krátky, informatívny alebo plný?
+
+Person1: Áno. Krátky popis je jeden odsek pre typický hlavný scenár. Informatívny alebo všeobecný popis už obsahuje aj alternatívne scenáre. Plný popis je štruktúrovaný detailný opis krokov a variantov a používa sa len pre dôležité scenáre, ktoré sú významné pre architektúru alebo pre koncových používateľov.
+
+Person2: Aké sú najlepšie praktiky pri use-case modeli?
+
+Person1: Sústreď sa na výsledok, teda cieľ, nie na konkrétne riešenie. Napíš, že používateľ sa identifikuje, nie že vyplní meno a heslo. Používaj stručné a informatívne popisy. Ber systém ako black box: popisuj, čo systém robí, nie ako to robí. A píš z pohľadu primárnych používateľov a ich cieľov.
+
+Person2: Black box znamená, že nepíšem technické detaily typu systém pošle SQL príkaz do databázy.
+
+Person1: Presne. Namiesto toho povieš: systém zaregistruje objednávku. V analýze požiadaviek je dôležité, čo je viditeľné a hodnotné pre aktéra.
+
+Person2: Ako sa postupuje pri modelovaní prípadov použitia?
+
+Person1: Najprv definujeme rozsah systému. Potom identifikujeme primárnych používateľov a ich ciele. Pýtame sa napríklad, kto štartuje alebo zastavuje systém, kto spravuje používateľov a ich práva, a či môže byť čas aktérom.
+
+Person2: Čas ako aktér znamená, že niektoré prípady použitia spúšťa časová udalosť?
+
+Person1: Áno. Napríklad systém v pravidelnom čase vygeneruje report alebo spustí dávkové spracovanie. Po aktéroch a cieľoch definujeme a opíšeme jednotlivé prípady použitia.
+
+Person2: Pri identifikácii môžeme začať aktérom a jeho prípadmi použitia, alebo najprv zoznamom všetkých aktérov.
+
+Person1: Áno. Ďalšia možnosť je identifikovať externé udalosti, ich zdroje, aktérov a ciele. Dôležité je hľadať užitočnú úroveň detailu.
+
+Person2: Poznámka spomína, že CRUD prípady by sa mali agregovať.
+
+Person1: Áno. Namiesto samostatných prípadov použitia pridaj zákazníka, uprav zákazníka a vymaž zákazníka často stačí jeden prípad použitia spravuj zákazníkov. Prípady použitia by nemali byť príliš malé.
+
+Person2: Niektoré prípady sú otázne, napríklad prihlás sa do systému.
+
+Person1: Presne. Otázka nie je, či je niečo technicky možné nazvať prípadom použitia. Lepšia otázka je, či je to užitočná úroveň sústredenia pre analýzu požiadaviek.
+
+Person2: Na to sú testy užitočnosti: Boss test, EBP test a Size test.
+
+Person1: Boss test sa pýta: čo si robil celý deň? Ak odpoveď znie prihlásil som sa do systému, šéf nebude spokojný, lebo to nemá samostatnú biznis hodnotu. Ak odpoveď znie spracoval som objednávky alebo schválil kredit, už to zmysel dáva.
+
+Person2: EBP test hovorí o elementárnom biznis procese.
+
+Person1: Áno. Je to úloha vykonaná jednou osobou na jednom mieste v jednom čase ako odpoveď na biznis udalosť, ktorá pridáva merateľnú biznis hodnotu a necháva dáta v konzistentnom stave. Napríklad schváliť kredit je lepšie než vytlačiť dokument.
+
+Person2: A Size test hovorí, že jeden krok v sekvencii je príliš málo.
+
+Person1: Presne. Ak je kandidát na prípad použitia iba jeden drobný krok, pravdepodobne je úroveň príliš nízka.
+
+Person2: V use-case diagrame sú aj vzťahy medzi prípadmi použitia. Začnime include.
+
+Person1: Vzťah include znamená, že zahrnutý prípad použitia sa vždy vykoná ako súčasť iného prípadu použitia. Používa sa na vyňatie spoločného správania, ktoré zdieľa viac prípadov použitia. Napríklad viaceré procesy môžu vždy zahŕňať overenie oprávnenia.
+
+Person2: Ale časté používanie include znižuje zrozumiteľnosť diagramu.
+
+Person1: Áno. Ak všetko rozsekáme na malé zahrnuté kúsky, diagram prestane pomáhať. Vzťah extend je iný: rozširujúci prípad použitia sa vykoná len podmienene, v definovanom bode rozšírenia základného prípadu.
+
+Person2: Čiže extend je pre voliteľné alebo výnimočné správanie.
+
+Person1: Presne. Len je ťažšie pochopiteľný, aj pre vývojárov. A potom je tu generalizácia, teda špecializácia. Špecializovaný prípad použitia dedí, rozširuje alebo upravuje všeobecnejší prípad použitia. Pri neabstraktných prípadoch použitia je však lepšie sa špecializácii skôr vyhnúť a často je vhodnejší extend.
+
+Person2: Ako vyzerá šablóna scenára prípadu použitia?
+
+Person1: Zvyčajne obsahuje meno, identifikátor a anotáciu, teda stručný popis cieľa. Ďalej primárneho aktéra a sekundárnych alebo podporných aktérov, predpoklady, výsledky, hlavný úspešný scenár, alternatívne toky, výnimky a otvorené otázky.
+
+Person2: Predpoklady hovoria, čo musí platiť pred spustením, a výsledky hovoria, v akom stave je systém po úspešnom dokončení.
+
+Person1: Áno. Hlavný úspešný scenár je postupnosť krokov interakcie aktéra a systému. Alternatívne toky a výnimky potom pokrývajú varianty a problémy. Aj tu platí: sústrediť sa na cieľ, nie na používateľské rozhranie, a brať systém ako black box.
+
+Person2: Zostávajú artefakty Unified Process súvisiace s požiadavkami.
+
+Person1: V Unified Process vzniká viac artefaktov. Prvým je use-case model, teda diagram prípadov použitia spolu s textovými opismi. Tie zachytávajú ciele a typické použitie z pohľadu používateľa.
+
+Person2: Ďalšia je doplňujúca špecifikácia.
+
+Person1: Áno. Doplňujúca špecifikácia obsahuje nefunkčné požiadavky a všetko, čo sa nedá dobre vyjadriť v prípadoch použitia. Napríklad výkon, spoľahlivosť, bezpečnostné obmedzenia alebo požiadavky na použiteľnosť.
+
+Person2: Slovník, teda glossary, definuje pojmy?
+
+Person1: Presne. Slovník zjednocuje terminológiu domény a často zahŕňa aj dátový slovník: typy dát, obmedzenia a rozsahy. Je dôležitý preto, aby zákazník, analytik aj vývojári používali rovnaké slová v rovnakom význame.
+
+Person2: Vízia potom zhŕňa požiadavky vysokej úrovne a prínosy projektu.
+
+Person1: Áno. Vízia odpovedá na otázku, prečo sa systém robí a akú hodnotu má priniesť. Ďalej máme biznis alebo doménové pravidlá, napríklad legislatívu, interné pravidlá alebo pravidlá aplikačnej domény.
+
+Person2: A model rozsahu systému určuje hranice systému.
+
+Person1: Áno. Určuje, čo do systému patrí a čo už nie. Pri zmenách požiadaviek by sa rozsah nemal nepozorovane meniť, inak projekt začne rásť bez kontroly.
+
+Person2: Spomínali sme aj obchodný model použitia a obchodný diagram tried.
+
+Person1: Obchodný model použitia je model procesov na vysokej úrovni abstrakcie, bez ohľadu na ich realizáciu v softvéri. Neskôr sa transformuje na prípady použitia systému. Obchodný diagram tried zachytáva hlavné obchodné objekty systému, tiež na vysokej úrovni abstrakcie.
+
+Person2: A z týchto požiadavkových artefaktov sa potom odvodzujú ďalšie analytické a návrhové artefakty, napríklad systémové sekvenčné diagramy, operation contracts a návrhový model.
+
+Person1: Presne. Pointa je, že požiadavky nie sú izolovaný dokument. Sú prepojené s doménovým modelom, use-case modelom, víziou, slovníkom, doplňujúcou špecifikáciou a následne s analýzou a návrhom.
+
+Person2: Keď si to celé spojím, tak získavanie a modelovanie požiadaviek začína rozlíšením funkčných a nefunkčných požiadaviek, pokračuje ich priebežným získavaním a spresňovaním, lebo požiadavky sa vyvíjajú, a v Unified Process sa zapisujú najmä cez prípady použitia a doplnkové artefakty.
+
+Person1: Áno. A na skúške je dobré zdôrazniť tri veci. Po prvé, požiadavky sa menia, preto je vhodný iteratívny prístup. Po druhé, FURPS plus pomáha systematicky triediť funkčné aj kvalitatívne požiadavky. Po tretie, use-case model je najmä textový opis cieľov používateľov, nie len UML obrázok.
+
+Person2: Takže hlavné zapamätanie: funkčné požiadavky hovoria, čo systém robí, nefunkčné hovoria, aký má byť; požiadavky získavame cez interview, dotazníky, pozorovanie, dokumenty, prototypy, brainstorming a JAD; a dobrý prípad použitia opisuje zmysluplný cieľ používateľa na správnej úrovni detailu.

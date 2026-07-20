@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Backend-aware launcher - run straight from source without installing anything.
+# Usage: ./szzpod <command> [args]   (e.g. ./szzpod tts Q21_..._vyklad)
+#
+# `tts` is dispatched to the generator selected by `backend:` in config.yaml
+# (elevenlabs | gemini | azure), each self-contained in its own folder. `upload`,
+# `validate` (and anything else) always run the szzpod CLI (src/szzpod), because
+# they are backend-agnostic: R2 upload and transcript-format checking do not depend
+# on which TTS engine rendered the audio. Every backend writes the episode to the
+# repo-root audio/<name>.mp3, so `upload` finds it regardless of which produced it.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+run_szzpod() {
+  PYTHONPATH="${HERE}/src${PYTHONPATH:+:${PYTHONPATH}}" exec python3 -m szzpod.cli "$@"
+}
+
+CMD="${1:-}"
+
+# Only `tts` is backend-switchable; everything else stays on the szzpod CLI.
+if [[ "$CMD" != "tts" ]]; then
+  run_szzpod "$@"
+fi
+
+# Read the backend from config.yaml (strip inline comments, quotes, whitespace).
+BACKEND="$(awk -F'#' '/^[[:space:]]*backend:/{print $1; exit}' "${HERE}/config.yaml" \
+  | cut -d: -f2- | tr -d " \"'")"
+BACKEND="${BACKEND:-elevenlabs}"
+
+case "$BACKEND" in
+  elevenlabs)
+    exec "${HERE}/elevenlabs_speech/run" "$@"
+    ;;
+  gemini)
+    exec "${HERE}/gemini_speech/run" "$@"
+    ;;
+  azure)
+    exec "${HERE}/azure_speech/run" "$@"
+    ;;
+  *)
+    echo "szzpod: unknown backend '${BACKEND}' in config.yaml (use: elevenlabs | gemini | azure)" >&2
+    exit 1
+    ;;
+esac

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Standalone launcher for the Gemini Speech renderer. Sets PYTHONPATH and runs the
+# CLI from the local source tree (no install needed), mirroring ../szzpod.
+set -euo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="$DIR/src${PYTHONPATH:+:$PYTHONPATH}"
+exec python -m gspeech.cli "$@"

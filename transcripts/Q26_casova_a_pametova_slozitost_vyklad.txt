@@ -1,0 +1,159 @@
+Person1: V tomto výklade si prejdeme časovú a pamäťovú zložitosť. Budeme hovoriť o asymptotike, amortizovanej zložitosti, triedach zložitosti, úplnosti a nakoniec o probléme SAT.
+
+Person2: Čiže cieľ je vedieť nielen povedať, koľko algoritmus trvá, ale aj zaradiť problém do triedy a rozumieť, čo znamená, že je úplný?
+
+Person1: Presne tak. Začnime časovou zložitosťou Turingovho stroja. Pri deterministickom Turingovom stroji časová zložitosť hovorí, koľko prechodov, teda krokov, stroj maximálne spraví na vstupoch danej dĺžky. Vždy sa pozeráme na všetky reťazce rovnakej dĺžky a vezmeme najhorší prípad.
+
+Person2: Takže časová zložitosť nie je hodnota pre jeden konkrétny vstup, ale funkcia dĺžky vstupu.
+
+Person1: Áno. Pre každú dĺžku vstupu povieme, aký je najväčší počet krokov, ktorý môže nastať. Pri nedeterministickom Turingovom stroji je to trochu jemnejšie. Pre daný reťazec nás zaujíma najkratšia prijímajúca vetva výpočtu, ak taká existuje. Potom cez všetky reťazce danej dĺžky opäť vezmeme maximum.
+
+Person2: Čiže pri nedeterminizme sa najprv hľadá najlepšia prijímajúca vetva pre konkrétne slovo a až potom najhorší vstup danej dĺžky.
+
+Person1: Áno, dobre povedané. Je dôležité, že zamietajúce vetvy alebo vetvy, ktoré sa k prijatiu nedostanú, nie sú dôkazom prijatia. Stačí existencia jednej prijímajúcej vetvy a čas pre dané slovo sa meria podľa najkratšej takej vetvy.
+
+Person2: A pamäťová, alebo priestorová, zložitosť sa meria podobne?
+
+Person1: Podobne, ale namiesto krokov počítame bunky pásky, na ktorých hlava počas výpočtu spočinula. Teda koľko pamäte stroj použil pri spracovaní vstupov danej dĺžky. Pri nedeterministickom stroji sa opäť používa tá istá intuícia: pre dané slovo minimum cez prijímajúce vetvy a potom maximum cez slová rovnakej dĺžky.
+
+Person2: Do priestoru sa vždy počíta aj vstupná páska?
+
+Person1: Často sa vstupná páska nepočíta, ak je len na čítanie. Potom meriame pracovný priestor. Intuitívne zároveň platí, že pri jednom výpočte nemôžeme použiť viac než počet krokov plus jedna bunka, lebo hlava sa za daný počet krokov nevie dotknúť viac nových buniek.
+
+Person2: To dáva zmysel. Ak spravím málo krokov, nestihnem sa dotknúť obrovského počtu buniek.
+
+Person1: Presne. Teraz prejdime k asymptotickým obmedzeniam. Ich zmysel je, že pri veľkých vstupoch nechceme riešiť presné konštanty, ale rast funkcie. Horné asymptotické obmedzenie, čítané ako veľké O od f en, znamená, že funkcia g je od istého miesta najviac konštantný násobok funkcie f.
+
+Person2: Čiže ak má algoritmus čas tri en plus desať, môžeme povedať, že je v O od en?
+
+Person1: Áno. Od dostatočne veľkého en je tri en plus desať zhora ohraničené napríklad štyri krát en. Multiplikatívne a aditívne konštanty sa v tomto zápise strácajú. Ale treba si dať pozor: veľké O je len horné ohraničenie.
+
+Person2: To znamená, že lineárny algoritmus môžem formálne zaradiť aj do O od en na druhú?
+
+Person1: Áno. Je to pravda, len je to menej presné. Ak chceme povedať, že funkcia rastie presne ako f až na konštanty, použijeme téta od f en. Téta znamená, že funkcia je zhora aj zdola ohraničená konštantným násobkom f.
+
+Person2: A dolné ohraničenie je omega?
+
+Person1: Áno. Omega od f en znamená, že funkcia g je od istého miesta aspoň konštantný násobok f. Teda O hovorí najviac, omega hovorí najmenej a téta hovorí oboje naraz.
+
+Person2: Dobre. A kde do toho zapadá amortizovaná zložitosť?
+
+Person1: Amortizovaná zložitosť rieši postupnosti operácií. Nie je to priemerná zložitosť a nepracuje s pravdepodobnosťami. Hovorí, že pre ľubovoľnú postupnosť operácií je priemerná cena na operáciu malá, aj keď niektoré jednotlivé operácie môžu byť drahé.
+
+Person2: Teda drahá operácia môže nastať, ale iba vtedy, keď pred ňou prebehlo dosť lacných operácií, ktoré ju akoby zaplatia.
+
+Person1: Presne. Jedna metóda je zoskupovanie: spočítame cenu celej postupnosti a vydelíme počtom operácií. Druhá je metóda účtov. Každej operácii priradíme účtovanú cenu a časť tejto ceny môže ísť ako kredit do zásoby. Keď neskôr príde drahšia operácia, zaplatí sa z kreditov.
+
+Person2: Ale zostatok účtu musí byť stále nezáporný, však?
+
+Person1: Áno. To je podstatná podmienka. Nemôžeme si požičiavať z budúcnosti. Príklad je fronta s operáciami vlož do fronty, odober z fronty a vyčisti frontu. Vloženie stojí skutočne jednu jednotku, ale môžeme mu účtovať dve. Jedna jednotka zaplatí vloženie a druhá zostane ako kredit pri prvku.
+
+Person2: Potom keď prvok neskôr odoberiem alebo ho odstráni operácia vyčisti frontu, jeho odstránenie sa zaplatí z toho kreditu.
+
+Person1: Presne. Aj keď samotné vyčistenie fronty môže stáť toľko, koľko je vo fronte prvkov, cez celú postupnosť nemôžeme odstrániť viac prvkov, než sme predtým vložili. Preto je celková cena najviac lineárna v počte operácií, konkrétne pri tomto účtovaní najviac približne dve jednotky na operáciu vloženia.
+
+Person2: Čiže keby sme sa pozerali na jednu operáciu vyčistenia izolovane, vyzerá lineárne vo veľkosti fronty. Ale v postupnosti sa jej cena rozloží.
+
+Person1: Áno. Rovnaká intuícia je pri dynamickom poli. Vloženie prvku je väčšinou lacné, ale keď sa pole zaplní, treba vytvoriť väčšie pole a presunúť prvky. Ak sa kapacita zdvojnásobuje, súčet všetkých presunov cez en vložení je lineárny, takže amortizovaná cena vloženia je konštantná.
+
+Person2: A pri zmenšovaní poľa treba dávať pozor, aby sa kapacita nezväčšovala a nezmenšovala stále dokola.
+
+Person1: Áno. Preto sa zmenšovanie robí s iným prahom než zväčšovanie. Napríklad zväčšujeme pri plnej kapacite, ale zmenšujeme až keď je pole zaplnené len zo štvrtiny. Inak by mohla kapacita oscilovať a amortizačný argument by sa pokazil.
+
+Person2: Teraz by som prešla k triedam zložitosti. Ako sa formálne definujú?
+
+Person1: Triedy ako D time, N time, D space a N space sú množiny jazykov, ktoré vieme prijímať určitým typom Turingovho stroja v danom čase alebo priestore. D time od f en obsahuje jazyky prijímané deterministickým viacpáskovým Turingovým strojom v čase O od f en.
+
+Person2: A N time od f en je to isté, len pre nedeterministický Turingov stroj?
+
+Person1: Áno. D space od f en sú jazyky prijímané deterministicky v priestore O od f en a N space od f en sú jazyky prijímané nedeterministicky v priestore O od f en. Všade ide o asymptotické obmedzenie podľa dĺžky vstupu.
+
+Person2: Vieš dať jednoduchý príklad, kde záleží na dĺžke a na modeli stroja?
+
+Person1: Jazyk slov nad písmenami a a b, ktoré začínajú písmenom a, je v konštantnom čase, lebo stačí pozrieť prvý symbol. Je samozrejme aj v lineárnom čase. Jazyk slov, ktoré končia písmenom b, na jednopáskovom stroji nie je v konštantnom čase, lebo musíme dôjsť na koniec vstupu.
+
+Person2: A čo jazyk, kde sú všetky slová dlhšie než nejaká obrovská pevná konštanta?
+
+Person1: Ak je hranica pevná, hoci extrémne veľká, stále ide o konštantný čas z hľadiska asymptotiky. Konštanta môže byť nepraktická, ale v definícii triedy sa berie ako konštanta.
+
+Person2: To je trochu proti intuícii, ale formálne to sedí.
+
+Person1: Ďalší dobrý príklad je jazyk palindrómov tvaru w nasledované obráteným w. Na jednopáskovom Turingovom stroji sa dá porovnávať od krajov do stredu a vyjde kvadratický čas. Na dvojpáskovom stroji vieme mať efektívnejšie usporiadanie, napríklad prvú časť na jednej páske a obrátenú druhú časť na druhej, a dosiahnuť lineárny čas.
+
+Person2: Takže aj vo formálnych triedach musíme sledovať, aký model Turingovho stroja používame.
+
+Person1: Áno, najmä pri jemných triedach. Teraz veľké triedy. Trieda P je množina jazykov prijímaných deterministicky v polynomiálnom čase. Formálne je to zjednotenie D time od en na k cez všetky prirodzené k od nuly vyššie.
+
+Person2: A trieda NP je zjednotenie N time od en na k cez všetky k?
+
+Person1: Presne. NP znamená nedeterministicky polynomiálny čas. Veľmi častá chyba je myslieť si, že NP znamená nie polynomiálne. To nie je pravda. Dobrá intuícia je, že pri jazykoch v NP existuje certifikát, ktorý vieme deterministicky overiť v polynomiálnom čase.
+
+Person2: Napríklad uhádnem riešenie a potom ho rýchlo overím.
+
+Person1: Áno. Ďalej PSPACE sú jazyky prijímané deterministicky v polynomiálnom priestore a NPSPACE sú jazyky prijímané nedeterministicky v polynomiálnom priestore. Existuje aj EXP, deterministický exponenciálny čas tvaru dva na en na k, a LOGSPACE, deterministický logaritmický priestor, teda priestor konštanta krát logaritmus en.
+
+Person2: Aké inklúzie medzi týmito triedami si treba pamätať?
+
+Person1: Základný reťazec je LOGSPACE je podmnožina NLOGSPACE, tá je podmnožina P a P je podmnožina NP. Ďalej NP je podmnožina PSPACE a PSPACE sa rovná NPSPACE. Táto rovnosť plynie zo Savitchovej vety.
+
+Person2: A medzi väčšími triedami?
+
+Person1: NEXP je podmnožina EXPSPACE, EXPSPACE sa rovná NEXPSPACE, tá je podmnožina dvojexponenciálneho deterministického času a ten je podmnožina dvojexponenciálneho nedeterministického času. Tiež vieme, že P je ostro menšia než EXP, NP je ostro menšia než NEXP, PSPACE je podmnožina NEXPSPACE a EXP je ostro menšia než dvojexponenciálny čas.
+
+Person2: Ale P verzus NP je stále otvorený problém.
+
+Person1: Áno. Väčšina blízkych inklúzií je neostrá alebo otvorená, najmä P verzus NP. Naopak exponenciálne medzery, ako P oproti EXP alebo NP oproti NEXP, sú ostré podľa hierarchických viet.
+
+Person2: Ako sa v tomto obraze chápe nedeterminizmus? Prináša viac výpočtovej sily?
+
+Person1: Z hľadiska vyčísliteľnosti nie. Nedeterministický Turingov stroj nevie rozpoznať nič, čo by nebolo rozpoznateľné deterministicky. Deterministický stroj môže simulovať vetvenie nedeterministického stroja. Z hľadiska zložitosti však simulácia typicky spôsobí exponenciálny nárast času, lebo deterministicky musíme prehľadávať strom možných vetiev.
+
+Person2: Čiže nedeterminizmus nemení, čo je vypočítateľné, ale môže dramaticky zmeniť, ako rýchlo to vieme vyjadriť v zložitostných triedach.
+
+Person1: Presne. Teraz sa dostávame k redukciám a úplnosti. Redukcia medzi jazykmi je spôsob, ako preložiť vstup jedného problému na vstup druhého problému tak, aby sa zachovala odpoveď áno alebo nie.
+
+Person2: Čiže jazyk L jedna je redukovateľný na jazyk L dva, ak existuje funkcia f taká, že slovo patrí do L jedna práve vtedy, keď jeho obraz cez f patrí do L dva.
+
+Person1: Áno. Pri polynomiálnej redukcii navyše požadujeme, aby funkcia f bola vyčísliteľná úplným deterministickým Turingovým strojom v polynomiálnom čase. Píšeme si to ako many one redukciu: jeden vstup preložíme na jeden vstup cieľového problému.
+
+Person2: Prečo je smer redukcie taký dôležitý?
+
+Person1: Lebo ak L jedna redukujeme na L dva, znamená to, že riešič pre L dva by vyriešil aj L jedna. Teda L dva je aspoň tak ťažký ako L jedna. Pri dôkaze NP ťažkosti cieľového problému preto redukujeme známy NP úplný problém na cieľový problém, nie opačne.
+
+Person2: A čo znamená C ťažkosť a C úplnosť?
+
+Person1: Všeobecne, pre triedu jazykov C a vhodnú triedu redukčných funkcií F, je jazyk L nula C ťažký, ak sa každý jazyk z C redukuje na L nula pomocou redukcie z F. Jazyk L nula je C úplný, ak je C ťažký a zároveň sám patrí do C.
+
+Person2: Pre NP teda NP ťažký znamená, že každý jazyk z NP sa dá polynomiálne redukovať na daný jazyk.
+
+Person1: Áno. A NP úplný znamená dve veci naraz: jazyk je NP ťažký a zároveň je v NP. Pri NP, PSPACE aj EXP úplnosti sa v poznámke používa polynomiálna redukovateľnosť, teda redukčná funkcia vyčísliteľná v polynomiálnom čase.
+
+Person2: Teraz SAT. Ako ho definovať bez toho, aby sme sa stratili v notácii?
+
+Person1: SAT je jazyk kódov výrokových formúl, ktoré sú splniteľné. Vstupom je zakódovaná výroková formula a odpoveď áno znamená, že existuje valuácia premenných, pri ktorej je formula pravdivá.
+
+Person2: Napríklad formula x jedna alebo x dva je splniteľná, lebo stačí nastaviť aspoň jednu premennú na pravdu.
+
+Person1: Áno. Naopak formula, ktorá obsahuje všetky kombinácie klauzúl tak, že núti naraz splniť protichodné požiadavky na x jedna a x dva, môže byť nesplniteľná. Podstatné je, že SAT patrí do NP: nedeterministicky uhádneme valuáciu a deterministicky v polynomiálnom čase overíme, či formula vyšla pravdivá.
+
+Person2: A prečo je SAT NP úplný?
+
+Person1: Lebo podľa Cookovej a Levinovej vety je SAT NP ťažký. Veta hovorí, že akceptujúci výpočet ľubovoľného nedeterministického Turingovho stroja pracujúceho v polynomiálnom čase sa dá zakódovať do výrokovej formule. Tá formula je splniteľná práve vtedy, keď pôvodný stroj prijíma.
+
+Person2: Keďže SAT je v NP a zároveň je NP ťažký, je NP úplný.
+
+Person1: Presne. A dôležité je aj to, že NP úplný je aj tri SAT, kde každá klauzula má práve tri literály. Dlhé klauzuly sa dajú rozbiť pomocou pomocných premenných tak, aby sa zachovala splniteľnosť.
+
+Person2: Ale pri dva SAT to už takto neplatí, lebo dva SAT je v P.
+
+Person1: Áno. To je dobrá skúšková záludnosť. Deterministicky vieme SAT riešiť exponenciálne: vyskúšame všetky valuácie premenných, teda pri en premenných všetky dva na en možnosti, a každú overíme.
+
+Person2: Čiže SAT je typický problém, kde overenie riešenia je polynomiálne, ale najjednoduchšie deterministické hľadanie riešenia je exponenciálne.
+
+Person1: Áno. A preto je taký dôležitý pre pochopenie NP úplnosti. Ak by sa našiel polynomiálny algoritmus pre SAT, cez redukcie by sa vyriešil v polynomiálnom čase každý problém z NP.
+
+Person2: To by znamenalo P rovná sa NP.
+
+Person1: Presne. A naopak, ak by sa dokázalo, že SAT nemá polynomiálny algoritmus, dostali by sme P nerovná sa NP. Poznámka síce nejde do dôsledkov pre kryptografiu, ale pre skúškové pochopenie stačí držať sa redukcií: NP úplný problém reprezentuje najťažšie problémy v NP.
+
+Person2: Skúsim si to zhrnúť. Časová zložitosť počíta kroky a priestorová zložitosť bunky pásky ako funkciu dĺžky vstupu. Asymptotika ignoruje konštanty a rozlišuje horné O, dolnú omega a obojstrannú tétu. Amortizovaná zložitosť garantuje dobrú cenu celej postupnosti operácií, nie priemer podľa pravdepodobnosti. Triedy ako P, NP a PSPACE sa definujú cez čas alebo priestor Turingových strojov. Redukcia prekladá jeden problém na druhý a určuje smer ťažkosti. NP úplný problém je v NP a je aspoň taký ťažký ako každý problém v NP. SAT je základný NP úplný problém a tri SAT tiež, zatiaľ čo deterministické skúšanie všetkých valuácií je exponenciálne.
