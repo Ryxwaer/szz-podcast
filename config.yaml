@@ -13,7 +13,7 @@
 # `upload` and `validate` always run the szzpod CLI regardless of this, and every
 # backend writes the episode to the repo-root audio/<name>.mp3, so upload + embed
 # are unchanged whichever engine rendered it.
-backend: "gemini"
+backend: "elevenlabs"
 
 # Canonical, shared filesystem locations (relative to repo root unless absolute).
 # The backends read the transcript from here and write the mp3 here; `upload`

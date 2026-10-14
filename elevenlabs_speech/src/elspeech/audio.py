@@ -9,6 +9,7 @@ true-peak limiter guards against clipping after any boost.
 from __future__ import annotations
 
 import json
+import math
 import re
 import subprocess
 from collections import defaultdict
@@ -16,18 +17,17 @@ from pathlib import Path
 
 # Cap per-speaker correction so we never over-amplify a near-silent/noisy segment.
 MAX_GAIN_DB = 12.0
-# Final safety ceiling (true peak), as a linear amplitude. -1.0 dBFS ~= 0.891.
-TRUE_PEAK_LIMIT = 0.891
+TRUE_PEAK_DBFS = -1.5
+TRUE_PEAK_LIMIT = 10 ** (TRUE_PEAK_DBFS / 20.0)
 SILENCE_FLOOR_LUFS = -70.0
 
-# Final mastering chain over the whole episode: a compressor catches loud phrase
-# onsets (fast attack), a dynamic normalizer evens out slower loudness drift
-# (threshold keeps it off the silences), then a true-peak limiter for safety.
-MASTER_CHAIN = (
-    "acompressor=threshold=-20dB:ratio=4:attack=5:release=150:makeup=3,"
-    "dynaudnorm=f=400:g=21:p=0.9:m=3:t=0.02,"
-    f"alimiter=limit={TRUE_PEAK_LIMIT}"
+# Gentle RMS compression stabilizes speech before episode-wide EBU R128
+# normalization. FFmpeg's `makeup` is a linear multiplier, so 1.4125 is +3 dB.
+COMPRESSOR_FILTER = (
+    "acompressor=threshold=-24dB:ratio=3:attack=10:release=250:"
+    "makeup=1.4125:knee=2.828:detection=rms"
 )
+LOUDNESS_RANGE_LU = 7.0
 
 
 def make_silence(seconds: float, sample_rate: int, bitrate: str, out_path: Path) -> None:
@@ -98,17 +98,56 @@ def process_chunk(src: Path, segments: list[dict], target_lufs: float,
     by_voice = _segments_by_voice(segments)
     gains = speaker_gains(src, by_voice, target_lufs)
     af_parts = build_filter(by_voice, gains)
-    af_parts.append(f"alimiter=limit={TRUE_PEAK_LIMIT}")
+    af_parts.append(f"alimiter=limit={TRUE_PEAK_LIMIT}:level=false:latency=true")
     cmd = ["ffmpeg", "-y", "-i", str(src), "-af", ",".join(af_parts),
            "-c:a", "libmp3lame", "-b:a", bitrate, "-ar", str(sample_rate), str(dst)]
     subprocess.run(cmd, check=True, capture_output=True)
     return gains
 
 
-def master(src: Path, dst: Path, sample_rate: int, bitrate: str) -> None:
-    """Apply the final dynamics chain across the whole episode."""
+def _loudnorm_stats(src: Path, target_lufs: float) -> dict[str, float]:
+    """Measure compressed audio for the second EBU R128 normalization pass."""
+    loudnorm = (
+        f"loudnorm=I={target_lufs}:LRA={LOUDNESS_RANGE_LU}:"
+        f"TP={TRUE_PEAK_DBFS}:print_format=json"
+    )
+    proc = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-nostats", "-i", str(src),
+         "-af", f"{COMPRESSOR_FILTER},{loudnorm}", "-f", "null", "-"],
+        check=True, capture_output=True, text=True,
+    )
+    match = re.search(r'\{\s*"input_i".*?\}', proc.stderr, re.DOTALL)
+    if match is None:
+        raise RuntimeError("ffmpeg loudnorm first pass did not return measurement data")
+
+    raw = json.loads(match.group(0))
+    required = ("input_i", "input_lra", "input_tp", "input_thresh", "target_offset")
+    stats: dict[str, float] = {}
+    for key in required:
+        value = float(raw[key])
+        if not math.isfinite(value):
+            raise RuntimeError(f"ffmpeg loudnorm returned invalid {key}: {raw[key]}")
+        stats[key] = value
+    return stats
+
+
+def _master_filter(target_lufs: float, stats: dict[str, float]) -> str:
+    loudnorm = (
+        f"loudnorm=I={target_lufs}:LRA={LOUDNESS_RANGE_LU}:TP={TRUE_PEAK_DBFS}:"
+        f"measured_I={stats['input_i']}:measured_LRA={stats['input_lra']}:"
+        f"measured_TP={stats['input_tp']}:measured_thresh={stats['input_thresh']}:"
+        f"offset={stats['target_offset']}:linear=true"
+    )
+    limiter = f"alimiter=limit={TRUE_PEAK_LIMIT}:level=false:latency=true"
+    return f"{COMPRESSOR_FILTER},{loudnorm},{limiter}"
+
+
+def master(src: Path, dst: Path, sample_rate: int, bitrate: str,
+           target_lufs: float) -> None:
+    """Compress speech, apply two-pass EBU R128 normalization, and limit peaks."""
+    stats = _loudnorm_stats(src, target_lufs)
     subprocess.run(
-        ["ffmpeg", "-y", "-i", str(src), "-af", MASTER_CHAIN,
+        ["ffmpeg", "-y", "-i", str(src), "-af", _master_filter(target_lufs, stats),
          "-c:a", "libmp3lame", "-b:a", bitrate, "-ar", str(sample_rate), str(dst)],
         check=True, capture_output=True,
     )
@@ -147,7 +186,7 @@ def assemble(chunk_files: list[Path], silence: Path | None, sample_rate: int, bi
     if dynamics:
         joined = tmp / "_joined.mp3"
         concat(final, sample_rate, bitrate, joined)
-        master(joined, out_path, sample_rate, bitrate)
+        master(joined, out_path, sample_rate, bitrate, target_lufs)
     else:
         concat(final, sample_rate, bitrate, out_path)
     return applied

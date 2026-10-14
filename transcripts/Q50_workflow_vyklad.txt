@@ -1,0 +1,115 @@
+Person1: Témou je workflow a jeho využitie: business proces, systém na riadenie workflow, referenčný model, zdroje, úlohy, činnosti a jazyky na opis workflow.
+
+Person2: Začnime rozdielom, ktorý sa ľahko prehliadne. Čo presne je business proces a čo už je workflow?
+
+Person1: Business proces je koordinačný mechanizmus naprieč organizačnými jednotkami, distribuovaný v čase aj priestore. Integruje a koordinuje rozptýlené zdroje tak, aby správny človek dostal správnu informáciu v správnom čase a mohol vykonať pridelenú úlohu. Proces teda odpovedá na štyri otázky: čo sa má urobiť, ako, kedy a kto to urobí.
+
+Person2: Čiže nejde iba o postup krokov, ale aj o ľudí, informácie, zdroje a načasovanie.
+
+Person1: Presne. Z technologického pohľadu workflow oddeľuje opis procesu od vlastnej implementácie informačného systému. Potrebujeme jednak spôsob, ako proces opísať, jednak infraštruktúru schopnú tento opis vykonať. K tomu patria doplnkové funkcie, napríklad monitorovanie a analýza.
+
+Person2: Aký proces si pod tým môžem predstaviť?
+
+Person1: Napríklad recenziu konferenčného príspevku. Príspevok sa odošle, pridelí recenzentom, posúdi a výsledok sa vráti autorovi. Iným príkladom je zariadenie služobnej cesty: objednanie leteniek a ubytovania, vypožičanie auta, zaplatenie poplatkov a schválenie cesty. V oboch prípadoch treba koordinovať viac krokov a zdrojov.
+
+Person2: A workflow je teda konkrétnejšia realizácia takéhoto procesu?
+
+Person1: Áno. Workflow je procedurálna automatizácia business procesu. Spravuje sekvenciu pracovných aktivít a vyvoláva ľudské alebo informačno-technologické zdroje, ktoré k nim patria. Hranica medzi pojmami nie je úplne ostrá a často sa zamieňajú, ale užitočné rozlíšenie je takéto: business proces chápeme všeobecnejšie, zatiaľ čo workflow je konkrétny opis jeho realizácie.
+
+Person2: Kto tento konkrétny opis vykonáva a stráži?
+
+Person1: Systém na riadenie workflow, skrátene vé ef em systém. Je to softvérový systém na definovanie, vytváranie a riadenie vykonávania workflow. Interpretuje definíciu procesu, vytvára a riadi jeho inštancie, prideľuje a sleduje pracovné položky, vyvoláva potrebné aplikácie a poskytuje administráciu aj monitorovanie.
+
+Person2: Môže fungovať ako samostatná súčasť podnikovej infraštruktúry?
+
+Person1: Môže. Zaisťuje zdieľanie podkladov a dokumentov, sleduje stav úloh a integruje workflow s existujúcimi systémami, napríklad s e-mailom alebo účtovným softvérom. Je teda akýmsi koordinátorom, ktorý vie, v akom stave sa konkrétny prípad nachádza a čo má nasledovať.
+
+Person2: Kde sa vzala spoločná terminológia a pravidlá pre takéto systémy?
+
+Person1: Zásadnú úlohu mala Workflow Management Coalition, nezisková medzinárodná organizácia založená v roku tisíc deväťsto deväťdesiattri. Združovala predajcov, používateľov, analytikov aj univerzitné a výskumné skupiny. Jej motiváciou bolo štandardizovať terminológiu a umožniť spoluprácu prepojených workflow systémov.
+
+Person2: Aké štandardy s ňou súvisia?
+
+Person1: Patria medzi ne referenčný model workflow, programovanie klientskych aplikácií workflow, slovník pojmov, výmena definícií procesov, špecifikácia auditných dát a bezpečná spolupráca workflow systémov. Pre pochopenie architektúry je najdôležitejší referenčný model.
+
+Person2: Tak ho rozoberme. Čo je v jeho strede?
+
+Person1: V strede je služba vykonávania workflow, označovaná skratkou vé é es. Tvoria ju workflow servery a jeden alebo viac workflow enginov. Jej cieľom je zabezpečiť vykonanie správnej činnosti správnym prostriedkom v správnom čase.
+
+Person2: A čo konkrétne robí workflow engine?
+
+Person1: Interpretuje definíciu procesu, vytvára inštancie procesov a riadi ich vykonávanie. Zaisťuje prechody medzi aktivitami, vytvára pracovné položky a poskytuje funkcie na správu a dohľad. Definícia procesu je teda plán, kým inštancia je jeden konkrétny prebiehajúci prípad podľa tohto plánu.
+
+Person2: Aké ďalšie časti sa na túto službu pripájajú?
+
+Person1: Klientske aplikácie umožňujú používateľom pracovať s workflow a vykonávať jednotlivé úlohy. Vyvolané aplikácie sa spúšťajú v súvislosti so začatím úlohy. Nástroje na definíciu procesov umožňujú proces vytvoriť a rozplánovať, obyčajne graficky. Modelujú napríklad správy zasielané účastníkom, udalosti a potrebné rozhodnutia. Referenčný model zahŕňa aj nástroje na simuláciu, verifikáciu a administráciu.
+
+Person2: Ako sú tieto časti oddelené na úrovni rozhraní?
+
+Person1: Referenčný model rozlišuje päť rozhraní. Prvé pripája nástroje na definíciu procesov. Druhé slúži workflow klientom. Tretie je určené volaným aplikáciám. Štvrté zabezpečuje komunikáciu s inými systémami na riadenie workflow. Piate slúži administrácii a monitorovaniu. [short pause] Toto členenie umožňuje, aby jednotlivé nástroje a systémy spolupracovali cez jasne určené hranice.
+
+Person2: Okrem komponentov musí systém pracovať aj s rôznymi druhmi dát. Čo všetko si uchováva?
+
+Person1: Základom je model organizačnej štruktúry, teda role a vzťahy nadriadenosti a podriadenosti. Definícia procesu obsahuje činnosti, priradenie rolí a rozhodovacie pravidlá. Zoznam úloh obsahuje aktuálne úlohy konkrétnych používateľov.
+
+Person2: Musí používateľ celý zoznam úloh vždy vidieť?
+
+Person1: Nemusí. Môže byť skrytý, ak systém prideľuje úlohy postupne. Ale môže byť aj prístupný, ak si používateľ volí poradie a smie vykonávať viac úloh súčasne.
+
+Person2: A ako sa líšia riadiace, vecné a aplikačné dáta?
+
+Person1: Riadiace dáta sú interné dáta workflow systému potrebné na jeho chod a prípadné zotavenie po havárii. Externým aplikáciám nie sú dostupné. Vecné dáta spracúva jadro workflow systému, používajú sa pri rozhodovaní o ďalšom postupe a prístup k nim majú aj aplikácie. Aplikačné dáta sú špecifické pre aplikácie podporujúce proces a samotný workflow systém k nim prístup nemá.
+
+Person2: Zapamätám si to podľa toho, kto dáta vidí: riadiace iba workflow, vecné workflow aj aplikácie a aplikačné iba príslušné aplikácie.
+
+Person1: To je dobrá pomôcka. Teraz môžeme workflow opísať v troch rozmeroch: prípad, úloha a zdroj. Ich spojením dostaneme konkrétnu činnosť.
+
+Person2: Čo znamená prípad?
+
+Person1: Prípad je konkrétny riešený problém, napríklad jedna žiadosť o pôžičku. Zvyčajne ho vyvolá externý zákazník. Spracúva sa vykonávaním úloh v určitom poradí a riadi sa definíciou workflow procesu.
+
+Person2: Úloha je potom jeden krok v tomto postupe?
+
+Person1: Áno, ale na abstraktnej úrovni. Úloha je abstraktný krok vykonávania procesu a charakterizujú ju podmienky platné pred vykonaním a po vykonaní. Konkrétna inštancia úlohy pre daný prípad sa nazýva pracovná položka alebo požiadavka. Napríklad všeobecná úloha môže byť vrátenie peňazí za reklamovaný tovar, zatiaľ čo pracovná položka znie: vrátiť pánovi Novákovi peniaze za jeho reklamovaný tovar.
+
+Person2: Kde do toho vstupuje zdroj?
+
+Person1: Zdroj je osoba alebo zariadenie schopné podieľať sa na vykonaní práce. Môže to byť pracovník, účastník procesu, tlačiareň alebo fax. Zdroje sa podľa podobných vlastností zoskupujú do tried.
+
+Person2: Jednou z takých tried je rola?
+
+Person1: Rola je trieda zdrojov založená na schopnostiach, napríklad programátori. Jedna osoba môže zastávať viac rolí a rovnakú rolu môže mať veľa osôb. Role sú oprávnené spracúvať požiadavky z frontov spojených s činnosťami a požiadavky sa im prideľujú staticky alebo dynamicky. Inou triedou je organizačná jednotka, založená na štruktúre organizácie, napríklad reklamačné oddelenie.
+
+Person2: A činnosť teda vznikne až spojením konkrétneho prípadu, úlohy a zdroja?
+
+Person1: Presne. Činnosť je úloha riešená pre konkrétny prípad s využitím konkrétneho zdroja. Činnosť vytvára front požiadaviek, čiže worklist. Dôležité je nezamieňať abstraktnú úlohu, jej konkrétnu pracovnú položku a reálne vykonávanú činnosť.
+
+Person2: Ako sa určuje poradie a vetvenie týchto činností?
+
+Person1: Najjednoduchšia je sekvencia: nasledujúca úloha sa povolí až po dokončení predchádzajúcej. Pri paralelizme používame AND split, ktorý tok rozdelí do najmenej dvoch paralelných vetiev, a AND join, ktorý ich synchronizuje a pokračuje až po dokončení všetkých.
+
+Person2: A čo alternatívne vetvy?
+
+Person1: XOR split podľa podmienky vyberie práve jednu zo vzájomne sa vylučujúcich vetiev. XOR merge alternatívne vetvy spojí bez synchronizácie a pokračuje po dokončení jednej z nich. Pri exkluzívnom variante sa teda aktivuje iba jedna cesta.
+
+Person2: OR je oproti tomu inkluzívny?
+
+Person1: Áno. OR split aktivuje jednu alebo viac vetiev. OR join potom čaká na dokončenie všetkých vetiev, ktoré boli v konkrétnom prípade skutočne aktivované. To je rozdiel oproti AND joinu, ktorý synchronizuje všetky príslušné paralelné vetvy, a oproti XOR variantu, kde bola zvolená práve jedna.
+
+Person2: Keď už vieme, čo modelujeme, akými jazykmi sa business procesy opisujú?
+
+Person1: Základným grafickým štandardom je bé pé em en, teda Business Process Model and Notation. V starších materiáloch sa používal názov Business Process Modeling Notation. Od verzie dva bodka nula platí názov Model and Notation a štandard definuje aj iks em el serializáciu modelu.
+
+Person2: Aké prvky diagram bé pé em en obsahuje?
+
+Person1: Objekty toku sú udalosť, aktivita a brána. Spojovacie objekty tvoria sekvenčný tok, tok správ a asociácia. Ďalej sú tu plavecké dráhy. Pool reprezentuje účastníka procesu a medzi poolmi sa komunikuje správami. Swimlane kategorizuje aktivity. Poslednou skupinou sú artefakty.
+
+Person2: A ako sa od grafickej notácie líši iks pé dé el?
+
+Person1: Iks pé dé el znamená XML Process Definition Language. Je to deskriptívny jazyk založený na iks em el, ktorý opisuje graf bé pé em en. Dokument pracuje s balíkom, aplikáciou, workflow procesom, aktivitami, prechodmi, účastníkmi, dátovými poľami a dátovými typmi.
+
+Person2: Zostáva ešte bí pel. Na čo je určený?
+
+Person1: Bí pel, čiže Business Process Execution Language, je procedurálny jazyk založený na iks em el a de facto priemyselný štandard. Predpokladá, že úlohy sú implementované webovými službami, a používa sa na orchestráciu ich volaní. Kým iks pé dé el deskriptívne zachytáva graf procesu, bí pel opisuje vykonateľnú orchestráciu webových služieb.
+
+Person2: Workflow teda konkretizuje business proces a vé ef em systém jeho definíciu vykonáva, prideľuje prácu, spúšťa aplikácie a sleduje stav. Referenčný model oddeľuje engine, klientov, aplikácie, definičné nástroje aj správu cez päť rozhraní. Pri konkrétnom prípade rozlišujeme abstraktnú úlohu, pracovnú položku, zdroj a vykonávanú činnosť. Tok riadime sekvenciou a vetveniami AND, XOR a OR a procesy opisujeme najmä pomocou bé pé em en, iks pé dé el a bí pelu.

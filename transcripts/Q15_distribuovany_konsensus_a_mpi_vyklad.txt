@@ -1,0 +1,275 @@
+Person1: Témou je distribuovaný konsenzus, broadcast, vzájomné vylúčenie a knižnica MPI. Začneme od odovzdávania správ, pretože práve na ňom stoja MPI aj distribuované algoritmy v tomto okruhu.
+
+Person2: Aké základné komunikačné primitíva máme?
+
+Person1: Prvou možnosťou je dvojbodová, teda párová komunikácia. Jeden proces vykoná send a druhý receive. Druhou možnosťou je kolektívna komunikácia. Broadcast rozpošle dáta viacerým procesom a reduce naopak prijme hodnoty od viacerých procesov a vykoná nad nimi zvolenú operáciu.
+
+Person2: A ako komunikáciu ovplyvňuje komunikačný kanál a jeho buffer?
+
+Person1: Asynchrónny kanál sa modeluje ako kanál s neobmedzenou kapacitou. Send je neblokujúci, takže proces nemusí čakať, kým je príjemca pripravený. Odstráni sa tým jedna príčina uviaznutia, ale nie všetky možné deadlocky programu. Implementácia je zložitejšia; prirovnaním je e-mail. Synchrónny kanál má obmedzenú alebo nulovú kapacitu a send môže blokovať. Pri jednom príjemcovi hovoríme o kanáli, pri viacerých príjemcoch o mailboxe.
+
+Person2: Kam v tomto rozdelení patria OpenMP, PVM a MPI?
+
+Person1: OpenMP je systém založený na zdieľanej pamäti, kým MPI je založené predovšetkým na odovzdávaní správ. PVM je distribuovaný operačný systém. Jeho démony bežia na rôznych pracovných staniciach, abstrahujú ich do jedného systému a umožňujú dynamickú správu procesov a prostriedkov aj automatické zotavenie z chýb.
+
+Person2: Čo presne znamená MPI?
+
+Person1: MPI, teda Message Passing Interface, je štandardizované knižničné rozhranie na tvorbu paralelných programov. Pôvodne sa sústreďovalo najmä na správy, MPI tri pridalo aj komunikáciu pomocou zdieľanej pamäte a neblokujúce kolektívne operácie a MPI štyri napríklad perzistentné kolektívne operácie. MPI podporuje najmä paralelizmus procesov, ale definuje aj úrovne podpory vlákien.
+
+Person2: Je MPI viazané na jeden systém alebo programovací jazyk?
+
+Person1: Nie. Je portabilné medzi operačnými systémami, použiteľné na heterogénnych architektúrach a hardvér odstiňuje knižničnými funkciami. Štandardné jazykové rozhrania sú určené najmä pre céčko a Fortran. MPI ponúka dvojbodovú, kolektívnu aj jednostrannú komunikáciu.
+
+Person2: Ako rieši rozdielnu reprezentáciu dát na rôznych platformách?
+
+Person1: Preddefinuje dátové typy prenášaných hodnôt, napríklad MPI byte, char, int, double, character alebo complex. Tým odstiňuje konkrétnu reprezentáciu typov v jazyku a prostredí. Programátor si môže vytvoriť aj vlastný MPI dátový typ.
+
+Person2: Aký má MPI program základný životný cyklus?
+
+Person1: Takmer všetky volania MPI musia nasledovať po MPI Init a predchádzať MPI Finalize. Dôležitá záludnosť je, že všetky procesy spustené napríklad cez mpirun vykonávajú program od úplného začiatku, nie iba úsek medzi inicializáciou a finalizáciou. Po inicializácii si proces zistí svoj rank a podľa neho môže vykonať vybranú vetvu programu.
+
+Person2: Čo je rank a čo je komunikátor?
+
+Person1: Komunikátor definuje komunikačný kontext a obsahuje usporiadanú skupinu procesov. Skupina určuje členstvo a priradenie rankov, zatiaľ čo kontext oddeľuje nezávislé komunikácie. Rank je lokálny identifikátor procesu v danej skupine. Ten istý proces preto môže mať v rôznych komunikátoroch rôzne ranky.
+
+Person2: Aké druhy komunikátorov existujú?
+
+Person1: Intrakomunikátor obsahuje jednu skupinu procesov komunikujúcich medzi sebou. Interkomunikátor prepája dve oddelené skupiny. Preddefinovaný komunikátor MPI COMM WORLD zahŕňa všetky procesy aplikácie. Funkcia MPI Comm size zistí počet procesov v komunikátore a MPI Comm rank zistí rank volajúceho procesu.
+
+Person2: Dá sa komunikátor ďalej meniť?
+
+Person1: Dá sa duplikovať, vytvoriť odstránením niektorých procesov alebo zostaviť ako podmnožina pôvodnej skupiny. Pri MPI Comm split každý proces zadá farbu a kľúč. Procesy s rovnakou farbou vytvoria samostatný komunikátor a rank možno použiť ako kľúč určujúci ich poradie v novej skupine.
+
+Person2: Vie MPI vytvárať procesy aj dynamicky?
+
+Person1: Áno. MPI Comm spawn môže spustiť novú skupinu procesov a vytvoriť interkomunikátor medzi pôvodnou a novou skupinou. Je to kolektívna operácia a blokuje, kým potomkovské procesy nevykonajú inicializáciu. Interkomunikátor medzi už existujúcimi skupinami možno vytvoriť tak, že každá skupina poverí svojho lídra a použije MPI Intercomm create.
+
+Person2: Na čo slúži tag správy?
+
+Person1: Každá dvojbodová správa nesie používateľský tag, teda nezápornú celočíselnú značku. Prijatie sa páruje podľa komunikátora, zdrojového ranku a tagu. Receive môže ako zdroj alebo tag použiť zástupnú hodnotu any source či any tag, ale send musí vždy určiť cieľový rank. Tag rozlišuje druhy správ v rovnakom kontexte; neurčuje príjemcu a nenahrádza komunikátor.
+
+Person2: Môže sa rovnaký tag použiť opakovane?
+
+Person1: Áno, ak nehrozí nesprávne spárovanie správ. Keď však treba komunikácie skutočne izolovať, bezpečnejšie je vytvoriť samostatný komunikátor, pretože ten poskytuje vlastný kontext.
+
+Person2: Prejdime na dvojbodovú komunikáciu. Čo všetko opisuje jednu správu?
+
+Person1: Potrebujeme príjemcu, odosielateľa, dáta určené adresou buffera, dátovým typom a počtom prvkov, ďalej komunikátor a tag. Pri kooperatívnej komunikácii sa používajú operácie Send a Receive. Nekooperatívna, jednostranná komunikácia zapisuje alebo číta vzdialenú pamäť operáciami Put a Get.
+
+Person2: Čo garantuje štandardný blokujúci MPI Send?
+
+Person1: MPI Send sa vráti, keď možno bezpečne znova použiť odosielací buffer. Implementácia mohla dáta skopírovať do interného buffera alebo mohla čakať na zodpovedajúce prijatie. Návrat preto negarantuje, že adresát už správu prijal. MPI Recv sa naopak vráti až po prijatí správy do používateľského buffera. Výsledok operácie signalizuje návratový kód a podrobnosti o prijatí obsahuje štruktúra status.
+
+Person2: Ako sa od štandardného sendu líši synchrónny MPI Ssend?
+
+Person1: MPI Ssend je blokujúce synchrónne odoslanie. Vráti sa až po začatí zodpovedajúceho prijatia. Samostatné MPI Srecv neexistuje; synchrónne odoslanie sa prijíma bežným MPI Recv alebo neblokujúcim MPI Irecv.
+
+Person2: A čo neblokujúce operácie?
+
+Person1: MPI Isend a MPI Irecv komunikáciu iba začnú a hneď vrátia objekt request. To ešte neznamená dokončenie. Program nesmie meniť odosielací buffer ani čítať prijímací buffer, kým dokončenie nepotvrdí MPI Wait alebo úspešný MPI Test.
+
+Person2: Aký je rozdiel medzi Wait a Test?
+
+Person1: Wait proces pozastaví, kým sa daná komunikácia nedokončí, a potom naplní status. Test iba neblokujúco overí stav a vráti príznak dokončenia; status má význam až pri pravdivom príznaku. Varianty Waitall, Waitany a Waitsome čakajú na všetky, jednu alebo niektoré operácie z poľa requestov.
+
+Person2: Kde vzniká typický deadlock?
+
+Person1: Predstav si dva procesy. Každý najprv vykoná synchrónny Ssend smerom k druhému a až potom chce vykonať Recv. Oba sendy čakajú na začatie prijatia, ku ktorému sa žiadny proces nedostane. Pri štandardnom MPI Send môže rovnaký program náhodou fungovať vďaka internému eager bufferu, ale nie je prenositeľne bezpečný.
+
+Person2: Ako sa dá tento deadlock odstrániť?
+
+Person1: Na jednom procese možno obrátiť poradie a najprv prijímať. Ďalšou možnosťou je jediné volanie MPI Sendrecv. Bezpečné je tiež začať prijatie aj odoslanie cez Irecv a Isend a potom počkať cez Waitall. MPI Bsend s dostatočným explicitným bufferom môže tiež pomôcť, ale zodpovednosť za kapacitu presúva na programátora.
+
+Person2: Čím sa od dvojbodových operácií líšia kolektívne operácie?
+
+Person1: Kolektívnu operáciu musia zavolať všetky procesy príslušného komunikátora, a to v kompatibilnom poradí a s kompatibilnými argumentmi. Blokujúca kolektívna operácia sa vracia po bezpečnom dokončení lokálnych bufferov. Sama osebe však nie je bariérou a negarantuje, že sa už vrátila aj ostatným procesom.
+
+Person2: Ako funguje MPI broadcast?
+
+Person1: Pri MPI Bcast koreňový proces poskytne rovnaké dáta všetkým procesom komunikátora. Funkciu musí zavolať koreň aj všetci príjemcovia. Root určuje rank koreňového procesu a ostatné parametre opisujú buffer, počet prvkov, dátový typ a komunikátor.
+
+Person2: A reduce?
+
+Person1: MPI Reduce vezme prvky od všetkých procesov, vykoná nad nimi redukčnú operáciu a výsledok uloží u koreňového procesu. Môže ísť o maximum, minimum, súčet, súčin, logické alebo bitové operácie či maximum alebo minimum spolu s jeho umiestnením. Používateľ môže definovať vlastnú operáciu.
+
+Person2: Aké obmedzenie má vlastná redukčná operácia?
+
+Person1: Musí byť asociatívna, aby ju MPI mohlo vykonávať v ľubovoľnom stromovom poradí. Pri registrácii sa osobitne určí, či je aj komutatívna.
+
+Person2: Čo robia gather, scatter, all to all a scan?
+
+Person1: Gather zozbiera dáta zo všetkých procesov a v poradí rankov ich uloží u koreňa. Scatter rozdelí dáta koreňového procesu medzi ostatné procesy. All to all zabezpečí, že všetky procesy rozprestrú svoje dáta navzájom medzi sebou. Scan vykonáva inkluzívnu prefixovú redukciu, takže proces s daným rankom dostane redukciu hodnôt od ranku nula až po svoj rank.
+
+Person2: Čo znamenajú varianty All, I a V?
+
+Person1: All zvyčajne znamená, že výsledok dostanú všetky procesy. I označuje neblokujúci variant a V pri operáciách ako gather alebo scatter umožňuje premenlivú dĺžku dát jednotlivých procesov. Neblokujúci kolektívny variant, napríklad MPI Ibcast alebo MPI Ireduce, vráti request a dokončenie sa opäť overuje cez Wait alebo Test.
+
+Person2: Ktorá kolektívna operácia je naozaj explicitnou synchronizačnou bariérou?
+
+Person1: MPI Barrier. Proces sa z nej nevráti, kým ju nezavolajú všetky procesy komunikátora. Má iba parameter komunikátora. Neblokujúca verzia MPI Ibarrier vráti request, cez ktorý sa sleduje dokončenie.
+
+Person2: MPI broadcast je knižničná kolektívna operácia. Ako sa na broadcast pozeráme všeobecne v distribuovanom systéme?
+
+Person1: Máme operáciu vyslania správy a operáciu jej lokálneho doručenia aplikácii. Správa obsahuje identitu odosielateľa a sekvenčné číslo pridelené týmto odosielateľom. Musíme pritom počítať aj s nekorektnými procesmi.
+
+Person2: Aké modely zlyhania procesov rozlišujeme?
+
+Person1: Pri crash-stop sa proces po zlyhaní zastaví. Pri crash-recovery sa môže neskôr obnoviť. Byzantský proces sa po zlyhaní môže správať ľubovoľne. Pri hodnotení algoritmov potom odlišujeme živosť a bezpečnosť. Živosť hovorí, že požadovaná udalosť skôr či neskôr nastane. Bezpečnosť hovorí, že nežiaduca udalosť nikdy nenastane.
+
+Person2: Aké vlastnosti požadujeme od spoľahlivého broadcastu?
+
+Person1: [short pause] Platnosť znamená, že správu vyslanú korektným procesom skôr či neskôr prijme každý korektný proces. Zhoda znamená, že ak ju prijal jeden korektný proces, skôr či neskôr ju prijmú všetky korektné procesy. Integrita zakazuje doručiť tú istú správu viac než raz. Pravosť zakazuje vytvorenie správy: ak proces doručí správu údajne od procesu pé, proces pé ju musel naozaj odoslať.
+
+Person2: Čo garantuje best effort broadcast?
+
+Person1: Garantuje platnosť, integritu a pravosť, ale nie zhodu. Ak nekorektný odosielateľ stihne poslať správu iba niektorým korektným procesom a potom zlyhá, časť procesov ju doručí a časť nie. Tým sa zhoda poruší.
+
+Person2: Ako reliable broadcast zhodu doplní?
+
+Person1: Odosielateľ označí správu svojou identitou a sekvenčným číslom a pošle ju všetkým susedom vrátane seba. Proces pri prvom prijatí správu lokálne doručí a ak nie je pôvodným odosielateľom, prepošle ju všetkým susedom. Ďalšie kópie zahodí. Preposielanie zabezpečuje platnosť a zhodu, evidencia doručených správ integritu.
+
+Person2: Za akých predpokladov to platí?
+
+Person1: Algoritmus predpokladá spoľahlivé dvojbodové kanály a topológiu, v ktorej zostávajú korektné procesy navzájom dosiahnuteľné. Ak pád sprostredkujúceho procesu rozdelí sieť, samotný flooding už zhodu zaručiť nedokáže.
+
+Person2: Spoľahlivosť ešte neurčuje poradie. Čo pridáva FIFO broadcast?
+
+Person1: FIFO broadcast zachováva poradie správ od každého odosielateľa osobitne. Ak proces vyšle správu em pred správou en, žiadny korektný proces nedoručí en pred em. Neurčuje však globálne poradie správ od rôznych odosielateľov.
+
+Person2: Ako sa FIFO poradie implementuje?
+
+Person1: Proces si pre každého odosielateľa vedie číslo nasledujúcej očakávanej správy, na začiatku jedna, a buffer správ prijatých mimo poradia. Novú správu vloží do buffera. Kým v ňom nájde práve očakávané sekvenčné číslo, správu doručí, odstráni a očakávané číslo zvýši. Správy s vyšším číslom čakajú na chýbajúce predchodkyne.
+
+Person2: Čím je silnejší kauzálny broadcast?
+
+Person1: Zachováva reláciu happens-before medzi vysielaniami. Kauzalitu vytvára poradie udalostí v jednom procese, vzťah odoslania správy pred jej prijatím a tranzitivita. Ak vyslanie prvej správy kauzálne predchádza vyslaniu druhej, žiadny korektný proces nesmie druhú doručiť skôr. Súbežné nezávislé správy však môžu procesy doručiť v rôznom poradí.
+
+Person2: A atomický broadcast?
+
+Person1: Atomický broadcast je spoľahlivý broadcast s úplným poradím. Ak dva korektné procesy doručia dve správy, doručia ich v rovnakom poradí. Odosielateľ rozpošle správu všetkým. Každý príjemca ju uloží ako nedohodnutú, navrhne prioritu vyššiu než všetky priority, ktoré doteraz navrhol alebo prijal ako rozhodnuté, a návrh pošle odosielateľovi.
+
+Person2: Ako sa z návrhov stane spoločné rozhodnutie?
+
+Person1: Odosielateľ vyberie maximum zo všetkých návrhov a rozpošle dohodnutú prioritu. Príjemcovia správu označia ako dohodnutú a doručujú v rastúcom poradí priorít. Správa nesmie predbehnúť nedohodnutú správu s nižšou prioritou. Pri zhode priorít rozhodne jednoznačný sekundárny kľúč, napríklad identita odosielateľa a pôvodná časová pečiatka.
+
+Person2: Tým sa dostávame k synchronizácii. Prečo je v distribuovanom systéme náročná?
+
+Person1: Synchronizácia zaručuje aspoň čiastočné usporiadanie udalostí. V zdieľanej pamäti máme semafory alebo monitory, ale procesy komunikujúce iba správami nemajú spoločnú pamäť ani globálne hodiny. Potrebujeme zachovať kauzalitu pomocou logických hodín alebo časových pečiatok a pri niektorých úlohách dosiahnuť, aby všetky procesy usporiadali udalosti rovnako.
+
+Person2: Dá sa synchronizovať aj fyzický čas?
+
+Person1: Áno. Berkeleyho algoritmus predpokladá zanedbateľne krátke komunikačné oneskorenie. Hlavný uzol si od ostatných vyžiada ich posun voči svojmu času, vypočíta priemerný posun, upraví vlastné hodiny a každému uzlu pošle jeho korekciu.
+
+Person2: Ako túto úlohu rieši NTP?
+
+Person1: Network Time Protocol synchronizuje zariadenia v sieti na viacerých úrovniach a komunikuje cez UDP. Multicastový režim opakovane vysiela aktuálny čas skupine a hodí sa pre malé rýchle siete. Klientský prístup volá procedúru časového servera, keď multicast nie je vhodný. Párový prístup slúži na synchronizáciu s veľkou presnosťou.
+
+Person2: Čo ak viac NTP serverov uvádza odlišný čas?
+
+Person1: Marzullov algoritmus chápe čas každého servera ako interval neistoty. Usporiada začiatky a konce intervalov, spočíta ich prekrytia a vyberie úsek patriaci do najväčšieho počtu intervalov. Ak je takých úsekov viac, zvolí najkratší.
+
+Person2: Pri vzájomnom vylúčení však používame skôr logický čas, však?
+
+Person1: Presne. Distribuované algoritmy vzájomného vylúčenia sa delia na algoritmy založené na časových pečiatkach, ako Lamportov algoritmus, a algoritmy založené na tokene, ako Suzukiho-Kasamiho vysielací algoritmus či Raymondov stromový algoritmus.
+
+Person2: Čo musí korektný algoritmus vzájomného vylúčenia zaručiť?
+
+Person1: Bezpečnosť znamená, že v kritickej sekcii je najviac jeden proces. Živosť znamená neprítomnosť deadlocku aj vyhladovania. Sleduje sa tiež počet správ a synchronizačné oneskorenie medzi výstupom jedného a vstupom ďalšieho procesu. Ak sa nepovie inak, predpokladáme známu množinu procesov, spoľahlivé kanály a žiadne zlyhanie počas algoritmu.
+
+Person2: Ako fungujú Lamportove logické hodiny?
+
+Person1: Každý proces má svoje celočíselné logické hodiny a pred každou udalosťou ich zvýši. So správou odošle časovú pečiatku. Príjemca nastaví svoje hodiny na väčšiu z dvoch hodnôt: svoj predchádzajúci čas zvýšený o jedna alebo prijatú pečiatku zvýšenú o jedna.
+
+Person2: Aký vzťah majú logické hodiny k happens-before?
+
+Person1: Happens-before je nereflexívna relácia čiastočného usporiadania. Zahŕňa poradie udalostí v jednom procese, odoslanie správy pred jej prijatím a tranzitívne dôsledky týchto vzťahov. Na úplné usporiadanie nestačí, preto sa pri rovnakom logickom čase pridá identita procesu. Nižšia identita potom dostane prednosť.
+
+Person2: Ako Lamportov algoritmus používa toto poradie na kritickú sekciu?
+
+Person1: Každý proces vedie lokálnu prioritnú frontu usporiadanú podľa časovej pečiatky a identity procesu. Predpokladá sa FIFO doručovanie medzi každou dvojicou. Žiadateľ vloží svoju požiadavku do vlastnej fronty a odošle ju všetkým ostatným. Príjemca ju vloží do svojej fronty a pošle odpoveď.
+
+Person2: Kedy môže žiadateľ vstúpiť?
+
+Person1: Až keď dostal odpoveď od všetkých ostatných a jeho vlastná požiadavka je na čele lokálnej fronty. Pri výstupe požiadavku odstráni a všetkým pošle release. Príjemcovia potom túto požiadavku odstránia zo svojich frontov. Jeden vstup stojí tri krát n mínus jeden správ: požiadavky, odpovede a uvoľnenia.
+
+Person2: Ako tento počet znižuje Ricartov-Agrawalov algoritmus?
+
+Person1: Nepoužíva samostatný release. Žiadateľ rozpošle request všetkým. Príjemca odpovie okamžite, ak nie je v kritickej sekcii a sám nežiada, alebo ak má prijatá požiadavka vyššiu prioritu než jeho vlastná. Ak je v kritickej sekcii alebo má prednosť jeho žiadosť, odpoveď odloží.
+
+Person2: Čo sa stane s odloženými odpoveďami?
+
+Person1: Žiadateľ vstúpi po prijatí odpovedí od všetkých. Pri výstupe odošle reply každému, komu ho odložil. Takáto neskorá odpoveď zároveň plní úlohu povolenia po uvoľnení kritickej sekcie. Na jeden vstup preto stačia dva krát n mínus jeden správ.
+
+Person2: Maekawov algoritmus už nežiada všetky procesy. Ako to môže byť bezpečné?
+
+Person1: Každý proces má kvórum a každé dve kvóra majú aspoň jeden spoločný proces. Žiadne dve teda nie sú disjunktné. Kvóra možno vytvoriť biliardovou metódou nad štvorcovou maticou procesov, pričom zalomený variant upraví trasu pri procese, pre ktorý sa kvórum tvorí.
+
+Person2: Ako prebieha základný vstup cez kvórum?
+
+Person1: Žiadateľ pošle požiadavku všetkým členom svojho kvóra a čaká na grant od každého. Člen kvóra udelí súhlas iba vtedy, ak ho už neudelil inému procesu. Inak oznámi neúspech a žiadateľa zaradí do fronty. Pri výstupe proces informuje členov svojho kvóra, tí ho odstránia z frontu a grant dajú aktuálnemu prvému čakajúcemu. Táto základná verzia však môže uviaznuť.
+
+Person2: Čo deadlock v rozšírenej verzii preruší?
+
+Person1: Požiadavky sa prioritne zoradia podľa časovej pečiatky a identity. Ak člen kvóra už dal grant žiadosti s nižšou prioritou a príde vyššia, pošle držiteľovi inquire. Držiteľ, ktorý ešte nevstúpil do kritickej sekcie a už dostal aspoň jeden failed, vráti grant správou yield. Grant potom dostane najvyššia požiadavka. Kombinácia inquire, yield a failed preruší cyklus čiastočne pridelených grantov.
+
+Person2: Ako funguje tokenový Raymondov algoritmus?
+
+Person1: V systéme je jediný token a iba jeho držiteľ môže vstúpiť do kritickej sekcie, takže bezpečnosť je priamočiara. Procesy tvoria strom. Každý proces vedie smerník holder k susedovi na ceste k tokenu, FIFO frontu žiadateľov, príznak asked, či už o token požiadal, a príznak using, či je v kritickej sekcii.
+
+Person2: Ako sa požiadavka dostane k tokenu?
+
+Person1: Proces vloží seba do fronty. Ak token nemá a ešte neposlal požiadavku, odošle request svojmu holderovi. Požiadavky sa po strome zlučujú a postupujú k tokenu. Držiteľ voľného tokenu vyberie prvého žiadateľa. Ak je to on sám, vstúpi; inak pošle token príslušnému susedovi a tým smerom nastaví holder.
+
+Person2: Aké má Raymondov algoritmus vlastnosti?
+
+Person1: Základný FIFO variant nemá deadlock ani vyhladovanie. Greedy variant, v ktorom proces token opakovane používa bez rešpektovania fronty, môže vyhladovanie spôsobiť. Vo vyváženom strome je priemerný počet správ na získanie tokenu rádovo logaritmický v počte procesov. Nevýhodou stromu je konektivita jedna.
+
+Person2: A Suzukiho-Kasamiho vysielací algoritmus?
+
+Person1: Procesy sú úplne prepojené a opäť existuje jediný token. Každý proces vedie pre každý proces najvyššie známe číslo jeho žiadosti. Token obsahuje pre každý proces číslo poslednej vybavenej žiadosti a FIFO frontu čakateľov.
+
+Person2: Ako sa žiadosť a token aktualizujú?
+
+Person1: Proces bez tokenu zvýši číslo svojej žiadosti a rozpošle ju všetkým ostatným. Príjemcovia si pre daného žiadateľa ponechajú maximum zo starej a prijatej hodnoty. Ak niektorý proces drží voľný token a vidí presne nasledujúcu nevybavenú žiadosť, môže token poslať žiadateľovi.
+
+Person2: Čo urobí proces pri výstupe z kritickej sekcie?
+
+Person1: V tokene označí svoju aktuálnu žiadosť ako vybavenú. Potom do fronty pridá každý proces, ktorého najvyššia známa žiadosť je presne o jedna vyššia než jeho posledná vybavená žiadosť a ešte vo fronte nie je. Ak fronta nie je prázdna, odošle token procesu z jej čela. Držiteľ tokenu nepotrebuje na vstup žiadnu správu; ostatní vysielajú n mínus jeden žiadostí a následne prijmú token.
+
+Person2: Poslednou hlavnou témou je distribuovaný konsenzus. Čo sa pri ňom od procesov požaduje?
+
+Person1: Každý proces navrhne hodnotu a korektné procesy sa neodvolateľne rozhodnú pre spoločnú hodnotu. Zhoda zakazuje, aby sa dva korektné procesy rozhodli rozdielne. Platnosť viaže výsledok na návrhy; typicky ak všetky korektné procesy navrhnú rovnakú hodnotu, musí sa rozhodnúť práve tá. Ukončenie vyžaduje, aby sa každý korektný proces skôr či neskôr rozhodol, a integrita povoľuje každému rozhodnúť sa najviac raz.
+
+Person2: Prečo pri konsenze tak záleží na modeli zlyhania?
+
+Person1: Pri crash-stop proces po páde prestane robiť kroky. Pri crash-recovery sa môže obnoviť, takže algoritmus musí pracovať s obnovením stavu a odlíšiť pád od oneskorenej komunikácie. Byzantský proces sa môže správať ľubovoľne, rôznym procesom posielať protichodné správy alebo korektnosť iba predstierať.
+
+Person2: Pomáhajú detektory zlyhania?
+
+Person1: Heartbeat správy umožňujú proces označiť ako zlyhaný alebo podozrivý. Pri crash-recovery možno oneskorene odpovedajúci proces odstrániť z množiny podozrivých a predĺžiť interval čakania. Takýto detektor však sám osebe nevyrieši byzantské správanie.
+
+Person2: Ako byzantský problém vysvetľuje model generálov?
+
+Person1: Veliteľ pošle rozkaz zástupcom a niektorí účastníci môžu byť zradcovia. Podmienka í cé jedna vyžaduje, aby všetci lojálni zástupcovia vykonali rovnaký rozkaz. Podmienka í cé dva vyžaduje, aby pri lojálnom veliteľovi vykonali lojálni zástupcovia presne rozkaz, ktorý poslal.
+
+Person2: Aká je hranica tolerovateľného počtu zradcov?
+
+Person1: [short pause] Ak je najviac m účastníkov byzantských, v modeli ústnych správ treba viac než trojnásobok m všetkých účastníkov. Pri počte n menšom alebo rovnom trojnásobku m nemožno konsenzus zaručiť. Algoritmus ó em pre m funguje pri n väčšom než tri m.
+
+Person2: Čo predpokladá model ústnych správ?
+
+Person1: Správa sa spoľahlivo doručí bez zmeny obsahu, príjemca pozná identitu priameho odosielateľa a vie zistiť, že očakávaná správa neprišla, takže použije predvolenú hodnotu. Správy však nie sú podpísané. Zradca preto môže klamať o svojej hodnote a rôznym príjemcom poslať rozdielne hodnoty.
+
+Person2: Ako vyzerá základný prípad algoritmu ó em?
+
+Person1: Pri ó em nula veliteľ pošle hodnotu každému zástupcovi. Zástupca použije prijatú hodnotu. Ak nič nedostane, dosadí vopred dohodnutú predvolenú hodnotu, napríklad ústup.
+
+Person2: A rekurzívny prípad pre m väčšie než nula?
+
+Person1: Veliteľ najprv pošle hodnotu každému zástupcovi. Každý zástupca si prijatú alebo predvolenú hodnotu označí ako svoju hodnotu a potom sám vystupuje ako veliteľ v algoritme s parametrom m zníženým o jedna. Túto hodnotu pošle všetkým ostatným zástupcom.
+
+Person2: Ako sa napokon rozhodne?
+
+Person1: Každý lojálny zástupca zostaví vektor hodnôt od ostatných účastníkov, chýbajúce položky nahradí predvolenou hodnotou a použije deterministickú funkciu majority. Ak neexistuje jednoznačná väčšina, funkcia vráti dohodnutú predvolenú hodnotu. Rekurzia zabezpečí, že lojálni účastníci zostavia zhodné výsledky aj napriek rozdielnym klamstvám zradcov.
+
+Person2: Zhrnuté: MPI poskytuje prenosné dvojbodové, kolektívne aj jednostranné operácie, pričom treba rozumieť komunikátorom, rankom, tagom, bufferom a riziku deadlocku. Distribuovaný broadcast pridáva presné garancie doručenia a poradia, synchronizácia používa fyzický alebo logický čas a vzájomné vylúčenie riešia časové pečiatky, kvóra či jediný token. Konsenzus navyše vyžaduje zhodu, platnosť, ukončenie a integritu a jeho dosiahnuteľnosť určuje model zlyhania, najmä hranica viac než troch účastníkov na jedného byzantského protivníka.

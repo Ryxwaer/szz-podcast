@@ -1,0 +1,155 @@
+Person1: Témou tohto výkladu je management kvality v rámci projektu: jeho procesy, metódy, Paretova analýza, diagram príčin a účinkov a kvalitatívne charakteristiky softvérových produktov.
+
+Person2: Čo presne v projektovom riadení znamená kvalita?
+
+Person1: Riadenie kvality zahŕňa procesy potrebné na zaistenie toho, aby projekt uspokojil potreby, pre ktoré sa realizuje. Pri produkte informačných technológií môžeme kvalitu chápať ako spôsobilosť na používanie a zároveň ako súlad produktu s požiadavkami.
+
+Person2: Čiže nestačí, že produkt technicky funguje. Musí byť aj použiteľný na zamýšľaný účel a spĺňať dohodnuté požiadavky.
+
+Person1: Presne tak. Management kvality sa skladá z troch hlavných procesov: plánovania riadenia kvality, zabezpečovania kvality a kontroly kvality. Tieto procesy spolu súvisia, ale každý má inú úlohu.
+
+Person2: Začnime plánovaním. Čo sa pri ňom určuje?
+
+Person1: Plánovanie riadenia kvality identifikuje požiadavky na kvalitu a normy, ktoré sa vzťahujú na projekt aj jeho produkt. Zároveň dokumentuje, ako sa bude v projekte dokazovať súlad s týmito požiadavkami.
+
+Person2: Podstatná myšlienka teda je, že kvalita nevznikne až záverečnou kontrolou.
+
+Person1: Áno. Moderné riadenie kvality vychádza z toho, že kvalita sa plánuje, nielen kontroluje. Už vopred treba vedieť, čo sa bude považovať za kvalitný výsledok, podľa čoho sa to posúdi a ako sa súlad preukáže.
+
+Person2: Aké nástroje a techniky sa pri plánovaní používajú?
+
+Person1: Patrí sem expertný posudok a zber dát, napríklad benchmarking, brainstorming a pohovory. Ďalej dátová analýza, do ktorej patrí analýza nákladov a prínosov alebo náklady na kvalitu, a tiež skupinové rozhodovacie techniky.
+
+Person2: A výsledky sa dajú aj vizualizovať?
+
+Person1: Áno. Používa sa zobrazovanie dát, napríklad diagram príčin a účinkov, diagram priebehov, Paretov diagram a histogram. Tieto nástroje pomáhajú usporiadať informácie a odhaliť súvislosti.
+
+Person2: Druhým procesom je zabezpečovanie kvality. Ako sa líši od plánovania?
+
+Person1: Zabezpečovanie kvality je proces pravidelnej revízie požiadaviek na kvalitu. Výsledky kontrolných meraní sa používajú na vyhodnocovanie celkového plnenia projektu. Cieľom je poskytnúť dôveru, že projekt bude vyhovovať príslušným normám kvality.
+
+Person2: Ide teda o priebežné overovanie, či nastavený spôsob práce smeruje k požadovanej kvalite.
+
+Person1: Presne. Medzi nástroje a techniky zabezpečovania kvality patria audity kvality, návrhy na zlepšovanie produktov, riešenie problémov a metódy zdokonaľovania kvality.
+
+Person2: A tretí proces, kontrola kvality, sa už zameriava na konkrétne výsledky?
+
+Person1: Áno. Kontrola kvality sleduje a zaznamenáva konkrétne výsledky vykonávania činností zabezpečenia kvality projektu. Určuje, či tieto výsledky zodpovedajú príslušným normám kvality, a hľadá spôsoby odstránenia príčin nevyhovujúcich výkonov.
+
+Person2: Čiže zabezpečovanie kvality dáva dôveru v celkové plnenie, kým kontrola porovnáva konkrétne výsledky s normami a rieši odchýlky.
+
+Person1: Takéto rozlíšenie je dôležité. Pri kontrole sa používajú zber dát, dátová analýza, inšpekcie, testy a hodnotenia, stretnutia a zobrazovanie dát.
+
+Person2: Týka sa riadenie kvality iba výsledného produktu?
+
+Person1: Nie. Musí sa zaoberať riadením projektu aj jeho produktom. Nesplnenie požiadaviek na kvalitu v ktorejkoľvek z týchto dvoch dimenzií môže mať závažné negatívne následky pre zainteresované strany.
+
+Person2: Teraz prejdime k diagramu príčin a účinkov. Čo tento nástroj zachytáva?
+
+Person1: Je to diagram, ktorý ukazuje, ako spolu súvisia rôzne prvky systému. Ako analytický nástroj poskytuje systematickú metódu skúmania príčin a javov, ktoré vytvárajú celkový efekt alebo k nemu prispievajú.
+
+Person2: Pomáha teda presunúť pozornosť od samotného pozorovaného problému k tomu, čo ho spôsobuje.
+
+Person1: Áno. Jeho hodnota je práve v systematickom skúmaní väzieb medzi účinkom a možnými prispievajúcimi príčinami.
+
+Person2: Ďalším nástrojom je Paretova analýza. Ako vyzerá Paretov diagram?
+
+Person1: Ide o stĺpcový diagram podobný histogramu, v ktorom sú kategórie zoradené podľa početnosti výskytu udalostí. Diagram ukazuje, koľko výsledkov vzniklo v jednotlivých typoch alebo kategóriách príčin.
+
+Person2: Prečo je zoradenie podľa veľkosti užitočné?
+
+Person1: Podporuje rozhodovanie o nápravných opatreniach. Riadiaci tím projektu by mal najskôr riešiť problémy, ktoré spôsobujú najväčší počet chýb. Zoradenie teda ukáže, kam sústrediť úsilie ako prvé.
+
+Person2: A aký princíp stojí za touto prioritizáciou?
+
+Person1: Paretov zákon hovorí, že relatívne malý počet príčin zvyčajne spôsobuje veľkú väčšinu problémov alebo chýb. [short pause] Preto nie je vždy najúčinnejšie venovať rovnakú pozornosť všetkým kategóriám.
+
+Person2: Po procesoch a metódach zostávajú kvalitatívne charakteristiky softvérových produktov. Koľko hlavných skupín si máme zapamätať?
+
+Person1: V poznámke je ich šesť: funkčnosť, bezporuchovosť, použiteľnosť, účinnosť, udržiavateľnosť a prenositeľnosť. Každá hlavná charakteristika sa ďalej člení na konkrétnejšie vlastnosti.
+
+Person2: Čo zahŕňa funkčnosť?
+
+Person1: Funkčnosť je spôsobilosť softvérového produktu poskytovať funkcie, ktoré uspokojujú stanovené aj predpokladané potreby, ak sa softvér používa za špecifikovaných podmienok.
+
+Person2: Aké čiastkové vlastnosti pod ňu patria?
+
+Person1: Prvou je vhodnosť, teda schopnosť poskytnúť vhodnú množinu funkcií pre určené úlohy a používateľské ciele. Druhou je presnosť, čiže schopnosť poskytovať správne alebo odsúhlasené výsledky s potrebným stupňom presnosti.
+
+Person2: Funkčnosť však zahŕňa aj spoluprácu s okolím a ochranu dát, však?
+
+Person1: Áno. Interoperabilita je schopnosť produktu interagovať s jedným alebo viacerými špecifikovanými systémami. Bezpečnosť dát znamená chrániť informácie tak, aby ich neautorizované osoby alebo systémy nemohli čítať ani meniť a aby autorizovaným subjektom nebol prístup odmietnutý.
+
+Person2: A poslednou zložkou je súlad funkčnosti.
+
+Person1: Ten vyjadruje schopnosť dodržiavať normy, konvencie alebo pravidlá v zákonoch a podobných predpisoch, ktoré sa vzťahujú na funkčnosť.
+
+Person2: Druhou hlavnou charakteristikou je bezporuchovosť. Ako ju definujeme?
+
+Person1: Bezporuchovosť je schopnosť softvérového produktu udržiavať špecifikovanú úroveň výkonu pri používaní za špecifikovaných podmienok.
+
+Person2: Ktoré vlastnosti ju tvoria?
+
+Person1: Zrelosť je schopnosť vyhnúť sa poruchám spôsobeným chybami v softvéri. Odolnosť proti chybám znamená udržať určenú úroveň výkonu aj pri chybách v softvéri alebo pri porušení špecifikovaného rozhrania.
+
+Person2: A keď už porucha nastane?
+
+Person1: Vtedy je dôležitá obnoviteľnosť, teda schopnosť znovu zaistiť požadovanú úroveň výkonu a obnoviť dáta priamo postihnuté poruchou. Súlad spoľahlivosti potom znamená dodržiavanie noriem, konvencií alebo pravidiel vzťahujúcich sa na bezporuchovosť.
+
+Person2: Treťou skupinou je použiteľnosť.
+
+Person1: Použiteľnosť je schopnosť produktu byť pre používateľa zrozumiteľný, zvládnuteľný, použiteľný a atraktívny pri používaní za špecifikovaných podmienok.
+
+Person2: Rozlíšme si jej jednotlivé zložky.
+
+Person1: Zrozumiteľnosť umožňuje používateľovi pochopiť, či je softvér vhodný a ako ho môže použiť pri konkrétnych úlohách a podmienkach. Zvládnuteľnosť mu umožňuje naučiť sa produkt používať.
+
+Person2: Prevádzkovateľnosť sa potom týka samotného ovládania?
+
+Person1: Áno. Je to schopnosť umožniť používateľovi produkt prevádzkovať a riadiť jeho prevádzku. Atraktívnosť znamená, že produkt je pre používateľa príťažlivý. Súlad použiteľnosti vyjadruje dodržiavanie noriem, konvencií, pokynov pre štýl alebo pravidiel týkajúcich sa použiteľnosti.
+
+Person2: Štvrtou charakteristikou je účinnosť. Čo pri nej sledujeme?
+
+Person1: Účinnosť je schopnosť softvérového produktu poskytovať vhodný výkon vzhľadom na množstvo použitých zdrojov a za stanovených podmienok.
+
+Person2: Zahŕňa teda čas aj spotrebu zdrojov?
+
+Person1: Presne. Správanie v čase zahŕňa vhodné časy odozvy, časy spracovania a pomery priepustnosti pri vykonávaní funkcie. Využitie zdrojov znamená používanie vhodného množstva a vhodných typov zdrojov.
+
+Person2: A aj tu existuje požiadavka súladu.
+
+Person1: Súlad účinnosti je schopnosť dodržiavať normy alebo konvencie, ktoré sa vzťahujú na účinnosť.
+
+Person2: Piata skupina, udržiavateľnosť, sa viaže na zmeny produktu.
+
+Person1: Áno. Udržiavateľnosť je schopnosť softvérového produktu byť modifikovaný. Modifikáciou môže byť oprava, zlepšenie alebo prispôsobenie softvéru zmenám prostredia, požiadaviek či špecifikácií funkcií.
+
+Person2: Čo musí produkt podporovať, aby bol dobre udržiavateľný?
+
+Person1: Najprv analyzovateľnosť, teda možnosť diagnostikovať nedostatky alebo príčiny porúch a identifikovať časti určené na zmenu. Ďalej zmeniteľnosť, čiže schopnosť umožniť implementáciu špecifikovanej modifikácie.
+
+Person2: Zmena však môže vyvolať aj nechcené následky.
+
+Person1: Preto je súčasťou udržiavateľnosti stabilita, teda schopnosť vyhnúť sa neočakávaným účinkom modifikácie. Testovateľnosť zase umožňuje validovať modifikovaný softvér.
+
+Person2: Poslednou zložkou tejto skupiny je súlad udržiavateľnosti.
+
+Person1: Áno, ide o schopnosť dodržiavať normy alebo konvencie vzťahujúce sa na udržiavateľnosť.
+
+Person2: Zostáva šiesta hlavná charakteristika, prenositeľnosť.
+
+Person1: Prenositeľnosť je schopnosť softvérového produktu byť prenesený z jedného prostredia do iného.
+
+Person2: Aké vlastnosti rozhodujú o tom, či je produkt prenositeľný?
+
+Person1: Adaptabilita znamená, že sa produkt dokáže prispôsobiť rôznym špecifikovaným prostrediam bez iných činností alebo prostriedkov než tých, ktoré na tento účel poskytuje samotný softvér. Inštalovateľnosť je schopnosť byť nainštalovaný v určenom prostredí.
+
+Person2: Ako do prenositeľnosti zapadá koexistencia?
+
+Person1: Koexistencia je schopnosť fungovať s iným nezávislým softvérom v spoločnom prostredí pri zdieľaní spoločných zdrojov. Nahraditeľnosť zase znamená, že produkt možno použiť namiesto iného špecifikovaného softvéru na rovnaký účel a v rovnakom prostredí.
+
+Person2: A súlad prenositeľnosti uzatvára aj túto skupinu.
+
+Person1: Presne. Vyjadruje schopnosť dodržiavať normy alebo konvencie, ktoré sa vzťahujú na prenositeľnosť. [pause] Pri skúške je dôležité nielen vymenovať šesť hlavných charakteristík, ale aj vysvetliť, čo každá znamená a aké čiastkové vlastnosti zahŕňa.
+
+Person2: Zhrniem si jadro výkladu. Kvalita znamená spôsobilosť produktu na používanie a súlad s požiadavkami. V projekte ju plánujeme, priebežne zabezpečujeme a konkrétne výsledky kontrolujeme. Príčiny problémov skúmame diagramom príčin a účinkov a pomocou Paretovej analýzy uprednostníme najvýznamnejšie zdroje chýb. Pri softvéri hodnotíme funkčnosť, bezporuchovosť, použiteľnosť, účinnosť, udržiavateľnosť a prenositeľnosť.

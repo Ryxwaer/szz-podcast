@@ -1,0 +1,143 @@
+Person1: Témou tohto výkladu je manažment rizík v rámci projektov. Prejdeme si základné pojmy, proces riadenia rizík, kvalitatívne aj kvantitatívne metódy a napokon odporúčania na znižovanie rizík v softvérových projektoch.
+
+Person2: Začnime teda tým, čo vlastne v projektovom riziku chránime.
+
+Person1: Východiskom je aktívum. Je to komponent alebo časť systému, ktorej organizácia prikladá hodnotu a pre ktorú potrebuje nastaviť spôsob ochrany. Aktívom je jednoducho všetko, čo majiteľ považuje za cenné.
+
+Person2: Nemusí teda ísť iba o fyzickú vec?
+
+Person1: Presne tak. Aktíva môžu mať materiálnu podobu, napríklad osoby, budovy, počítačový hardvér, komunikačné prostriedky, nehnuteľnosti či financie. Môžu byť aj abstraktné, napríklad dáta, dokumenty, databázy, softvér, autorské práva, služby, dobrá povesť organizácie alebo morálka pracovníkov. Aktívom je aj schopnosť vytvárať produkty alebo poskytovať služby.
+
+Person2: A čo rozhoduje o tom, či aktívum treba chrániť?
+
+Person1: Väčšina aktív si zaslúži určitý stupeň ochrany. Ak chránené nie sú, musíme odhadnúť riziká a rozhodnúť, ktoré z nich možno akceptovať. Na aktívum môže pôsobiť hrozba, teda konkrétna udalosť, ktorej výskyt spustí dej s negatívnym dopadom na cieľ projektu. Jedna hrozba pritom môže pôsobiť na viac aktív.
+
+Person2: Kam do tohto vzťahu patrí zraniteľnosť?
+
+Person1: Zraniteľnosť je slabé miesto na fyzickej, organizačnej alebo procedurálnej úrovni. Sama osebe škodu nespôsobuje. Je to podmienka alebo skupina podmienok, ktorá môže hrozbe umožniť ovplyvniť aktívum. Zároveň neplatí, že každá zraniteľnosť musí nutne viesť k pôsobeniu hrozby.
+
+Person2: Ako sa úroveň zraniteľnosti aktíva hodnotí?
+
+Person1: Pomocou citlivosti a kritickosti. Citlivosť vyjadruje, ako ľahko môže byť aktívum danou hrozbou poškodené. Kritickosť vyjadruje, aké dôležité je aktívum pre analyzovaný subjekt.
+
+Person2: Potom ešte potrebujeme rozlíšiť dopad a samotné riziko.
+
+Person1: Dopad je dôsledok nežiaduceho incidentu, ktorý vznikol náhodne alebo úmyselne a ovplyvnil aktíva. Jeho odhad je dôležitý pri odhade rizík aj pri výbere ochranných opatrení. Riziko vzniká vzájomným pôsobením hrozby a aktíva. Hrozbu, ktorá nepôsobí na žiadne aktívum, nemusíme do analýzy zahrnúť. Rovnako sa do nej nezahŕňa aktívum, na ktoré nepôsobí žiadna hrozba.
+
+Person2: Ochranné opatrenie teda nemusí hrozbu iba úplne odstrániť.
+
+Person1: Správne. Ochranné opatrenia sú praktické postupy alebo mechanizmy, ktoré môžu chrániť pred hrozbou, znížiť zraniteľnosť, obmedziť dopad incidentu, incident odhaliť alebo uľahčiť obnovu.
+
+Person2: Ako riziká základne klasifikujeme?
+
+Person1: Rozlišujeme vnútorné a vonkajšie riziká. Vnútorné môže projektový manažér alebo tím ovplyvňovať, napríklad priraďovaním pracovníkov či kvalitou odhadov nákladov. Vonkajšie tím ovplyvniť nemôže. Patria sem napríklad presuny na trhu, opatrenia vlády alebo správanie zákazníka.
+
+Person2: Po pojmoch môžeme prejsť k samotnému procesu riadenia rizík.
+
+Person1: Riadenie rizík projektu zahŕňa rozpoznávanie a analyzovanie rizík aj reakcie na ne. Začína sa plánovaním riadenia rizík, pokračuje identifikáciou, kvalitatívnou a kvantitatívnou analýzou, plánovaním a realizáciou reakcií a končí priebežným sledovaním. Nejde teda o jednorazovú aktivitu, ale o proces počas projektu.
+
+Person2: Čo sa rieši pri plánovaní riadenia rizík?
+
+Person1: Rozhoduje sa, ako k rizikám pristupovať a ako naplánovať rizikové aktivity. Medzi vstupy patria zakladacia listina projektu, plán riadenia projektu, register zainteresovaných strán a procesné aktíva organizácie. Používa sa expertný posudok, dátová analýza a stretnutia.
+
+Person2: A hlavným výstupom je plán riadenia rizík?
+
+Person1: Áno. Určuje používané metódy, roly a zodpovednosti, rozpočet, časové rozvrhnutie aj maticu pravdepodobnosti a dopadu. Vytvára teda pravidlá, podľa ktorých bude projekt s rizikami pracovať.
+
+Person2: Nasleduje identifikácia rizík. Čo presne má priniesť?
+
+Person1: Má stanoviť, ktoré riziká môžu projekt ovplyvniť, a zdokumentovať ich charakteristiky. Riziká sa hľadajú zberom dát, napríklad brainstormingom, rozhovormi a analýzou kontrolných zoznamov. Používa sa aj analýza hlavných príčin a analýza predpokladov a obmedzení.
+
+Person2: Kam sa identifikované riziká zaznamenajú?
+
+Person1: Výstupom je register rizík, správa o rizikách a aktualizované súvisiace dokumenty. Register tak sústreďuje výsledky identifikácie do podoby, s ktorou možno ďalej pracovať.
+
+Person2: Aký je rozdiel medzi kvalitatívnou a kvantitatívnou analýzou?
+
+Person1: Kvalitatívna analýza posudzuje pravdepodobnosť výskytu identifikovaného rizika a jeho dopad. Jej cieľom je určiť priority pre ďalšiu analýzu alebo reakcie podľa potenciálneho vplyvu na ciele projektu.
+
+Person2: Aké techniky pri nej používame?
+
+Person1: Expertný posudok, zber a analýzu dát, hodnotenie kvality údajov o rizikách, posúdenie pravdepodobnosti a dopadu, kategorizáciu rizík a tímové schopnosti. Typickým spôsobom zobrazenia je matica pravdepodobnosti a dopadu.
+
+Person2: Kvantitatívna analýza už teda pracuje s číslami.
+
+Person1: Áno. Numericky skúma následky identifikovaných rizík na celkové ciele projektu. Meria ich pravdepodobnosť a následky a odhaduje ich dopad. Používa zber dát, reprezentáciu neistoty, simuláciu, analýzu citlivosti, analýzu očakávanej peňažnej hodnoty a analýzu rozhodovacieho stromu.
+
+Person2: Keď riziká poznáme a vyhodnotíme, treba pripraviť reakcie.
+
+Person1: Plánovanie reakcií vytvára alternatívy a určuje akcie, ktoré majú posilniť príležitosti a zmierniť dopady rizík na projektové ciele. Pri hrozbách možno zvoliť predchádzanie, zmierňovanie, prenesenie alebo potlačenie.
+
+Person2: A pri pozitívnych rizikách, teda príležitostiach?
+
+Person1: Pri príležitostiach sa používa využitie, zdieľanie, posilnenie alebo prijatie, ktoré môže byť aktívne či pasívne. Okrem toho možno navrhovať podmienené reakcie a stratégie pre celkové riziko projektu.
+
+Person2: Plán však nestačí, ak sa reakcie nevykonajú.
+
+Person1: Preto nasleduje realizácia reakcií. Jej cieľom je znížiť celkovú hodnotu všetkých rizík na úroveň, pri ktorej bude projekt s vysokou pravdepodobnosťou úspešne realizovateľný.
+
+Person2: Posledným procesom je sledovanie rizík.
+
+Person1: Pri sledovaní sa kontroluje vykonávanie plánu, dohliada sa na identifikované a zvyšné riziká, vyhľadávajú sa nové riziká a hodnotí sa účinnosť ich redukcie. Proces sa tým uzatvára spätnou väzbou, ktorá môže vyvolať ďalšiu identifikáciu alebo zmenu reakcie.
+
+Person2: Pozrime sa teraz podrobnejšie na rozhodovací strom.
+
+Person1: Rozhodovací strom opisuje rozhodovaciu situáciu, dostupné voľby a možné smery vývoja vrátane ich dôsledkov. Schéma zahŕňa náklady každej voľby, pravdepodobnosť jednotlivých smerov vývoja a odmeny plynúce z alternatívnych logických ciest.
+
+Person2: Ako nám strom pomôže vybrať vhodnú možnosť?
+
+Person1: Keď sú kvantifikované odmeny, možné výstupy a nadväzujúce rozhodnutia, vyriešenie stromu poskytne očakávanú peňažnú hodnotu alebo iné meradlo pre každú alternatívu. Môžeme tak hľadať stratégiu, ktorá s najväčšou pravdepodobnosťou dosiahne požadovaný cieľ.
+
+Person2: Rozhodovací strom teda nie je iba obrázok, ale model rozhodnutí a ich následkov.
+
+Person1: Presne. Slúži ako podpora rozhodovania a zároveň patrí medzi základné a často využívané metódy data miningu.
+
+Person2: Druhou dôležitou pomôckou je matica pravdepodobnosti a dopadu.
+
+Person1: Organizácia si vopred stanoví, ktoré kombinácie pravdepodobnosti a dopadu patria do jednotlivých kategórií rizika. Pravidlá bývajú určené pred začatím projektu a uložené v procesných aktívach organizácie, no pri plánovaní riadenia rizík ich možno prispôsobiť konkrétnemu projektu.
+
+Person2: Musí byť riziko hodnotené jedným spoločným skóre?
+
+Person1: Nie. Organizácia ho môže hodnotiť oddelene vzhľadom na jednotlivé ciele, napríklad náklady, čas, rozsah a kvalitu. Pravdepodobnosť môže byť vyjadrená aj numericky na stupnici, napríklad hodnotami od nula celá jedna po nula celá deväť.
+
+Person2: Čo nám bodové hodnotenie v matici prakticky povie?
+
+Person1: Pomáha určiť prioritu a vhodnú odozvu. Hrozba s negatívnym dopadom, ktorá sa nachádza v zóne vysokého rizika, môže vyžadovať prednostnú aktivitu a agresívnu stratégiu reakcie. Matica tak spája dva rozmery do zrozumiteľnej priority.
+
+Person2: A teraz očakávaná peňažná hodnota, skrátene EMV.
+
+Person1: EMV je štatistický prístup k analýze pri neistote. Počíta priemerný výsledok pre budúcnosť, v ktorej sa jednotlivé možnosti vývoja môžu, ale nemusia uskutočniť. Hodnota príležitostí sa všeobecne vyjadruje kladne, zatiaľ čo hodnota rizík záporne.
+
+Person2: Ako sa EMV vypočíta?
+
+Person1: [short pause] Hodnotu každého možného výsledku vynásobíme pravdepodobnosťou jeho výskytu a všetky tieto súčiny sčítame. [short pause] Výsledok sa potom využíva najmä pri analýze rozhodovacích stromov.
+
+Person2: Zostáva nám eliminácia rizík v softvérových projektoch. Čo sa odporúča pri veľkých projektoch?
+
+Person1: Veľký projekt možno rozdeliť na viac menších nezávislých projektov alebo na subprojekty pre fázovú implementáciu. Medzi fázami treba plánovať rezervy na odstránenie možných omeškaní. Riziko možno znížiť aj úvodným malým projektom alebo vytvorením prototypu.
+
+Person2: Dôležité je aj zapojenie používateľov.
+
+Person1: Áno. Má sa identifikovať reprezentant používateľov, ktorý je priaznivcom projektu. Možno vytvoriť používateľský výbor, určiť jeho koordinátora v projektovom tíme a zapojiť reprezentatívnu skupinu používateľov. Používatelia majú byť pozývaní na pravidelné hodnotiace stretnutia, dostávať správy o stave projektu a od začiatku úzko spolupracovať s vývojovým tímom.
+
+Person2: Veľa rizík súvisí aj s nepresnými odhadmi.
+
+Person1: Preto sa má v odhadoch vyjadriť miera neurčitosti a odhady sa nemajú uzatvárať príliš skoro. Pri vysoko rizikových projektoch treba podľa možností vytvoriť podrobnejšie odhady alebo pripraviť počiatočný odhad a naplánovať body jeho spresnenia.
+
+Person2: Čo ešte patrí ku kvalitnému odhadovaniu a plánovaniu?
+
+Person1: Zákazník má poznať svoju spoluzodpovednosť za rozvrhovanie. Treba sa vyhnúť príliš tesným termínom odovzdania a pri vysokom riziku zvážiť aj to, či projekt vôbec realizovať.
+
+Person2: Samostatnou oblasťou sú schopnosti a skúsenosti tímu.
+
+Person1: Projektový tím musí mať všetky potrebné schopnosti a skúsenosti. Jeho členovia majú rozumieť činnostiam, na ktorých sa podieľajú, aj vytváraným výstupom. Potrebné školenia treba zaradiť do plánu, podporovať spoluprácu skúsenejších a menej skúsených členov a v prípade potreby získať ďalších skúsených pracovníkov.
+
+Person2: Ako pomáha dôslednejšie monitorovanie?
+
+Person1: Proces vývoja produktu sa sleduje presnejšie, správy o stave projektu sa vytvárajú častejšie a zavádza sa rigoróznejší plán zabezpečenia kvality. Vďaka tomu možno odchýlky zachytiť skôr.
+
+Person2: A posledné dve odporúčania sa týkajú zmien a kvality.
+
+Person1: Pri riadení zmien treba zabezpečiť vhodné procedúry, vysvetliť ich zainteresovaným stranám a dohliadnuť, aby sa skutočne používali. Pri zabezpečovaní kvality nestačí plán iba vytvoriť. Musí byť vhodný a musí sa reálne plniť.
+
+Person2: Zhrniem si to. Riziko vzniká pôsobením hrozby na hodnotné aktívum, pričom dôležité sú zraniteľnosť a možný dopad. Riadenie rizík prebieha od plánovania a identifikácie cez kvalitatívnu a kvantitatívnu analýzu až po reakcie a priebežné sledovanie. Priority určuje matica pravdepodobnosti a dopadu, rozhodovanie pri neistote podporuje rozhodovací strom a EMV a v softvérových projektoch riziká znižujeme menšími etapami, prototypmi, zapojením používateľov, kvalitnými odhadmi, skúseným tímom, monitorovaním, riadením zmien a skutočným zabezpečovaním kvality.

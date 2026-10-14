@@ -1,0 +1,187 @@
+Person1: Témou sú bodové a intervalové odhady: vlastnosti odhadcov, metóda maximálnej vierohodnosti, Fisherova informácia, asymptotické vlastnosti a konfidenčné intervaly.
+
+Person2: Začnime tým, čo presne odhadujeme a z akých dát.
+
+Person1: Máme rozdelenie s neznámym parametrom théta a náhodný výber s rozsahom en. Náhodné premenné iks jedna až iks en sú nezávislé a rovnako rozdelené podľa tohto rozdelenia. Ich vektor opisuje všetky možné výsledky experimentu. Konkrétne namerané hodnoty, malé iks jedna až malé iks en, sú realizáciou výberu.
+
+Person2: Napríklad pri výškach študentov je parametrom neznáma priemerná výška populácie a realizáciou sú skutočne namerané výšky vybraných študentov.
+
+Person1: Presne. Štatistika je merateľná funkcia náhodného výberu, ktorá nesmie obsahovať neznámy parameter. Príkladom je výberový priemer. Keď túto štatistiku používame na odhad parametra, hovoríme jej bodový odhadca. Je to stále náhodná veličina, pretože závisí od náhodného výberu.
+
+Person2: A bodový odhad je až konkrétne číslo, ktoré dostaneme po dosadení nameraných dát?
+
+Person1: Áno. Odhadca je pravidlo pred pozorovaním dát, odhad je výsledok po ich pozorovaní. Pre priemernú výšku je odhadcom výberový priemer a jeho konkrétna vypočítaná hodnota je bodovým odhadom.
+
+Person2: Ako sa od toho líši intervalový odhad?
+
+Person1: Interval spoľahlivosti určujú dve štatistiky, dolná a horná hranica. Postup má byť zostrojený tak, aby pravdepodobnosť, že náhodný interval pokryje pevný parameter théta, bola aspoň jedna mínus alfa. Po dosadení dát dostaneme konkrétny intervalový odhad.
+
+Person2: Čo teda znamená napríklad deväťdesiatpäťpercentná spoľahlivosť?
+
+Person1: Je to dlhodobá vlastnosť postupu. Keby sme opakovane vytvárali nové náhodné výbery a vždy rovnakým spôsobom zostrojili interval, približne deväťdesiatpäť percent týchto intervalov by obsahovalo skutočný parameter. V klasickej štatistike je parameter pevný a interval je pred pozorovaním náhodný.
+
+Person2: Po vypočítaní konkrétneho intervalu teda nemám hovoriť, že parameter v ňom leží s pravdepodobnosťou deväťdesiatpäť percent.
+
+Person1: Správne. Konkrétny interval už parameter buď obsahuje, alebo neobsahuje. Ak je pokrytie presne jedna mínus alfa, ide o presný interval danej úrovne. Najmä pri diskrétnych rozdeleniach však môže byť skutočné pokrytie vyššie; taký interval je konzervatívny.
+
+Person2: Vyššia spoľahlivosť sa zrejme platí väčšou šírkou intervalu.
+
+Person1: Pri rovnakých dátach a rovnakej metóde spravidla áno. Spoľahlivosť blízka sto percentám vedie k veľmi širokému intervalu a úplné pokrytie môže vyžadovať až triviálny interval cez celý parametrický priestor. Naopak, nulová spoľahlivosť sa všeobecne nedefinuje ako bodový odhad.
+
+Person2: Keď porovnávame bodové odhadce, ktoré vlastnosti sledujeme?
+
+Person1: Vlastnosti posudzujeme pre náhodný odhadca, nie podľa jediného vypočítaného výsledku. Prvou je vychýlenie: rozdiel medzi strednou hodnotou odhadcu a skutočným parametrom. Odhadca je nestranný, ak sa jeho stredná hodnota rovná parametru pre každú prípustnú hodnotu parametra.
+
+Person2: Nestrannosť teda neznamená, že každý jednotlivý odhad trafí správnu hodnotu.
+
+Person1: Presne tak. Znamená, že priemer odhadov z mnohých opakovaných výberov trafí parameter. Ak majú jednotlivé pozorovania strednú hodnotu mí, potom aj stredná hodnota výberového priemeru je mí, takže výberový priemer je nestranný odhadca.
+
+Person2: Samotná nestrannosť však asi nestačí. Dva odhadce môžu mať rovnaký priemer, ale inak kolísať.
+
+Person1: Preto sledujeme rozptyl. Menší rozptyl znamená menšie kolísanie medzi výbermi. Pri vychýlených odhadcoch je užitočná stredná kvadratická chyba, skrátene MSE. [short pause] Tá sa rovná rozptylu plus druhej mocnine vychýlenia. [short pause] Zachytáva teda kompromis medzi systematickou chybou a variabilitou.
+
+Person2: A efektívnosť porovnáva rozptyly nestranných odhadcov toho istého parametra?
+
+Person1: Áno. Efektívnejší je ten s menším rozptylom. Odhadca dosahujúci Cramérovu-Raovu dolnú hranicu sa nazýva efektívny. Rovnomerne najlepší nestranný odhadca má najmenší rozptyl zo všetkých nestranných odhadcov pre každú hodnotu parametra. Pri vychýlených odhadcoch môžeme porovnávať MSE, ale to je širšie kritérium, nie rovnaká definícia efektívnosti.
+
+Person2: Ďalšou vlastnosťou je konzistencia. Ako ju presne chápať?
+
+Person1: Postupnosť odhadcov je konzistentná, ak s rastúcim rozsahom výberu konverguje k skutočnému parametru v pravdepodobnosti. Inými slovami, pre ľubovoľnú kladnú toleranciu sa pravdepodobnosť, že absolútna chyba túto toleranciu prekročí, blíži k nule.
+
+Person2: Často sa uvádza, že stredná hodnota odhadcu smeruje k parametru a jeho rozptyl smeruje k nule.
+
+Person1: To je postačujúce kritérium konzistencie, nie jej definícia. Nestrannosť a konzistencia sú rozdielne vlastnosti. Odhadca môže byť pri každom konečnom rozsahu mierne vychýlený, ale jeho vychýlenie aj rozptýlenie môžu miznúť, takže je konzistentný.
+
+Person2: Výberový priemer je pri konečnom rozptyle konzistentný, pretože je nestranný a jeho rozptyl je populačný rozptyl delený rozsahom výberu.
+
+Person1: Presne. Keď en rastie, tento rozptyl klesá k nule.
+
+Person2: Prejdime k metóde maximálnej vierohodnosti.
+
+Person1: Poznáme typ rozdelenia, ale nepoznáme parameter. Pre pevne pozorované dáta zostrojíme vierohodnostnú funkciu ako súčin hustôt pri spojitom modeli alebo súčin pravdepodobnostných funkcií pri diskrétnom modeli. Súčin môžeme použiť vďaka nezávislosti pozorovaní.
+
+Person2: Vierohodnosť však nie je pravdepodobnostné rozdelenie parametra.
+
+Person1: Správne. Parameter v klasickom prístupe nepovažujeme za náhodný. Vierohodnosť iba porovnáva, pri ktorých hodnotách parametra sú pozorované dáta vierohodnejšie. Maximálne vierohodný odhadca, skrátene MLE, vyberá hodnotu parametra, ktorá vierohodnosť maximalizuje.
+
+Person2: Prečo sa v praxi pracuje skôr s logaritmickou vierohodnosťou?
+
+Person1: Logaritmus nemení polohu maxima a súčin prevedie na súčet, čo výrazne zjednoduší derivovanie aj numerické výpočty. Kandidáta vo vnútri parametrického priestoru často nájdeme tak, že deriváciu logaritmickej vierohodnosti položíme rovnú nule. Potom ešte musíme overiť, že ide o maximum, a skontrolovať hranice parametrického priestoru.
+
+Person2: Ukážme si celé odvodenie na Bernoulliho rozdelení.
+
+Person1: Každé pozorovanie má hodnotu jedna pri úspechu a nula pri neúspechu. Neznámy parameter pé je pravdepodobnosť úspechu medzi nulou a jednotkou. Ak es označuje počet úspechov v en pokusoch, vierohodnosť je pé umocnené na es krát jedna mínus pé umocnené na en mínus es.
+
+Person2: Po zlogaritmovaní dostaneme súčet dvoch členov: počet úspechov krát logaritmus pé a počet neúspechov krát logaritmus jedna mínus pé.
+
+Person1: Áno. Pri počte úspechov striktne medzi nulou a en derivujeme a deriváciu položíme rovnú nule. Po úprave vyjde [short pause] odhad pé sa rovná es delené en, čiže výberový priemer a relatívna početnosť úspechov. [short pause] Druhá derivácia je záporná, takže ide o maximum.
+
+Person2: A keď nenastal žiadny úspech alebo nastali samé úspechy, maximum je na hranici, teda v nule alebo jednotke.
+
+Person1: Presne. Pri sto pokusoch a dvadsiatich štyroch úspechoch je MLE rovný nula celá dvadsaťštyri. Metóda maximálnej vierohodnosti tak vysvetľuje bežný odhad pravdepodobnosti relatívnou početnosťou.
+
+Person2: Existujú aj iné rámce odhadu?
+
+Person1: Áno. Metóda momentov kladie výberové momenty rovné teoretickým momentom a rieši vzniknuté rovnice; pri Bernoulliho modeli tiež dá výberový priemer. V bayesovskom prístupe je parameter náhodná veličina a apriórna informácia sa pomocou vierohodnosti aktualizuje na aposteriórne rozdelenie. To je iný interpretačný rámec než klasický MLE.
+
+Person2: Ako s presnosťou odhadu súvisí Fisherova informácia?
+
+Person1: Najprv definujeme skóre jedného pozorovania ako deriváciu logaritmu hustoty alebo pravdepodobnostnej funkcie podľa parametra. Za bežných regularitných podmienok má skóre strednú hodnotu nula.
+
+Person2: Fisherova informácia je potom stredná hodnota druhej mocniny skóre?
+
+Person1: Áno. Za rovnakých regularitných podmienok sa tiež rovná zápornej strednej hodnote druhej derivácie logaritmu hustoty. [short pause] Pre en nezávislých rovnako rozdelených pozorovaní sa informácie sčítajú, takže celková informácia je en krát informácia jedného pozorovania.
+
+Person2: Intuitívne vyššia informácia znamená ostrejšie zakrivenú vierohodnosť a presnejšie určený parameter.
+
+Person1: Presne. Treba ešte odlíšiť očakávanú Fisherovu informáciu od pozorovanej informácie. Pozorovaná informácia je záporná druhá derivácia logaritmickej vierohodnosti vyhodnotená pre konkrétne dáta.
+
+Person2: Aká je Fisherova informácia v Bernoulliho modeli?
+
+Person1: Skóre jedného pozorovania je iks delené pé mínus jedna mínus iks delené jedna mínus pé. Keď zohľadníme, že iks je jedna s pravdepodobnosťou pé a nula s pravdepodobnosťou jedna mínus pé, informácia jedného pozorovania vyjde [short pause] jedna delené súčinom pé a jedna mínus pé. [short pause] Pre celý výber je teda en delené týmto súčinom.
+
+Person2: Z toho už vieme formulovať Cramérovu-Raovu dolnú hranicu.
+
+Person1: Za regularitných podmienok má každý nestranný odhadca skalárneho parametra rozptyl aspoň rovný prevrátenej hodnote Fisherovej informácie celého výberu. Túto hranicu nemožno nestranným odhadcom prekonať.
+
+Person2: Bernoulliho výberový priemer má rozptyl pé krát jedna mínus pé delené en, čo je presne prevrátená Fisherova informácia. Hranicu teda dosahuje.
+
+Person1: Áno, preto je efektívny. Vždy však treba spomenúť, že Cramérova-Raova väzba v tomto tvare predpokladá regularitu modelu a nestrannosť posudzovaného odhadcu.
+
+Person2: Teraz asymptotické vlastnosti. Čo navyše oproti konzistencii hovorí asymptotická normalita?
+
+Person1: Konzistencia hovorí, že sa odhad sústreďuje pri skutočnom parametri. Asymptotická normalita opisuje aj tvar a rýchlosť tohto sústredenia. Po vynásobení chyby odhadcu odmocninou z en dostávame v limite normálne rozdelenie so strednou hodnotou nula a určitým rozptylom vé od théta.
+
+Person2: Čiže pre veľké en je samotný odhadca približne normálny, centrovaný v théta, a jeho rozptyl je vé od théta delené en.
+
+Person1: Presne. Typická chyba preto klesá rádovo ako jedna delené odmocninou z en. Pri výberovom priemere to vyplýva z centrálnej limitnej vety: po vhodnom škálovaní má limitné normálne rozdelenie s populačným rozptylom.
+
+Person2: A aké asymptotické vlastnosti má MLE?
+
+Person1: Za štandardných regularitných podmienok je MLE konzistentný a asymptoticky normálny. Limitný rozptyl po škálovaní odmocninou z en je prevrátená Fisherova informácia jedného pozorovania. Rozptyl samotného MLE je preto pre veľké výbery približne prevrátená informácia celého výberu.
+
+Person2: Ktoré regularitné podmienky sú podstatné?
+
+Person1: Najmä identifikovateľnosť modelu, skutočný parameter vo vnútri parametrického priestoru, dostatočná hladkosť logaritmickej vierohodnosti, konečná a nenulová Fisherova informácia a oprávnenosť zámeny derivovania s integráciou. Na hranici parametrického priestoru alebo v neregulárnych modeloch bežný výsledok nemusí platiť.
+
+Person2: Regulárny MLE tak asymptoticky dosahuje Cramérovu-Raovu hranicu, ale to ešte nezaručuje optimálny rozptyl pri každom konečnom výbere.
+
+Person1: Správne. Preto hovoríme o asymptotickej efektívnosti.
+
+Person2: Ako z asymptotickej normality zostrojíme všeobecný konfidenčný interval?
+
+Person1: Ak poznáme limitný rozptyl vé od théta a máme jeho konzistentný odhad, štandardizovaná chyba odhadcu je približne normovaná normálna. Odhad štandardnej chyby je odmocnina z odhadnutého vé deleného en.
+
+Person2: Obojstranný interval teda dostaneme ako odhad plus-mínus príslušný normálny kvantil krát odhad štandardnej chyby.
+
+Person1: Áno. Pre spoľahlivosť jedna mínus alfa použijeme kvantil normovaného normálneho rozdelenia na úrovni jedna mínus alfa polovica. Pri regulárnom MLE môžeme štandardnú chybu odhadnúť pomocou Fisherovej informácie vyčíslenej v MLE, prípadne pomocou pozorovanej informácie.
+
+Person2: Dôležité je, že ide o asymptotický interval. Jeho skutočné pokrytie sa k požadovanej hodnote iba približuje s rastúcim výberom.
+
+Person1: Presne. Pri malom výbere, parametri blízko hranice alebo výrazne nesymetrickom rozdelení odhadcu môže byť aproximácia nepresná.
+
+Person2: Konkrétnym príkladom je Waldov interval pre Bernoulliho parameter.
+
+Person1: Bernoulliho odhad pé je asymptoticky normálny s rozptylom pé krát jedna mínus pé delené en. Neznáme pé vo variancii nahradíme odhadom. Waldov interval je teda odhad pé plus-mínus normálny kvantil krát odmocnina zo súčinu odhadu pé a jedna mínus odhad pé, deleného en.
+
+Person2: Pri sto pokusoch, dvadsiatich štyroch úspechoch a deväťdesiatpäťpercentnej spoľahlivosti je odhad nula celá dvadsaťštyri a normálny kvantil približne jedna celá deväťdesiatšesť.
+
+Person1: Odhad štandardnej chyby je približne nula celá nula štyri dva sedem. Po vynásobení kvantilom a pripočítaní či odpočítaní dostaneme približne interval od nula celá pätnásť šesť tri po nula celá tridsaťdva tri sedem.
+
+Person2: Nestačí však mechanicky povedať, že výber musí mať aspoň tridsať pozorovaní.
+
+Person1: Potrebujeme nezávislé Bernoulliho pokusy, rovnakú pravdepodobnosť úspechu, reprezentatívny výber a dostatočne dobrú normálnu aproximáciu. Bežne kontrolujeme, či očakávaný počet úspechov aj neúspechov po dosadení odhadu dosahuje aspoň približne päť až desať.
+
+Person2: Waldov interval je pri malom výbere alebo pri odhade blízko nuly či jednotky nespoľahlivý a môže dokonca vyjsť mimo prípustného intervalu od nuly po jednotku.
+
+Person1: Vtedy je vhodnejší napríklad Wilsonov alebo exaktný binomický interval.
+
+Person2: Nie všetky intervaly sú však asymptotické. Pre normálne rozdelenie máme aj presné intervaly.
+
+Person1: Áno. Ak dáta pochádzajú z normálneho rozdelenia a populačný rozptyl sigma na druhú poznáme, štandardizovaný rozdiel výberového priemeru a populačného priemeru má presne normované normálne rozdelenie. Interval pre mí je výberový priemer plus-mínus normálny kvantil krát sigma delené odmocninou z en.
+
+Person2: Čo sa zmení, keď populačný rozptyl nepoznáme?
+
+Person1: Použijeme výberový rozptyl s menovateľom en mínus jedna. Keď neznáme sigma nahradíme výberovou smerodajnou odchýlkou es, štandardizovaná veličina má Studentovo té rozdelenie s en mínus jedným stupňom voľnosti. Presný interval je výberový priemer plus-mínus príslušný té kvantil krát es delené odmocninou z en.
+
+Person2: V poznámke je príklad ôsmich výšok. Výberový priemer je stoštyridsaťdeväť celých dvadsaťpäť centimetra a výberová smerodajná odchýlka približne štyridsaťšesť celých päťdesiatsedem centimetra.
+
+Person1: Pri deväťdesiatpäťpercentnej spoľahlivosti a siedmich stupňoch voľnosti je té kvantil približne dva celé tridsaťšesť. Výsledný interval je približne od sto desať celých tridsaťdva po stoosemdesiatosem celých osemnásť centimetra. Je široký, čo zodpovedá malému výberu a veľkej variabilite dát.
+
+Person2: Aj tu interpretujeme deväťdesiatpäť percent ako dlhodobé pokrytie postupu pri opakovaných normálnych výberoch.
+
+Person1: Presne. Pre rozptyl normálneho rozdelenia využijeme skutočnosť, že en mínus jedna krát výberový rozptyl, delené populačným rozptylom, má chí-kvadrát rozdelenie s en mínus jedným stupňom voľnosti.
+
+Person2: Ako vyzerajú hranice intervalu pre populačný rozptyl?
+
+Person1: V čitateli oboch hraníc je en mínus jedna krát výberový rozptyl. Dolná hranica delí tento výraz vyšším chí-kvadrát kvantilom na úrovni jedna mínus alfa polovica. Horná hranica ho delí nižším kvantilom na úrovni alfa polovica. Obrátené poradie kvantilov vzniká preto, že neznámy rozptyl je v menovateli pivotu.
+
+Person2: Záverečné rozlíšenie teda znie: presné normálne intervaly používajú presné rozdelenie pivotu, či už normálne, Studentovo té alebo chí-kvadrát, a vyžadujú normálne dáta.
+
+Person1: Kým všeobecný asymptotický interval používa limitné normálne rozdelenie odhadcu. Má iba približné pokrytie a potrebuje dostatočne veľký výber aj príslušné regularitné podmienky.
+
+Person2: Užitočná je aj dualita s testovaním: pri obojstrannom teste a intervale zostrojenom z rovnakého pivotu nezamietneme hodnotu parametra na hladine alfa práve vtedy, keď patrí do intervalu spoľahlivosti jedna mínus alfa.
+
+Person1: A celý okruh spája jedna myšlienka: odhad nie je iba vypočítané číslo. Musíme vedieť, aký náhodný postup ho vytvoril, aké má vychýlenie a rozptyl, či je konzistentný, koľko informácie nesú dáta a či je použitý interval presný alebo iba asymptotický.
+
+Person2: Na skúške teda jasne odlíšim odhadca od odhadu, správne vyložím spoľahlivosť, vysvetlím MLE a Fisherovu informáciu, prepojím ich s efektívnosťou a pri intervaloch vždy uvediem predpoklady aj to, či ide o presný alebo asymptotický výsledok.

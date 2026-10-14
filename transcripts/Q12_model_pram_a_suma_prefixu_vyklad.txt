@@ -1,0 +1,151 @@
+Person1: Témou tohto výkladu je model PRAM, suma prefixov a jej aplikácie. Najprv si ujasníme, ako abstraktný paralelný stroj pracuje, potom odvodíme stromový výpočet prefixov a napokon ukážeme, prečo je táto operácia taká užitočná.
+
+Person2: Začnime teda samotným modelom. Čo presne oddeľuje od čoho?
+
+Person1: Výpočtový model tvorí rozhranie medzi aplikáciou na vysokej úrovni a architektúrou na nízkej úrovni. Aplikácii ponúka určité operácie a od reálnej architektúry požaduje ich implementáciu. PRAM, teda Parallel Random Access Machine, je synchrónny model paralelného výpočtu s viacerými procesormi, ktoré komunikujú cez zdieľanú pamäť.
+
+Person2: Akú pamäť a riadenie majú jednotlivé procesory?
+
+Person1: Zdieľaná pamäť pozostáva z neobmedzeného počtu registrov. Všetky procesory typu RAM riadi jeden spoločný program, každý procesor však má aj vlastnú lokálnu pamäť a prístup do zdieľanej pamäte. Spoločný program neznamená, že všetky procesory musia v rovnakom kroku vykonať tú istú operáciu. Poznajú svoj jedinečný index a podľa údajov sa môžu vetviť.
+
+Person2: Čo v tomto modeli znamená synchrónny výpočet?
+
+Person1: Výpočet prebieha v spoločných krokoch. V jednom kroku môže každý procesor prečítať najviac jednu bunku zdieľanej pamäte, vykonať lokálnu operáciu a zapísať najviac do jednej bunky zdieľanej pamäte. Čas algoritmu preto meriame počtom takýchto paralelných krokov.
+
+Person2: Dá sa algoritmus navrhnutý pre veľa procesorov spustiť aj s menším počtom?
+
+Person1: Áno. Ak problém vyrieši PRAM s pé procesormi v té krokoch, potom ho možno riešiť aj s menším počtom pé čiarka procesorov. Pôvodné procesory rovnomerne rozdelíme do skupín a každý dostupný procesor postupne simuluje svoju skupinu. Čas sa zväčší úmerne pomeru pôvodného a nového počtu procesorov, teda rádovo na té krát pé delené pé čiarka.
+
+Person2: S tým súvisí cena paralelného algoritmu, však?
+
+Person1: Presne. Cena algoritmu je súčin počtu použitých procesorov a paralelného času. [short pause] Algoritmus nazývame cenovo optimálny vtedy, keď jeho cena asymptoticky zodpovedá času optimálneho sekvenčného algoritmu. Samotný veľmi krátky paralelný čas teda ešte nestačí, ak naň spotrebujeme neprimerane veľa procesorov.
+
+Person2: Ako PRAM rozlišuje prístupy viacerých procesorov do zdieľanej pamäte?
+
+Person1: Podľa toho, či je dovolené súbežné čítanie a súbežný zápis do tej istej bunky v jednom kroku. EREW znamená exclusive read, exclusive write, čiže výlučné čítanie aj zápis. CREW povoľuje concurrent read, teda súbežné čítanie, ale vyžaduje výlučný zápis. CRCW povoľuje súbežné čítanie aj súbežný zápis.
+
+Person2: A zostáva ešte ERCW.
+
+Person1: ERCW má výlučné čítanie a súbežný zápis. Prakticky sa nepoužíva, pretože súbežný zápis je náročnejšie zabezpečiť než súbežné čítanie, takže takáto kombinácia nemá rozumné opodstatnenie. Dôležité je aj to, že exclusive obmedzuje iba prístup viacerých procesorov k tej istej bunke. Procesory môžu súčasne pracovať s rôznymi bunkami.
+
+Person2: Pri CRCW však môžu viaceré procesory zapisovať rôzne hodnoty na jedno miesto. Ako sa vyrieši konflikt?
+
+Person1: Existujú tri pravidlá. V režime COMMON smú všetky procesory zapisovať iba rovnakú hodnotu. V režime ARBITRARY môžu zapisovať rôzne hodnoty a jedna z nich sa vyberie ľubovoľne. V režime PRIORITY majú procesory pevne určené priority a uspeje hodnota procesora s najvyššou prioritou.
+
+Person2: Ktoré z týchto architektúr sú silnejšie?
+
+Person1: Architektúra je aspoň taká silná ako iná, ak na nej bez zmien beží každý algoritmus určený pre tú slabšiu. Hierarchia od najsilnejšej je PRIORITY, potom ARBITRARY, COMMON, CREW PRAM a napokon EREW PRAM. Silnejší model teda umožňuje všetko, čo slabší, a navyše povoľuje ďalšie formy súbehu.
+
+Person2: Máme krátky príklad, kde súbežný zápis naozaj zrýchli výpočet?
+
+Person1: Áno, logickú operáciu AND na COMMON CRCW. Máme en vstupných bitov, en procesorov a spoločný výstupný register inicializovaný na jednotku. Každý procesor prečíta jeden bit. Ak nájde nulu, zapíše do výstupu nulu. Pri viacerých zápisoch všetci zapisujú tú istú nulu, čo režim COMMON povoľuje. Ak sú všetky bity jednotkové, nikto nezapisuje a výsledok zostane jedna. AND tak vypočítame v konštantnom čase.
+
+Person2: A ako sa na jednotlivých modeloch správa broadcast jednej hodnoty?
+
+Person1: Na CRCW aj CREW si všetky procesory môžu tú istú hodnotu zo zdieľanej pamäte prečítať naraz, takže broadcast trvá konštantný čas. Na EREW súbežné čítanie tej istej bunky nesmieme použiť. Hodnotu preto šírime stromovo: každý procesor, ktorý ju už má, vytvorí v ďalšom kroku jednu novú kópiu. Počet kópií sa zdvojnásobuje a čas je rádovo logaritmus z pé.
+
+Person2: Tým máme model. Ako presne definujeme sumu prefixov?
+
+Person1: Vstupom je usporiadaná postupnosť en prvkov a binárny asociatívny operátor. Výstup na každej pozícii obsahuje výsledok operátora aplikovaného na všetky prvky od začiatku až po túto pozíciu. Pri sčítaní vstupu jedna, dva, tri, štyri teda dostaneme jedna, tri, šesť, desať. V knižnici MPI túto operáciu poskytuje funkcia MPI Scan.
+
+Person2: Musí ísť práve o sčítanie?
+
+Person1: Nie. Môžeme použiť násobenie, minimum, maximum, logické AND, OR či XOR, konkatenáciu reťazcov alebo násobenie matíc. Podmienkou je asociativita: ak najprv spojíme prvé dva prvky a potom tretí, výsledok musí byť rovnaký, ako keď najprv spojíme druhý a tretí a potom prvý.
+
+Person2: Prečo je asociativita potrebná a komutativita nie?
+
+Person1: Stromový algoritmus mení uzátvorkovanie operácií, preto sa bez asociativity nemusí zachovať výsledok. Pôvodné poradie prvkov však nemení, takže nepotrebuje komutativitu. Konkatenácia reťazcov aj násobenie matíc sú typické asociatívne, ale nekomutatívne operácie, ktoré scan stále zvládne.
+
+Person2: Aký je rozdiel medzi scanom, prescanom a reduce?
+
+Person1: Scan, presnejšie inclusive scan, zahŕňa na každej pozícii aj aktuálny prvok. Prescan, nazývaný aj exclusive scan, ho nezahŕňa. Začína neutrálnym prvkom, pokračuje prvým vstupným prvkom a potom prefixmi končiacimi vždy o jednu pozíciu skôr. Reduce vráti iba poslednú hodnotu scanu, teda výsledok operácie nad celou postupnosťou.
+
+Person2: Čo je neutrálny prvok?
+
+Person1: Je to hodnota, ktorá pri spojení operátorom nemení druhý operand, a to zľava ani sprava. Pri sčítaní je to nula, pri násobení jednotka. Neutrálny prvok využijeme pri prescane aj na dopĺňanie vstupu.
+
+Person2: Ako paralelne vypočítame reduce?
+
+Person1: Hodnoty spájame po dvojiciach v binárnom strome. V ďalšej úrovni spájame výsledky susedných dvojíc a pokračujeme až ku koreňu, kde dostaneme reduce celej postupnosti. Pre jednoduchý opis predpokladáme, že počet prvkov je mocnina dvoch. Ak nie je, doplníme vstup neutrálnymi prvkami po najbližšiu vyššiu mocninu dvoch.
+
+Person2: Akú zložitosť má tento strom?
+
+Person1: Jeho výška je logaritmus z en, takže paralelný čas reduce je rádovo logaritmický. Základná verzia používa približne polovicu en procesorov. Jej cena je preto rádovo en krát logaritmus z en, čo nie je optimálne, lebo sekvenčný reduce trvá lineárny čas.
+
+Person2: Ako cenu zlepšíme?
+
+Person1: Použijeme menší počet procesorov, označme ho veľké en, pričom je menší než počet vstupných prvkov. Každý procesor najprv sekvenčne spracuje vlastný blok dĺžky približne malé en delené veľké en. Čiastkové výsledky blokov sa potom spoja stromovým reduce. [short pause] Celkový čas je rádovo malé en delené veľké en plus logaritmus z veľkého en.
+
+Person2: Kedy je takýto algoritmus cenovo optimálny?
+
+Person1: Keď logaritmická stromová časť asymptoticky neprevýši čas lokálneho spracovania, teda logaritmus z počtu procesorov je rádovo najviac malé en delené počtom procesorov. Čas sa potom zjednoduší na rádovo malé en delené počtom procesorov. Po vynásobení počtom procesorov dostaneme lineárnu cenu, rovnakú ako pri optimálnom sekvenčnom algoritme.
+
+Person2: Reduce je len jeden výsledok. Ako z rovnakého stromu získame všetky prefixy?
+
+Person1: Výpočet reduce tvorí fázu up-sweep, v ktorej hodnoty postupujú zdola nahor ku koreňu. Pre prescan pridáme fázu down-sweep. Koreňu najprv priradíme neutrálny prvok a potom v logaritmickom počte krokov postupujeme po úrovniach smerom k listom.
+
+Person2: Čo počas down-sweepu dostanú ľavý a pravý syn?
+
+Person1: Ľavý syn dostane hodnotu svojho rodiča. Pravý syn dostane hodnotu rodiča spojenú operátorom s pôvodným súhrnom ľavého podstromu. Poradie operandov je podstatné najmä pri nekomutatívnom operátore. Takto sa ku každému listu prenesie výsledok všetkých prvkov, ktoré mu v pôvodnom poradí predchádzajú.
+
+Person2: Výsledkom je teda exclusive scan. Ako z neho vznikne inclusive scan?
+
+Person1: Odstránime prvý prvok, ktorým je neutrálny prvok, zvyšok posunieme doľava a na koniec pridáme hodnotu reduce celej postupnosti. Ekvivalentne si môžeme predstaviť, že ku každému exkluzívnemu prefixu pridáme jeho aktuálny vstupný prvok v správnom poradí.
+
+Person2: Aký čas a cenu má celý stromový scan?
+
+Person1: Up-sweep aj down-sweep trvajú rádovo logaritmus z en, takže základný paralelný scan má logaritmický čas. S lineárnym počtom procesorov však stojí rádovo en krát logaritmus z en. Sekvenčný scan pritom trvá rádovo en, takže základná paralelná verzia opäť nie je cenovo optimálna.
+
+Person2: Pomôže rovnaké blokové rozdelenie ako pri reduce?
+
+Person1: Áno. Každý z menšieho počtu procesorov vypočíta lokálny scan svojho bloku. Nad súhrnmi blokov prebehnú stromové fázy a prefix pridelený danému bloku sa potom skombinuje s jeho lokálnymi prefixmi v správnom poradí. Čas je rádovo malé en delené počtom procesorov plus logaritmus z počtu procesorov. Za rovnakej podmienky ako pri reduce dostaneme lineárnu, a teda optimálnu cenu.
+
+Person2: Prejdime k aplikáciám. Ako scan vyrieši problém pakovania?
+
+Person1: Máme ká položiek rozptýlených v poli veľkosti en, pričom ká je menšie než en, a chceme ich zhustiť do prvých ká pozícií. Každej obsadenej pozícii priradíme jednotku a prázdnej nulu. Potom vypočítame scan so sčítaním. Prefixová hodnota pri položke určuje jej poradové číslo medzi existujúcimi položkami.
+
+Person2: Kam sa teda konkrétna položka presunie?
+
+Person1: Pri indexovaní výstupného poľa od jednotky priamo na pozíciu danú scanom. Pri indexovaní od nuly na pozíciu o jedna menšiu. Každá položka dostane jedinečný cieľ a všetky presuny môžu prebehnúť paralelne.
+
+Person2: Scan sa dá použiť aj na zisťovanie viditeľnosti v teréne. Aký je princíp?
+
+Person1: Z matice nadmorských výšok vezmeme body pozdĺž pozorovacieho lúča od miesta pozorovateľa. Výšky prevedieme na uhly a nad uhlami vypočítame max-prescan, čiže maximum všetkých predchádzajúcich uhlov. Aktuálny bod je viditeľný práve vtedy, keď je jeho uhol väčší než doterajšie maximum.
+
+Person2: A čo paralelná carry look ahead sčítačka?
+
+Person1: Pre každý pár sčítavaných bitov najprv určíme stav prenosu. Ak sú oba bity jednotkové, stav generate prenos vytvorí. Ak sú oba nulové, stav stop ho zastaví. V ostatných prípadoch stav propagate prenos posunie ďalej. Nad týmito stavmi definujeme asociatívnu operáciu a jej scanom určíme prenosové bity pre všetky pozície paralelne.
+
+Person2: Ďalšou aplikáciou je bitový radix sort. Ako v ňom scan pomáha?
+
+Person1: Radix sort so základom dva spracúva bity od najmenej významného po najvýznamnejší. V každom kroku stabilne rozdelí prvky na tie s nulovým bitom a tie s jednotkovým bitom. Stabilita znamená, že relatívne poradie prvkov v každej skupine zostane zachované.
+
+Person2: Ako sa vypočítajú nové indexy oboch skupín?
+
+Person1: Pre nulové bity použijeme sčítací prescan nad negovanými príznakmi bitov. Pre jednotkové bity použijeme počet prvkov mínus sčítací scan príznakov v obrátenom poradí. Podľa hodnoty bitu si každý prvok vyberie príslušný index a všetky prvky sa paralelne premiestnia operáciou permute.
+
+Person2: Akú zložitosť má split a celý radix sort?
+
+Person1: Split má rovnakú asymptotickú zložitosť ako scan, teda rádovo malé en delené počtom procesorov plus logaritmus z počtu procesorov. Ak majú kľúče rádovo logaritmus z en bitov, split zopakujeme pre každý bit. Celkový čas je preto čas jedného scanu vynásobený logaritmom z en.
+
+Person2: Poslednou veľkou aplikáciou je paralelný quicksort. Prečo potrebuje segmentovaný scan?
+
+Person1: Pri segmentovanom scane máme okrem prvkov aj príznaky začiatkov segmentov. Prefix sa počíta v každom segmente osobitne a na jeho začiatku sa reštartuje. Segmenty tak môžu predstavovať nezávislé podproblémy quicksortu, ktoré sa v jednej iterácii spracúvajú paralelne.
+
+Person2: Čo sa deje v jednej iterácii segmentovaného quicksortu?
+
+Person1: Najprv sa v každom segmente overí, či je už zoradený. Každý procesor porovná svoju hodnotu s predchádzajúcou v rovnakom segmente a čiastkové výsledky spojíme pomocou AND-reduce. V každom nezoradenom segmente sa potom vyberie pivot, napríklad medián, náhodný prvok alebo prvý prvok.
+
+Person2: Ako sa pivot dostane ku všetkým prvkom segmentu?
+
+Person1: Ak použijeme prvý prvok, rozšíri ho segmented copy scan. Operátor copy pri spojení dvoch operandov vráti prvý z nich, takže hodnota zo začiatku segmentu sa prenesie cez celý segment. Následne každý prvok porovnáme s pivotom.
+
+Person2: A potom sa segment rozdelí?
+
+Person1: Áno. Modifikovaný split vytvorí skupinu prvkov menších než pivot, skupinu prvkov rovných pivotu a skupinu väčších prvkov. Na hranice skupín vložíme nové príznaky, čím vzniknú nové samostatné segmenty. Postup opakujeme, kým nie sú všetky segmenty zoradené.
+
+Person2: Aká je zložitosť tohto quicksortu?
+
+Person1: Každá iterácia používa konštantný počet operácií scan. Pri vyvážených pivotoch je iterácií rádovo logaritmus z en, takže celkový čas je čas scanu vynásobený logaritmom z en. Pri náhodných pivotoch ide o očakávanú zložitosť. Ak opakovane vyberáme nevhodné pivoty, počet iterácií môže narásť až na lineárny.
+
+Person2: Zhrniem si to. PRAM je synchrónny model procesorov so zdieľanou pamäťou a jeho varianty sa líšia pravidlami súbežného čítania a zápisu. Pri paralelných algoritmoch sledujeme nielen čas, ale aj cenu. Suma prefixov nad asociatívnym operátorom vznikne stromovými fázami up-sweep a down-sweep, pričom menší počet procesorov a blokové spracovanie umožnia optimálnu lineárnu cenu. A rovnaký scan potom tvorí základ pakovania, viditeľnosti, prenosov v sčítačke, radix sortu aj segmentovaného quicksortu.

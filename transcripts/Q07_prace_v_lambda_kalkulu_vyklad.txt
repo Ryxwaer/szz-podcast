@@ -1,0 +1,143 @@
+Person1: Témou je práca v lambda kalkule: ukážeme si reprezentáciu pravdivostných hodnôt, prirodzených čísel a operácií nad nimi. Potom prejdeme od Churchových čísel až k pevnému bodu a rekurzii.
+
+Person2: Začnime pravdivostnými hodnotami. Ako sa dá pravda a nepravda vyjadriť iba pomocou funkcií?
+
+Person1: Pravdivostná hodnota je funkcia, ktorá z dvoch argumentov jeden vyberie. Pravda, označovaná té, je funkcia dvoch argumentov iks a ypsilon, ktorá vráti iks. Nepravda, označovaná ef, naopak vráti ypsilon. Té teda vyberá prvú možnosť a ef druhú.
+
+Person2: Čiže keď aplikujem té na hodnoty á a bé, po dvoch beta redukciách dostanem á. A pri ef dostanem bé.
+
+Person1: Presne. Pravdivostná hodnota preto nie je iba pasívny údaj. Sama vykonáva rozhodnutie. Na tomto princípe vieme zostaviť logické operácie.
+
+Person2: Ako vyzerá negácia?
+
+Person1: Negácia prijme argument á a nechá ho vybrať medzi ef a té, v tomto poradí. Ak je á rovné té, vyberie sa prvá možnosť, teda ef. Negácia té sa tak po dvoch beta krokoch zredukuje na ef. Ak je á rovné ef, vyberie sa druhá možnosť, teda té.
+
+Person2: A pri konjunkcii potrebujeme pravdu iba vtedy, keď sú pravdivé oba argumenty.
+
+Person1: Konjunkciu definujeme ako funkciu argumentov á a bé, ktorá aplikuje á na bé a ef. Odvodenie je užitočné: začneme šablónou, v ktorej á vyberá medzi dvoma výsledkami. Ak je á pravda, chceme vrátiť bé, preto je prvou možnosťou bé. Ak je á nepravda, chceme vždy ef, preto je druhou možnosťou ef.
+
+Person2: Takže konjunkcia té a té vyberie té, konjunkcia té a ef vyberie ef a pri prvom argumente ef dostaneme ef bez ohľadu na druhý argument.
+
+Person1: Áno. V každom prípade ide po dosadení o dve beta redukcie výberovej funkcie. Disjunkciu zostavíme podobne. Funkcia argumentov á a bé nechá á vybrať medzi té a bé. Ak je prvý argument té, výsledkom je hneď té. Ak je prvý argument ef, výsledkom je druhý argument.
+
+Person2: Preto disjunkcia té a ef dá té a disjunkcia ef a té tiež dá té. Ako sa týmto spôsobom zapíše ekvivalencia?
+
+Person1: Ekvivalencia, čiže iks nor, nechá prvý argument vybrať medzi druhým argumentom a jeho negáciou. Ak je prvý argument té, výsledkom je priamo bé. Ak je prvý argument ef, výsledkom je negácia bé. Napríklad ekvivalencia té a ef sa zredukuje na ef. Ekvivalencia ef a ef najprv vyberie negáciu ef a tá sa ďalej zredukuje na té.
+
+Person2: A implikácia má byť nepravdivá iba pre pravdivý predpoklad a nepravdivý dôsledok.
+
+Person1: Preto implikácia argumentov á a bé nechá á vybrať medzi bé a té. Pri pravdivom predpoklade vráti dôsledok. Pri nepravdivom predpoklade vráti vždy té.
+
+Person2: Zo zdroja vyplýva aj exkluzívna disjunkcia. Ako zapadne do rovnakého vzoru?
+
+Person1: Exkluzívna disjunkcia nechá prvý argument vybrať medzi negáciou druhého argumentu a druhým argumentom. Pri á rovnom té teda výsledok obráti, pri á rovnom ef ho ponechá. Tak dostaneme pravdu práve vtedy, keď sa argumenty líšia.
+
+Person2: Vlastne všetky tieto operácie využívajú pravdivostnú hodnotu ako vetvenie.
+
+Person1: Presne. Podmienený výraz preto nemusí robiť nič navyše. Prijme podmienku cé, výsledok pre pravdu té a výsledok pre nepravdu ef, a aplikuje cé na tieto dve možnosti. Pri pravdivej podmienke sa výraz po dvoch beta krokoch zredukuje na prvú vetvu, pri nepravdivej na druhú.
+
+Person2: Teraz môžeme prejsť k prirodzeným číslam. Čo presne reprezentuje Churchovo číslo?
+
+Person1: Churchovo číslo en je iterátor. Prijme funkciu ef a počiatočnú hodnotu en a funkciu ef aplikuje presne en krát. Nula je funkcia, ktorá ef nepoužije a vráti počiatočnú hodnotu. Jednotka vráti ef aplikované raz. Dvojka vráti ef aplikované na ef aplikované na počiatočnú hodnotu. Trojka obsahuje tri vnorené aplikácie.
+
+Person2: Číslo teda nie je uložené ako číslica. Jeho význam sa prejaví tým, koľkokrát zopakuje zadanú funkciu.
+
+Person1: Áno. Toto je kľúčová intuícia pre všetky ďalšie operácie. Aplikácia Churchovho čísla en na funkciu ef a základnú hodnotu vykoná en iterácií.
+
+Person2: Ako vytvoríme nasledovníka, teda číslo o jedna väčšie?
+
+Person1: Funkcia nasledovníka prijme Churchovo číslo iks, iterovanú funkciu gé a počiatočnú hodnotu em. Nechá iks opakovať gé, ale začne od hodnoty gé aplikovanej na em. Tým pridá jednu aplikáciu navyše.
+
+Person2: Ukážme redukciu na dvojke.
+
+Person1: Po dosadení dvojky do nasledovníka dostaneme funkciu gé a em, ktorá aplikuje dvojku na gé a na hodnotu gé em. Dvojka použije gé dvakrát, takže vznikne gé aplikované na gé aplikované na gé em. [short pause] To sú tri aplikácie, čiže Churchova trojka.
+
+Person2: Ďalšia základná operácia je test na nulu.
+
+Person1: Test na nulu aplikuje skúmané číslo em na konštantnú funkciu, ktorá každý argument zahodí a vráti ef, a ako počiatočnú hodnotu použije té. Nula túto funkciu nepoužije ani raz, takže zachová té. Každé kladné číslo ju použije aspoň raz, a výsledkom sa stane ef.
+
+Person2: Pri dvojke sa tá konštantná funkcia aplikuje dvakrát, ale už prvá aplikácia zmení výsledok na ef a ďalšia ho ponechá ef.
+
+Person1: Správne. Pred definíciou predchodcu ešte potrebujeme usporiadané dvojice. Dvojica hodnôt á a bé je funkcia, ktorá prijme výberovú funkciu a aplikuje ju na á a bé.
+
+Person2: Projekcia prvej zložky teda aplikuje dvojicu na té a projekcia druhej zložky na ef.
+
+Person1: Áno. Té z dvojice vyberie prvú hodnotu á, ef druhú hodnotu bé. Aj usporiadaná dvojica je teda iba funkcia a projekcie opäť využívajú naše pravdivostné hodnoty.
+
+Person2: Ako nám dvojica pomôže odstrániť jednu iteráciu a získať predchodcu?
+
+Person1: Pomocná funkcia pre predchodcu nesie v dvojici príznak prvého kroku a priebežnú hodnotu. Prijme iterovanú funkciu ef a dvojicu pé. Ak je prvá zložka pé pravdivá, vráti dvojicu s príznakom ef a s nezmenenou druhou zložkou. Ak je príznak už ef, vráti opäť príznak ef, ale na druhú zložku aplikuje funkciu ef.
+
+Person2: Čiže v prvom kroku sa funkcia zámerne nepoužije a pri každom ďalšom už áno.
+
+Person1: Presne. Funkcia predchodcu prijme číslo iks, iterovanú funkciu gé a základ em. Číslom iks opakuje pomocnú funkciu od počiatočnej dvojice té a em a napokon vyberie druhú zložku. Z en krokov sa gé použije iba en mínus jedenkrát.
+
+Person2: Čo sa stane pri nule?
+
+Person1: Nula nevykoná nijaký krok. Zostane počiatočná dvojica té a em a jej druhá projekcia je em. Výsledkom je teda opäť Churchova nula.
+
+Person2: A pri dvojke prebehnú dva kroky. Prvý iba zmení príznak na ef a druhý vytvorí gé em. Druhá projekcia je potom gé em, teda Churchova jednotka.
+
+Person1: Preto predchodca nuly ostáva nula a pre kladné en dostaneme en mínus jeden. Táto vlastnosť zároveň spôsobí, že neskoršie odčítanie nikdy neklesne pod nulu.
+
+Person2: Prejdime k aritmetike. Ako sa skladajú iterácie pri sčítaní?
+
+Person1: Sčítanie argumentov á a bé prijme ešte funkciu gé a základ em. Najprv nechá bé aplikovať gé na em a na tento výsledok nechá á aplikovať gé ešte á krát. Celkovo teda dostaneme bé plus á aplikácií.
+
+Person2: Pri súčte jednotky a dvojky dvojka vytvorí dve aplikácie gé a jednotka pridá tretiu, takže výsledkom je trojka.
+
+Person1: Presne. Odčítanie využije druhý operand ako iterátor predchodcu. Rozdiel á mínus bé získame tak, že číslo bé aplikuje funkciu predchodcu bé krát na číslo á.
+
+Person2: Napríklad štyri mínus dva znamená dvakrát použiť predchodcu na štvorku. Najprv dostaneme trojku a potom dvojku.
+
+Person1: Ak je á aspoň bé, výsledok zodpovedá bežnému rozdielu. Ak je á menšie, opakovaný predchodca nakoniec dosiahne nulu a ďalšie kroky ju už nezmenia. Ide teda o skrátené odčítanie s dolnou hranicou nula.
+
+Person2: A násobenie bude zrejme opakované sčítanie.
+
+Person1: Áno. Násobenie á krát bé použije á ako iterátor funkcie pripočítaj bé a začne od nuly. Pri dvoch krát tri sa funkcia pripočítaj tri vykoná dvakrát: najprv vznikne tri a potom šesť.
+
+Person2: Fungujú správne aj nulové prípady?
+
+Person1: Áno. Ak je prvý operand nula, sčítanie sa nevykoná ani raz. Ak je druhý operand nula, opakovane pripočítavame nulu. V oboch prípadoch dostaneme nulu.
+
+Person2: Zdroj dopĺňa aj porovnávanie Churchových čísel. Ako sa využije skrátené odčítanie?
+
+Person1: Rovnosť overíme odčítaním v oboch smeroch. Od á odčítame bé aj od bé odčítame á, oba výsledky otestujeme na nulu a testy spojíme konjunkciou. Obe odčítania sú nulové práve pri rovnosti.
+
+Person2: A ostré väčší než?
+
+Person1: Od á odčítame bé. Ak je výsledok nenulový, á je väčšie než bé. Preto výsledok testu na nulu negujeme. Ak je á menšie alebo rovné bé, skrátený rozdiel je nula a negovaný test vráti ef.
+
+Person2: Doteraz sme pracovali bez pomenovanej rekurzie. Ako ju lambda kalkul vyjadrí?
+
+Person1: Pomocou operátora pevného bodu ypsilon. Ten prijme funkciu ef a vytvorí samoaplikáciu dvoch rovnakých funkcií. Každá prijme iks a vráti ef aplikované na iks aplikované na seba.
+
+Person2: Dôležitejšia než samotný zápis je asi jeho redukčná vlastnosť.
+
+Person1: Presne. Po dosadení ľubovoľného výrazu é do ypsilon dostaneme samoaplikáciu funkcie, ktorá na svoj výsledok aplikuje é. Jedna ďalšia beta redukcia dá é aplikované na tú istú samoaplikáciu. [short pause] Teda ypsilon aplikované na é sa redukuje na é aplikované na ypsilon aplikované na é.
+
+Person2: Ypsilon aplikované na é je preto pevným bodom výrazu é, lebo po aplikácii é dostaneme znovu tú istú hodnotu.
+
+Person1: Áno. Rekurzívnu funkciu najprv zapíšeme ako nerekurzívny funkcionál, ktorý má dodatočný parameter pre rekurzívne volanie. Následne na tento funkcionál aplikujeme ypsilon a parameter sa začne odkazovať na celý výsledný výpočet.
+
+Person2: Ako príklad môžeme zostaviť rekurzívne násobenie.
+
+Person1: Funkcionál prijme rekurzívne volanie er a čísla á a bé. Ak je á nula, vráti nulu. Inak pripočíta bé k rekurzívnemu výsledku pre predchodcu á a nezmenené bé. Po aplikácii ypsilon dostaneme rekurzívne násobenie.
+
+Person2: Pre dve krát tri sa výraz rozvinie na tri plus násobenie jednotky a trojky, potom na tri plus tri plus násobenie nuly a trojky. Základný prípad dá nulu, takže výsledok je šesť.
+
+Person1: S pevným bodom súvisí aj bottom, teda výraz označujúci výpočet, ktorý sa nikdy nedostane k výsledku. Definuje sa pomocou ypsilon aplikovaného na funkciu, ktorá prijme ef a iks a vráti ef.
+
+Person2: Ako z tejto definície vidíme nekončiaci výpočet?
+
+Person1: Označme vnútornú funkciu ako é. Z vlastnosti pevného bodu platí, že bottom je é aplikované na bottom. Po redukcii dostaneme funkciu argumentu iks, ktorá znovu vracia bottom. Preto aplikácia bottomu na ľubovoľný argument vedie opäť k bottomu a výpočet sa k normálnej forme nedostane.
+
+Person2: Bottom teda môžeme použiť ako výsledok nedefinovanej operácie, napríklad delenia nulou.
+
+Person1: Presne. Celočíselné delenie opakuje odčítanie deliteľa a počíta počet úspešných odčítaní. Pomocný funkcionál prijme rekurzívne volanie er, delenec em, deliteľ en a priebežný podiel kvé. Ak je en väčšie než em, vráti kvé. Inak zavolá rekurziu s rozdielom em mínus en, rovnakým deliteľom a nasledovníkom kvé.
+
+Person2: Samotné delenie najprv otestuje deliteľa na nulu. Pri nule vráti bottom, inak aplikuje ypsilon na pomocný funkcionál a začne s podielom nula.
+
+Person1: Napríklad päť delené dvoma dá po opakovanom odčítaní celočíselný výsledok dva. Päť delené nulou vedie k bottomu. Podmienené výrazy aj rekurziu pritom treba redukovať v normálnom poradí, aby sa nevyhodnocovala nepoužitá vetva.
+
+Person2: Najdôležitejšia myšlienka je, že lambda kalkul kóduje údaje ich správaním. Té a ef vyberajú vetvu, Churchovo číslo opakuje funkciu, dvojice používajú výberové projekcie a aritmetika skladá iterácie. Predchodca jednu iteráciu preskočí a operátor ypsilon pridá rekurziu; správne poradie redukcie potom rozhoduje, či sa vyhneme nepoužitej nekončiacej vetve.

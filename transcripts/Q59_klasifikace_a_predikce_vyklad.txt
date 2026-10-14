@@ -1,0 +1,203 @@
+Person1: Témou tohto výkladu je klasifikácia a predikcia. Prejdeme ich princíp, prípravu dát, rozhodovacie stromy, naivnú bayesovskú klasifikáciu, regresiu, neurónové siete a napokon hodnotenie kvality klasifikátora.
+
+Person2: Začnime rozdielom medzi klasifikáciou a predikciou. Čo presne je výstupom každej z nich?
+
+Person1: Pri klasifikácii zaraďujeme objekt do určitej triedy podľa jeho vlastností, teda atribútov. Výstupom je diskrétna trieda, napríklad áno alebo nie, prípadne jedna z viacerých kategórií. Pri predikcii, označovanej aj ako regresia, predpovedáme hodnotu spojitej funkcie. Výstupom teda môže byť napríklad budúci plat, výška dieťaťa v dospelosti alebo predpokladaná dĺžka života.
+
+Person2: Klasifikátor však musí najprv vedieť, čím sa jednotlivé triedy odlišujú. Odkiaľ túto informáciu získa?
+
+Person1: Získa ju z trénovacích dát pomocou učenia s učiteľom. Pri trénovacích vzoroch poznáme správnu triedu a učením z nich vytvoríme model, ktorý zachytí rozdiely medzi triedami. Hotový model potom použijeme na neznáme dáta. Rozlišujeme binárnu klasifikáciu do dvoch tried a klasifikáciu do viacerých tried.
+
+Person2: Aké typické úlohy si pod tým môžem predstaviť?
+
+Person1: Napríklad rozhodovanie, ktorých zákazníkov osloviť reklamnou kampaňou, automatický výber tematicky zaujímavých dokumentov alebo pomoc lekárovi pri určovaní diagnózy podľa výsledkov vyšetrení. Vo všetkých prípadoch máme vlastnosti objektu a chceme z nich určiť jeho triedu.
+
+Person2: Aké sú fázy klasifikácie od dát až po reálne použitie?
+
+Person1: Sú tri. Pri trénovaní sa zo vzorov so známou triedou určia pravidlá klasifikátora a vytvorí sa model. Pri testovaní sa model overí na iných vzorových dátach a určí sa jeho úspešnosť. Až potom nasleduje použitie, pri ktorom klasifikujeme skutočne neznáme dáta. Dôležité je nemiešať trénovacie a testovacie dáta, inak by sme nemerali schopnosť zovšeobecňovať.
+
+Person2: Ešte pred trénovaním sa však dáta zvyčajne pripravujú. Čo táto príprava zahŕňa?
+
+Person1: Najprv čistíme dáta, teda redukujeme šum a riešime chýbajúce hodnoty. Významnostnou analýzou odstránime atribúty, ktoré pre klasifikáciu nie sú potrebné. Transformáciou môžeme údaje zovšeobecniť, napríklad konkrétny príjem previesť na kategóriu malý alebo veľký. Špeciálnym prípadom transformácie je normalizácia, pri ktorej hodnoty prevedieme napríklad do intervalu od nuly po jeden.
+
+Person2: Podľa čoho potom porovnávame rôzne klasifikačné metódy?
+
+Person1: Sledujeme presnosť odpovedí na neznámych dátach, rýchlosť vytvorenia aj používania pravidiel, robustnosť voči šumu a chýbajúcim hodnotám, škálovateľnosť na veľké množstvo dát a interpretovateľnosť modelu. Jedna metóda môže byť presná, ale pomalá alebo ťažko vysvetliteľná, preto nemožno hodnotiť iba jedinú vlastnosť.
+
+Person2: Prejdime k rozhodovaciemu stromu. Ako vyzerá a ako klasifikuje objekt?
+
+Person1: Je to graf stromovej štruktúry. Každý vnútorný uzol testuje hodnotu určitého atribútu, vetva zodpovedá výsledku testu a koncový uzol, teda list, určuje výslednú triedu. Pri klasifikácii začneme v koreni, podľa hodnôt atribútov prechádzame vetvami a skončíme v liste.
+
+Person2: Ako sa taký strom zostrojí z trénovacích vzoriek?
+
+Person1: Strom budujeme zhora nadol. Pre aktuálny uzol vyberieme najvhodnejší atribút, pre každú jeho hodnotu vytvoríme vetvu a vzorky rozdelíme do príslušných podmnožín. V každej vetve postup rekurzívne opakujeme, kým všetky zostávajúce vzorky nepatria do jednej triedy. Vtedy vytvoríme list s touto triedou.
+
+Person2: Čo znamená najvhodnejší atribút? Ako zmeriame jeho rozlišovaciu schopnosť?
+
+Person1: Pomáha nám množstvo informácie a entropia. Menej pravdepodobná hodnota nesie viac informácie než bežná hodnota. Informácia udalosti je záporný dvojkový logaritmus jej pravdepodobnosti. Entropia je priemerné množstvo informácie, teda súčet príspevkov jednotlivých možností, kde každý príspevok tvorí pravdepodobnosť vynásobená záporným dvojkovým logaritmom tejto pravdepodobnosti.
+
+Person2: Aké krajné prípady entropie si treba pamätať?
+
+Person1: [short pause] Entropia je najvyššia, keď sú všetky triedy rovnako pravdepodobné. Pri em triedach má vtedy hodnotu dvojkového logaritmu z em. Naopak, ak všetky vzorky patria do jedinej triedy, neistota zmizne a entropia je nulová. Jednoducho, čistý uzol má nulovú entropiu, dokonale premiešaný uzol vysokú.
+
+Person2: Ako túto myšlienku využíva metóda ID tri?
+
+Person1: ID tri porovná neistotu pred rozdelením a po rozdelení podľa atribútu. Informačný zisk atribútu je informácia pôvodnej množiny mínus očakávaná informácia po rozdelení. Očakávaná informácia po rozdelení je vážený priemer entropií vzniknutých podmnožín, pričom váhou je ich pomerná veľkosť. Vyberieme atribút s najväčším ziskom, čo je ekvivalentné výberu najmenšej očakávanej informácie po rozdelení.
+
+Person2: Čiže dobré rozdelenie vytvorí čo najčistejšie podmnožiny. Má ID tri nejakú typickú slabinu?
+
+Person1: Áno. Informačný zisk zvýhodňuje atribúty s veľkým počtom hodnôt. Extrémom je unikátny identifikátor, ktorý každú vzorku oddelí samostatne. Očakávaná informácia po takom rozdelení je nulová, ale atribút pritom nepomáha zovšeobecňovať na nové dáta.
+
+Person2: Ako tento problém rieši metóda cé štyri bod päť?
+
+Person1: Namiesto samotného informačného zisku používa normalizovaný pomer zisku. Informačný zisk vydelí hodnotou, ktorá vyjadruje informačnú veľkosť samotného rozdelenia. Tá sa počíta podobne ako entropia z pomerov veľkostí vzniknutých vetiev. Rozdelenie do mnohých malých častí tak dostane penalizáciu a unikátne atribúty už nie sú automaticky najvýhodnejšie.
+
+Person2: V poznámke sa uvádza, že atribúty stromu majú byť diskrétne. Čo urobíme so spojitou hodnotou?
+
+Person1: Hodnoty atribútu zoradíme a medzi každými dvoma susednými hodnotami navrhneme deliaci bod ako ich priemer. Pre každý kandidátsky bod nasimulujeme binárne rozdelenie a vypočítame očakávanú informáciu. Vyberieme bod s najmenšou očakávanou informáciou. Hodnoty sa potom rozdelia na tie, ktoré sú menšie alebo rovné deliacemu bodu, a tie, ktoré sú väčšie.
+
+Person2: Existuje aj kritérium, ktoré nevyžaduje výpočet logaritmov?
+
+Person1: Áno, Gini index. Udáva mieru nejednoty a nadobúda hodnoty od nuly po jeden. Pre možné binárne delenia vypočítame Gini index vzniknutých podmnožín a vyberieme delenie s najmenšou nejednotou. Rozhodovanie v uzle potom môže mať podobu otázky, či hodnota atribútu patrí do vybranej množiny hodnôt.
+
+Person2: Ak strom rozvíjame až do úplného oddelenia trénovacích vzoriek, nehrozí pretrénovanie?
+
+Person1: Práve to je hlavný problém kompletného stromu. Strom sa môže naučiť šum a náhodné zvláštnosti trénovacích dát. Riešením je orezávanie. Pri predbežnom orezávaní zastavíme tvorbu vetiev už počas konštrukcie, ak majú malý význam podľa štatistickej významnosti, informačného zisku alebo podobného kritéria.
+
+Person2: A čo dodatočné orezávanie?
+
+Person1: Pri ňom najprv vytvoríme celý strom a až potom odstraňujeme vetvy s malým významom. Rozhodujeme podľa veľkosti stromu a chybovosti. Výpočet je náročnejší, ale zvyčajne prináša lepšie výsledky. Často sa obe metódy kombinujú a na orezávanie možno vyhradiť osobitnú trénovaciu množinu. Orezaný strom býva rýchlejší a presnejší.
+
+Person2: Rozhodovací strom má podľa poznámky aj problém so škálovateľnosťou. Ako s tým súvisí náhodný les?
+
+Person1: Samotný strom je efektívny najmä vtedy, keď sa trénovacie dáta zmestia do pamäte. Náhodný les vytvorí veľa rozhodovacích stromov a ich výsledky spojí väčšinovým hlasovaním. Pre jednotlivé stromy náhodne vyberá vzorky aj množiny uvažovaných atribútov. Stromy preto nie sú rovnaké a pri hľadaní najlepšieho delenia môžu používať rôzne atribúty. Cieľom je zvýšiť presnosť a pomôcť so škálovateľnosťou.
+
+Person2: Ďalšou metódou je naivná bayesovská klasifikácia. Pripomeňme si najprv podmienenú pravdepodobnosť.
+
+Person1: Podmienená pravdepodobnosť javu iks pri známosti javu ypsilon hovorí, aká je pravdepodobnosť iks, keď vieme, že nastal ypsilon. Pravdepodobnosť spoločného nastatia iks a ypsilon dostaneme ako podmienenú pravdepodobnosť iks pri ypsilon vynásobenú pravdepodobnosťou ypsilon.
+
+Person2: A ako z toho vznikne Bayesov vzorec?
+
+Person1: [short pause] Pravdepodobnosť iks pri známosti ypsilon sa rovná pravdepodobnosti ypsilon pri známosti iks, vynásobenej pravdepodobnosťou iks a vydelenej pravdepodobnosťou ypsilon. Bayesov vzorec nám teda umožní obrátiť smer podmienky, ak poznáme opačnú podmienenú pravdepodobnosť a základné pravdepodobnosti javov.
+
+Person2: Ako sa podľa toho klasifikuje konkrétna vzorka?
+
+Person1: Máme vzorku opísanú viacerými atribútmi a množinu možných tried. Pre každú triedu chceme posteriornú pravdepodobnosť, teda pravdepodobnosť triedy pri známej vzorke. Vzorku zaradíme do triedy s najvyššou posteriornou pravdepodobnosťou. Podľa Bayesovho vzorca je táto hodnota úmerná pravdepodobnosti vzorky v danej triede krát apriórna pravdepodobnosť triedy.
+
+Person2: Prečo môžeme pri porovnávaní tried ignorovať pravdepodobnosť samotnej vzorky?
+
+Person1: Pretože je pre všetky kandidátske triedy rovnaká. Stačí teda maximalizovať súčin pravdepodobnosti vzorky pri danej triede a apriórnej pravdepodobnosti triedy. Apriórnu pravdepodobnosť triedy môžeme odhadnúť ako podiel počtu jej trénovacích vzoriek na počte všetkých trénovacích vzoriek.
+
+Person2: Kde sa v názve berie slovo naivná?
+
+Person1: Klasifikátor naivne predpokladá, že atribúty sú po zadaní triedy navzájom podmienene nezávislé. Pravdepodobnosť celej vzorky v triede preto vypočíta ako súčin pravdepodobností jednotlivých hodnôt atribútov v tejto triede. Výpočet sa výrazne zjednoduší, hoci predpoklad v reálnych dátach často neplatí.
+
+Person2: Ako odhadneme pravdepodobnosť jednej hodnoty atribútu v triede?
+
+Person1: Pri diskrétnom atribúte vezmeme podiel vzoriek danej triedy, ktoré majú požadovanú hodnotu, na počte všetkých vzoriek tejto triedy. Pri spojitom atribúte môžeme hodnotu modelovať Gaussovou normálnou funkciou s priemerom a smerodajnou odchýlkou odhadnutými osobitne pre daný atribút a triedu.
+
+Person2: Čo sa stane, ak je jedna z týchto čiastkových pravdepodobností nulová?
+
+Person1: Keďže ich násobíme, nulový člen vynuluje pravdepodobnosť celej vzorky v triede. Riešením je Laplaceova korekcia, pri ktorej do všetkých počtov symbolicky pridáme jeden prvok. Naivný Bayes je jednoducho implementovateľný a často dáva dobré výsledky, jeho hlavnou nevýhodou však zostáva nereálny predpoklad podmienenej nezávislosti atribútov.
+
+Person2: Ak chceme závislosti medzi atribútmi zachytiť, čo môžeme použiť?
+
+Person1: Bayesovské siete. Tvoria ich dve časti: orientovaný acyklický graf a tabuľky podmienených pravdepodobností. Uzly grafu predstavujú atribúty a hrany zachytávajú ich závislosti. Oproti naivnému klasifikátoru teda môžu explicitne modelovať, ktoré atribúty od seba závisia.
+
+Person2: Teraz k predikcii pomocou regresie. Aký problém regresná analýza rieši?
+
+Person1: Analyzuje vzťah medzi cieľovou, čiže závislou premennou a jednou alebo viacerými nezávislými, ovplyvňujúcimi premennými. Tento vzťah opíše regresnou funkciou a z trénovacej množiny odhadne jej parametre. Výsledkom je spojitá predikovaná hodnota. Na predikciu sa okrem regresie môžu používať aj neurónové siete, ká en en alebo SVM.
+
+Person2: Aký je typický postup regresnej analýzy?
+
+Person1: Najprv exploratívne preskúmame korelačné pole a odhadneme vhodný typ regresnej funkcie. Potom odhadneme jej koeficienty, model overíme a až následne ho použijeme na predikciu. Regresia je citlivá na odľahlé hodnoty a s rastúcim počtom atribútov rastie výpočtová zložitosť, preto je dôležitý výber atribútov.
+
+Person2: Aké druhy závislostí rozlišujeme podľa počtu vstupov a výstupov?
+
+Person1: Jednoduchá regresia opisuje závislosť dvoch numerických premenných a môže byť napríklad lineárna alebo polynomiálna. Viacnásobná regresia opisuje jednu cieľovú premennú pomocou skupiny numerických vstupov, pričom vzťah môže byť aditívny, multiplikatívny alebo iný. Viacrozmerná regresná analýza opisuje závislosť skupiny viacerých cieľových premenných od skupiny vstupných premenných.
+
+Person2: Ako funguje jednoduchá lineárna regresia?
+
+Person1: Hľadáme priamku, v ktorej sa cieľová hodnota rovná smernici krát vstupná hodnota plus posun. Parametre priamky určujeme metódou najmenších štvorcov. Vyberieme ich tak, aby bol súčet štvorcov vzdialeností medzi pozorovanými vzorkami a hodnotami regresnej funkcie čo najmenší.
+
+Person2: A ako sa tento tvar rozšíri pri viacnásobnej regresii?
+
+Person1: Výsledok tvorí konštantný člen plus súčet príspevkov jednotlivých vstupov. Každý vstup sa vynásobí vlastným koeficientom. Model je stále lineárny vzhľadom na odhadované koeficienty, aj keď pracuje s mnohými ovplyvňujúcimi premennými.
+
+Person2: Nelineárna regresia znie zásadne odlišne. Dá sa niekedy previesť na lineárnu?
+
+Person1: Často áno. Predstavme si polynóm tretieho stupňa, ktorý obsahuje tretiu mocninu vstupu, druhú mocninu, samotný vstup a konštantu. Zavedieme nové premenné pre tretiu mocninu, druhú mocninu a pôvodný vstup. Voči týmto novým premenným už dostaneme lineárny tvar a môžeme použiť postupy lineárnej regresie.
+
+Person2: Prejdime ku klasifikácii neurónovou sieťou. Čo robí jeden umelý neurón?
+
+Person1: Vypočíta vážený súčet vstupov, pridá bias a výsledok prevedie aktivačnou funkciou. Viacvrstvová sieť má vstupnú vrstvu, jednu alebo viac skrytých vrstiev a výstupnú vrstvu. Výstupy poslednej vrstvy kódujú predikovanú triedu.
+
+Person2: Ako sa viacvrstvová sieť učí pomocou backpropagation?
+
+Person1: Najprv prebehne dopredný priechod, pri ktorom sa vstup šíri sieťou až k výstupu. Výstup porovnáme s očakávanou hodnotou a získame chybu. Tá sa šíri späť od výstupnej vrstvy a podľa nej upravujeme váhy aj biasy s použitím koeficientu učenia. Pri samotnej klasifikácii už robíme iba dopredný priechod a triedu určíme z výstupu siete.
+
+Person2: Najjednoduchším prípadom je perceptrón. Aké má možnosti a obmedzenia?
+
+Person1: Perceptrón tvorí jediný neurón. Klasifikuje do dvoch tried označených plus jeden a mínus jeden a zvládne iba lineárne separovateľné dáta. Vstupný vektor obsahuje aj konštantnú zložku pre prah a ku každej zložke má príslušnú váhu.
+
+Person2: Ako prebieha učenie perceptrónu bez toho, aby sme čítali zápis symbol po symbole?
+
+Person1: Pre vzorku z kladnej triedy použijeme vstupný vektor priamo, pri zápornej triede otočíme jeho znamienko. Ak skalárny súčin takto upravenej vzorky a vektora váh vyjde kladný, váhy nemeníme. Inak k váham pripočítame upravenú vzorku. Dáta opakovane prechádzame, kým nie sú všetky správne klasifikované. Pri použití perceptrón vráti kladnú triedu, ak je skalárny súčin vstupu a váh kladný, inak zápornú.
+
+Person2: Podľa čoho sa vo všeobecnosti ukončuje učenie neurónovej siete?
+
+Person1: Môžeme vopred určiť počet iterácií, zastaviť pri príliš malých zmenách váh alebo vtedy, keď je väčšina vzoriek klasifikovaná správne. V praxi sa váhy a biasy často menia po každej vzorke, zatiaľ čo v teoretickom opise sa môžu meniť až po celej iterácii.
+
+Person2: Akú úlohu má koeficient učenia?
+
+Person1: Určuje veľkosť zmien váh. Väčší koeficient znamená výraznejšie učenie, ale aj väčšie zabúdanie predchádzajúcej informácie. Preto sa odporúča koeficient učenia postupne znižovať, aby boli po hrubých úvodných zmenách neskoršie úpravy jemnejšie.
+
+Person2: Prečo samotné pridávanie ďalších vrstiev nemusí pri backpropagation fungovať dobre?
+
+Person1: Teoreticky môže viac vrstiev zlepšiť výsledok, ale pri spätnom šírení sa najviac upravujú váhy blízko výstupnej vrstvy. Smerom k vstupu sa informácia o potrebnej zmene stráca. Vrstvy pri vstupe sa preto nedajú efektívne meniť, hoci môžu mať veľký vplyv na výsledok.
+
+Person2: Aké riešenie uvádza poznámka?
+
+Person1: Predtrénovanie siete. Namiesto čisto náhodnej inicializácie hľadáme váhy jednotlivých vrstiev tak, aby ich výstup už predstavoval zmysluplnú reprezentáciu vstupu. Následné spoločné učenie potom nezačína z úplne náhodného stavu.
+
+Person2: Aké sú hlavné výhody a nevýhody neurónových sietí pri klasifikácii?
+
+Person1: Výhodou je vysoká tolerancia zašumených dát, prirodzene paralelné spracovanie, vhodnosť pre spojité atribúty a to, že netreba vopred analyzovať vzťahy medzi atribútmi. Nevýhodou sú dlhé trénovacie časy, nízka interpretovateľnosť a potreba zvoliť veľa parametrov aj topológiu siete.
+
+Person2: Zostáva nám hodnotenie kvality. Prečo nestačí otestovať model na všetkých dátach, na ktorých sa učil?
+
+Person1: Také testovanie podporuje preučenie a neoveruje generalizáciu. Model môže pôsobiť presne iba preto, že si zapamätal trénovacie vzorky. Kvalitu preto meriame na dátach, ktoré neboli použité pri učení, ale ich skutočnú triedu poznáme.
+
+Person2: Ako funguje en násobná krížová validácia?
+
+Person1: Dáta rozdelíme na en častí. V každom behu jednu časť ponecháme na testovanie a zvyšné použijeme na učenie. Učenie a testovanie zopakujeme en krát tak, aby bola každá časť raz testovacia, a výsledky spriemerujeme. Využijeme tak všetky vzorky na učenie aj testovanie, ale nikdy nie v rovnakej úlohe počas jedného behu.
+
+Person2: Aké ďalšie spôsoby rozdelenia dát poznáme?
+
+Person1: Pri metóde leave one out testujeme vždy na jedinej vzorke a učíme na všetkých ostatných, pričom postup zopakujeme pre každú vzorku. Pri náhodnom výbere bez vrátenia môžeme použiť približne tri štvrtiny vzoriek na učenie a jednu štvrtinu na testovanie. Ďalšou možnosťou je samostatná testovacia množina.
+
+Person2: Čím sa od nich odlišuje bootstrap?
+
+Person1: Pri bootstrape vyberáme trénovacie vzorky náhodne s vrátením. Ak máme en dát, vykonáme en výberov, takže niektoré vzorky sa môžu opakovať a iné sa nevyberú vôbec. Pri rozumne veľkom počte sa do trénovacej množiny dostane približne šesťdesiattri percent rôznych vzoriek a zvyšné možno použiť na testovanie.
+
+Person2: Keď už máme nezávislé testovacie dáta, aké základné metriky vypočítame?
+
+Person1: Porovnáme triedu priradenú klasifikátorom so známou správnou triedou. Presnosť je percento správne klasifikovaných vzoriek a chybovosť percento nesprávne klasifikovaných vzoriek. Podrobnejší obraz poskytne chybová matica, nazývaná aj matica zámen, ktorá ukáže, v ktorých prípadoch sa klasifikátor zhodol s učiteľom a ktoré triedy si navzájom zamieňal.
+
+Person2: Pri binárnej klasifikácii sa často používajú pojmy recall, specificity a precision. Ako sa odlišujú?
+
+Person1: Recall, označovaný aj ako sensitivity alebo true positive rate, hovorí, aké percento skutočne pozitívnych prípadov klasifikátor zachytil. Specificity, čiže true negative rate, vyjadruje, aké percento negatívnych prípadov označil správne ako negatívne. Precision sa pýta opačne: zo všetkých prípadov označených ako pozitívne, aký podiel bol naozaj pozitívny.
+
+Person2: Čo zachytáva er ó cé krivka?
+
+Person1: Zachytáva vzťah medzi počtom správne pozitívnych a falošne pozitívnych prípadov pri rôznych hraniciach rozhodovania. Klasifikátor musí predikcii priradiť aj mieru istoty, aby sa testovacie vzorky dali zoradiť. V ľavej dolnej časti sú podľa poznámky vzorky, pri ktorých si je klasifikátor predpoveďou najistejší. Plocha pod krivkou vyjadruje presnosť klasifikátora.
+
+Person2: Líši sa výber metrík pri binárnej a viacriednej klasifikácii?
+
+Person1: Pri klasifikácii do viacerých tried sledujeme najmä celkovú presnosť, chybovosť a chybovú maticu. Pri binárnej klasifikácii, prípadne pri viacriednej klasifikácii s dodatočnou triedou nezaradené, sú dôležité aj precision, recall a er ó cé krivka.
+
+Person2: Na čo si treba dať pozor pri nevyvážených triedach?
+
+Person1: Celková presnosť môže klamať. Ak pozitívna trieda tvorí iba jednotky percent dát, klasifikátor môže dosiahnuť presnosť nad deväťdesiat percent tým, že takmer všetko označí ako väčšinovú triedu. Neznamená to, že sa naučil rozpoznávať vzácne prípady. Preto treba pozerať na chybovú maticu, recall, precision a ďalšie metriky vhodné pre konkrétny cieľ.
+
+Person2: Zhrniem si to. Klasifikácia priraďuje diskrétnu triedu, kým predikcia odhaduje spojitú hodnotu. Model sa trénuje, testuje na oddelených dátach a až potom používa. Rozhodovací strom vyberá delenia podľa čistoty, naivný Bayes podľa pravdepodobností, regresia odhaduje funkčný vzťah a neurónová sieť sa učí úpravou váh. Kvalitu napokon neposudzujeme iba celkovou presnosťou, ale aj vhodným rozdelením dát, chybovou maticou a metrikami, ktoré odhalia chyby skryté najmä pri nevyvážených triedach.

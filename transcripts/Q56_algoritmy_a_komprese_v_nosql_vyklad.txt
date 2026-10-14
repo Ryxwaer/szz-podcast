@@ -1,0 +1,147 @@
+Person1: Témou tohto okruhu sú typické algoritmy v NoSQL grafových databázach a kompresné metódy v stĺpcových relačných databázach. Najprv si vysvetlíme Dijkstrov algoritmus, A star a hľadanie ká najkratších ciest. Potom prejdeme slovníkovú, prefixovú, RLE, klastrovú a riedku kompresiu aj špecifickú kompresiu časových radov.
+
+Person2: Spájame teda grafové algoritmy a kompresiu. Čo majú tieto dve oblasti spoločné?
+
+Person1: Patria do jedného okruhu, ale riešia odlišné problémy. Grafová NoSQL databáza ukladá uzly a hrany, takže nad nimi prirodzene hľadáme cesty. Stĺpcová relačná databáza stále zachováva relačný model, no hodnoty fyzicky ukladá po atribútoch, nie po celých riadkoch. Napríklad SAP HANA môže uložiť všetky hodnoty jedného stĺpca súvislo.
+
+Person2: A práve súvislé uloženie hodnôt rovnakého atribútu pomáha kompresii?
+
+Person1: Presne. Vedľa seba ležia hodnoty rovnakého typu a často sa opakujú. To vytvára dobré podmienky na kompresiu a zároveň zrýchľuje sekvenčný sken jedného atribútu. Nevýhodou je rekonštrukcia celého riadka. Jeho atribúty treba načítať z viacerých stĺpcov a spojiť podľa implicitnej pozície záznamu.
+
+Person2: Začnime grafovou časťou. Aký problém rieši Dijkstrov algoritmus?
+
+Person1: Na vstupe má váhový orientovaný alebo neorientovaný graf a štartovací uzol. Výstupom je ohodnotenie najkratšej cesty zo štartovacieho uzla ku každému uzlu grafu. Nehľadá teda iba jednu konkrétnu trasu k jednému cieľu, ale ceny ciest ku všetkým uzlom.
+
+Person2: Ako sa algoritmus inicializuje?
+
+Person1: Udržiava pole vzdialeností, ktoré si môžeme predstaviť ako zatiaľ najlepšie známe ceny ciest. Vzdialenosť štartovacieho uzla nastaví na nulu a vzdialenosť každého ostatného uzla na nekonečno. Ďalej má front všetkých uzlov a množinu navštívených uzlov, ktorá je spočiatku prázdna.
+
+Person2: Čo sa deje v jednej iterácii?
+
+Person1: Z ešte nenavštívených uzlov sa vyberie ten s najmenšou známou vzdialenosťou. Označí sa ako navštívený a potom sa skontrolujú všetci jeho susedia. Pre každého suseda sa porovná jeho doterajšia vzdialenosť s cestou, ktorá vedie cez práve vybraný uzol.
+
+Person2: To je takzvaná relaxácia hrany?
+
+Person1: Áno. [short pause] Ak je vzdialenosť do vybraného uzla plus váha hrany k susedovi menšia než doterajšia vzdialenosť suseda, hodnotu aktualizujeme a zaznamenáme novú najkratšiu cestu. Ak nová cesta kratšia nie je, nič nemeníme.
+
+Person2: Môže sa vzdialenosť jedného uzla zmeniť viackrát?
+
+Person1: Kým uzol nie je definitívne navštívený, áno. Postupne sa môžu objaviť lepšie cesty a jeho hodnota sa opakovane znižuje. Po navštívení sa už jeho dĺžka nemení. Algoritmus stále vyberá nenavštívený uzol s najmenšou vzdialenosťou a pokračuje, kým nenavštívi všetky uzly.
+
+Person2: Čím sa od Dijkstrovho algoritmu líši A star?
+
+Person1: A star je jeho modifikácia zameraná na cestu od štartovacieho uzla k niektorému z možných cieľových uzlov. Pracuje s váhovým orientovaným grafom, ktorý možno odvodiť aj z neorientovaného grafu, so štartom a s množinou cieľov. Výstupom je najkratšia cesta a jej cena zo štartu do jedného z týchto cieľov.
+
+Person2: Kľúčový rozdiel bude asi heuristický odhad.
+
+Person1: Áno. Pri každom uzle kombinuje doterajšiu cenu cesty od štartu, označovanú gé, a odhad zostávajúcej ceny do cieľa, označovaný há. Ich súčet tvorí hodnotu ef. V praktickom algoritme pracujeme s jej aproximáciou a otvorené uzly vyberáme podľa najmenšej takejto hodnoty.
+
+Person2: Ako prebieha samotný postup?
+
+Person1: Na začiatku sú všetky uzly nepoužité. Štart sa označí ako otvorený a vypočíta sa jeho odhadovaná hodnota ef. Potom sa vyberie otvorený uzol s najmenšou hodnotou. Ak je takých uzlov viac, možno vybrať ľubovoľný, ale prednosť dostane uzol patriaci do množiny cieľov.
+
+Person2: Čo ak už vybraný uzol je cieľový?
+
+Person1: Označí sa ako zatvorený a algoritmus skončí. Ak cieľový nie je, tiež sa zatvorí, ale následne sa vypočítajú hodnoty jeho nasledovníkov. Nasledovníci, ktorí ešte nie sú zatvorení, sa označia ako otvorení.
+
+Person2: A zatvorený uzol sa už nikdy neotvorí?
+
+Person1: Môže sa znovu otvoriť, ak sa preň nájde nová hodnota menšia než hodnota, ktorú mal pri zatvorení. Potom sa opäť pokračuje výberom otvoreného uzla s najmenším odhadom.
+
+Person2: Kedy máme istotu, že A star nájde najkratšiu cestu?
+
+Person1: Keď je heuristika prípustná, teda nepreceňuje zostávajúcu cenu. Kvalita heuristiky rozhoduje aj o tom, koľko uzlov treba spracovať. Ak je aproximácia ef dobrá, algoritmus použije najmenší možný počet uzlov. Aktuálna časť odhadu gé vychádza z už známej ceny cesty a môže sa zlepšiť, no pre heuristickú časť há neexistuje univerzálne dobrý odhad.
+
+Person2: Aký odhad môže fungovať pri navigácii?
+
+Person1: Napríklad vzdušná vzdialenosť môže odhadovať cestnú vzdialenosť. Preto sa A star hodí na podporu GPS lokalizácie. Heuristika smeruje hľadanie k cieľu, zatiaľ čo Dijkstrov algoritmus systematicky určuje vzdialenosti ku všetkým uzlom.
+
+Person2: A čo znamená hľadanie ká najkratších ciest?
+
+Person1: Namiesto jedinej najlepšej cesty hľadáme niekoľko alternatív, teda ká najkratších ciest. Takýto postup potrebuje algoritmus na nájdenie jednej najkratšej cesty, napríklad Dijkstrov algoritmus. Pri Yenovom algoritme a hodnote ká rovnej jednej sa Dijkstrov algoritmus medzi zdrojom a cieľom zavolá raz.
+
+Person2: Ako sa získajú ďalšie alternatívy?
+
+Person1: Vychádza sa z najlepšej existujúcej cesty a tá sa postupne prerušuje alebo inak modifikuje, aby sa mohli nájsť ďalšie najlepšie možnosti. Dijkstra, A star aj algoritmy ká najkratších ciest sa používajú napríklad pri vyhľadávaní trás v grafovej databáze Neo štyri j.
+
+Person2: Prejdime ku kompresii. Prečo je v stĺpcovej databáze dôležitá aj pre výkon, nielen pre úsporu priestoru?
+
+Person1: Komprimované dáta zmenšujú počet prístupov do hlavnej pamäte a niektoré operácie možno vykonať priamo nad nimi. Pri skenovaní a čítaní sa teda prenáša menej dát. Tento prínos však nie je zadarmo. Zápisy a aktualizácie bývajú drahšie, pretože databáza musí udržiavať slovníky, poradie a pomocné štruktúry. Aktualizácia sa navyše realizuje ako kombinácia zmazania a vloženia.
+
+Person2: Ako funguje slovníková kompresia?
+
+Person1: Stĺpec rozdelí na slovník a vektor atribútov. Slovník obsahuje všetky odlišné hodnoty a každej priradí implicitný identifikátor hodnoty, teda value ID. Vektor atribútov potom pre každú pôvodnú hodnotu stĺpca neukladá hodnotu samotnú, ale iba jej value ID. Pozícia záznamu zostáva uložená implicitne.
+
+Person2: Čím sa tým šetrí miesto?
+
+Person1: Dlhá alebo často opakovaná hodnota je v slovníku iba raz a vo vektore sa opakuje kratší identifikátor. Identifikátory možno reprezentovať bitovo kódovanými dátovými typmi s pevnou dĺžkou. Čím viac sa hodnoty opakujú, tým väčší môže byť prínos.
+
+Person2: Ako sa v takto komprimovaných dátach vyhľadáva?
+
+Person1: Najprv v slovníku nájdeme value ID požadovanej vstupnej hodnoty. Ak je slovník zoradený, vyhľadanie má logaritmickú zložitosť vzhľadom na počet položiek slovníka. Potom pomocou identifikátora hľadáme zodpovedajúce pozície vo vektore atribútov a vo výsledku identifikátor nahradíme hodnotou zo slovníka.
+
+Person2: Aký je rozdiel medzi zápisom existujúcej a novej hodnoty?
+
+Person1: Ak hodnota už v slovníku je, do vektora stačí pridať jej value ID. Nová hodnota vyžaduje rozšíriť slovník, znovu ho zoradiť a aktualizovať identifikátory vo vektore. Taký zápis je preto výrazne drahší. Na slovníkovo komprimované dáta možno následne použiť aj pokročilejšiu kompresnú techniku.
+
+Person2: Ďalšia metóda je prefixové kódovanie. Na aké dáta sa hodí?
+
+Person1: Používa sa, keď stĺpec začína dlhou sekvenciou rovnakej hodnoty. Jedna hodnota teda prevláda v prefixe, zatiaľ čo ostatné hodnoty bývajú jedinečné alebo majú nízku redundanciu. Zakóduje sa spoločná hodnota a dĺžka prefixu, ostatné hodnoty zostávajú bez zmeny alebo ďalšej kompresie.
+
+Person2: Dá sa potom pristupovať priamo ku konkrétnej pozícii?
+
+Person1: Áno. Ak pozícia leží v komprimovanom prefixe, vráti sa spoločná hodnota prefixu. Ak leží za ním, pôvodná pozícia sa posunie o dĺžku odstráneného prefixu a použije sa v zostávajúcich dátach.
+
+Person2: Ako prefixové kódovanie ovplyvňuje čítanie a zápis?
+
+Person1: Čítanie zrýchľuje, pretože treba načítať menej dát. Pri pridaní novej hodnoty však treba podobne ako pri slovníkovej kompresii aktualizovať štruktúru databázy, takže zápis je nákladnejší.
+
+Person2: RLE vyzerá podobne, pretože tiež využíva opakovanie hodnôt. V čom je rozdiel?
+
+Person1: RLE, teda kódovanie dĺžky behu, nahradí každú súvislú sekvenciu rovnakých hodnôt jednou inštanciou hodnoty. K nej uloží buď počet výskytov, alebo štartovaciu pozíciu behu. Druhá možnosť zrýchľuje prístup.
+
+Person2: Musí databáza pri hľadaní konkrétnej pozície rozbaliť celý stĺpec?
+
+Person1: Nemusí. Štartovacie pozície behov sú zoradené. Binárnym vyhľadávaním nájde posledný beh, ktorého štartovacia pozícia nie je väčšia než hľadaná pozícia, a priamo vráti jeho hodnotu. RLE teda podporuje priamy prístup aj bez úplnej dekompresie.
+
+Person2: Čo robí klastrové kódovanie?
+
+Person1: Vektor atribútov rozdelí do N blokov s pevnou veľkosťou, typicky tisíc dvadsaťštyri hodnôt. Ak blok, teda klaster, obsahuje iba jednu hodnotu, celý sa nahradí jediným výskytom tejto hodnoty. Bitový vektor dĺžky N označuje, ktoré klastre boli takto nahradené. Jednotka znamená nahradený klaster.
+
+Person2: Podporuje klastrové kódovanie priamy prístup rovnako ako RLE?
+
+Person1: Nie. Pozíciu treba dopočítať pomocou bitového vektora. Toto je dôležitý rozdiel: prefixové kódovanie a RLE priamy prístup podporujú, klastrové kódovanie nie.
+
+Person2: A ako funguje riedke kódovanie?
+
+Person1: Zo stĺpca sa odstráni hodnota, ktorá sa vyskytuje najčastejšie. Bitový vektor si zapamätá pozície, z ktorých bola táto hodnota odstránená. Aj tu sa pozícia musí dopočítať pomocou bitového vektora, takže riedke kódovanie priamy prístup nepodporuje.
+
+Person2: Poslednou oblasťou je kompresia časových radov. Z čoho sa skladá jeden bod časového radu?
+
+Person1: Má štyri komponenty. Prvým je meranie, napríklad teplota. Druhým je tagset, čiže množina dvojíc kľúč a hodnota, napríklad lokácia a kuchyňa. Tretím je fieldset s vlastnými dvojicami kľúč a hodnota, napríklad vnútorná teplota štyridsaťsedem a vonkajšia tridsaťšesť. Štvrtým komponentom je časová pečiatka.
+
+Person2: Ako sa tieto údaje organizujú pri ukladaní?
+
+Person1: Záznam pozostáva z hlavičky a komprimovaného prúdu dvojíc časová pečiatka a hodnota. Series key, teda kľúč série, sa skladá z merania, dvojíc kľúč a hodnota v tagsete a z kľúča fieldu. Hlavička na začiatku riadka uchováva referenčný čas.
+
+Person2: Čo sa uloží pri prvom meraní?
+
+Person1: Prvý záznam uloží časovú deltu od referenčného času a prvú nameranú hodnotu. Ak prvé meranie prišlo šesťdesiatdva sekúnd po referenčnom čase a malo hodnotu dvanásť, uloží sa táto delta a hodnota dvanásť.
+
+Person2: Ďalšie časové pečiatky sa už ukladajú úspornejšie?
+
+Person1: Áno, pomocou delty z delty. Najprv sa pre každý čas vypočíta rozdiel oproti predchádzajúcemu času. Potom sa neukladá celá nová delta, ale rozdiel medzi novou a predchádzajúcou deltou. [short pause] Ak druhý záznam príde šesťdesiat sekúnd po prvom, zatiaľ čo prvá delta bola šesťdesiatdva sekúnd, delta z delty je mínus dva a patrí do kódovacej vetvy s riadiacim prefixom jedna nula.
+
+Person2: A ak tretí záznam príde opäť po šesťdesiatich sekundách?
+
+Person1: Nová delta sa od predchádzajúcej nelíši, takže delta z delty je nula. Vtedy stačí uložiť jediný riadiaci bit nula. Pravidelne vzorkované časové pečiatky sa preto dajú zapísať veľmi úsporne.
+
+Person2: Ako sa komprimujú samotné namerané hodnoty?
+
+Person1: Pomocou bitovej operácie XOR medzi aktuálnou a predchádzajúcou hodnotou. Prvá hodnota sa uloží bez porovnania, lebo nemá predchodcu. Ak sa ďalšia hodnota nezmenila, výsledok XOR je nulový a uloží sa bit nula.
+
+Person2: Čo ak sa hodnota zmení, napríklad z dvanásť na dvadsaťštyri?
+
+Person1: Uloží sa XOR týchto dvoch hodnôt spolu s počtom úvodných núl a počtom významových bitov. Namiesto opakovaného ukladania celých časových pečiatok a hodnôt teda kompresia časového radu uchováva delty z časových diel a XOR rozdiely hodnôt.
+
+Person2: Celý okruh si môžem zapamätať ako dve vetvy. V grafových NoSQL databázach Dijkstra hľadá najkratšie cesty ku všetkým uzlom, A star smeruje k cieľu pomocou prípustnej heuristiky a Yenov prístup vytvára ká alternatívnych najkratších ciest. V stĺpcových databázach sú hodnoty rovnakého typu uložené spolu, čo pomáha slovníkovej, prefixovej, RLE, klastrovej aj riedkej kompresii. Čítanie sa zrýchľuje vďaka menšiemu objemu dát, no zápisy a aktualizácie sú drahšie. Pri časových radoch sa navyše využíva delta z delty pre čas a XOR pre hodnoty.

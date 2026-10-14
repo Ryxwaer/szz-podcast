@@ -1,0 +1,151 @@
+Person1: Témou tohto výkladu je Haskell a jeho lenivé vyhodnocovanie. Prejdeme typy vrátane akcií, používateľské typy, význam typových tried a napokon si lenivosť ukážeme na nekonečných štruktúrach aj na práci so súborom.
+
+Person2: Začnime teda charakteristikou jazyka. Čím je Haskell špecifický?
+
+Person1: Haskell je deklaratívny a čisto funkcionálny jazyk založený na lambda kalkule. Program opisuje, čo sa má vypočítať, nie postupnosť príkazov. Čistota znamená, že výrazy nemajú vedľajšie účinky a rovnaké argumenty vedú k rovnakému výsledku. Jazyk je navyše silne a staticky typovaný a väčšinu typov dokáže odvodiť.
+
+Person2: A už do tejto základnej charakteristiky patrí aj lenivé vyhodnocovanie?
+
+Person1: Áno. Výraz sa štandardne vyhodnotí až vtedy, keď je jeho hodnota potrebná. K presnému mechanizmu sa ešte dostaneme. Haskell môžeme kompilovať pomocou Glasgow Haskell Compileru, teda GHC, alebo používať interaktívne prostredie GHCi. Opakovanie sa pritom zvyčajne zapisuje rekurziou, nie cyklami.
+
+Person2: Aké základné typy by som mala vedieť vymenovať?
+
+Person1: Int predstavuje celé čísla s rozsahom obmedzeným implementáciou, kým Integer má ľubovoľnú presnosť obmedzenú dostupnou pamäťou. Float a Double sú čísla s pohyblivou rádovou čiarkou. Char je jeden znak, Bool nadobúda hodnotu True alebo False a String je iba typové synonymum pre zoznam znakov.
+
+Person2: Prečo sa pri číselných literáloch niekedy uvádza typ explicitne?
+
+Person1: Pretože číselný literál je preťažený a môže patriť viacerým číselným typom. Záporné číslo mínus osemsto jeden teda nemusí samo osebe určovať, či ide o Int alebo iný vhodný typ. Typová anotácia túto nejednoznačnosť odstráni.
+
+Person2: Ako typový systém opisuje zoznam?
+
+Person1: Zoznam je homogénny, takže všetky jeho prvky majú rovnaký typ. Tento typ môžeme označiť typovou premennou á, ktorá môže zastupovať ľubovoľný konkrétny typ. Prázdny zoznam je polymorfný. Neprázdny zoznam vzniká konštruktorom dvojbodka, ktorý vezme prvok a zoznam rovnakého prvkového typu.
+
+Person2: Čo znamená vzor iks dvojbodka iks es?
+
+Person1: Rozloží neprázdny zoznam na prvý prvok iks a zvyšok zoznamu iks es. Napríklad funkcia head používa práve prvý prvok, no pre prázdny zoznam nie je definovaná. Zápis troch prvkov pomocou opakovaného konštruktora a prázdneho zoznamu je len dlhšia podoba bežného zoznamového zápisu.
+
+Person2: N-tice sú na rozdiel od zoznamov heterogénne, však?
+
+Person1: Presne. N-tica môže obsahovať prvky rôznych typov, ale jej počet položiek aj typ každej pozície sú pevnou súčasťou typu. Prázdna n-tica, vyslovovaná ako unit, má tiež typ unit. Používa sa najmä ako výsledok akcie, ktorá neposkytuje užitočnú hodnotu.
+
+Person2: Ako sa v typoch zapisujú funkcie s viacerými argumentmi?
+
+Person1: Formálne každá funkcia prijíma jeden argument a vracia jednu hodnotu. Funkcia s viacerými argumentmi po prijatí prvého argumentu vráti ďalšiu funkciu. Hovoríme o postupnej čiastočnej aplikácii. Šípka v typovej signatúre je asociatívna sprava, takže funkcia z á do á do á v skutočnosti prijme á a vráti funkciu z á do á.
+
+Person2: Dobrým príkladom parametrického polymorfizmu je map. Ako čítať jej typ?
+
+Person1: Map najprv prijme funkciu, ktorá premieňa hodnotu typu á na typ bé. Potom prijme zoznam hodnôt typu á a vráti zoznam hodnôt typu bé. Typové premenné nie sú konkrétne typy, preto tá istá implementácia funguje nad ľubovoľnými vhodnými typmi. Nad prázdnym zoznamom vráti prázdny zoznam a nad neprázdnym aplikuje funkciu na prvý prvok a rekurzívne pokračuje zvyškom.
+
+Person2: A kľúčové slovo where?
+
+Person1: Where pripája k definícii funkcie lokálne pomocné definície. Môžeme napríklad pomenovať výsledok výrazu, ktorý umocní argument na druhú a pripočíta jednotku. Pomocné meno zostáva lokálne pri danej funkcii.
+
+Person2: Prejdime k používateľským typom. Aký je rozdiel medzi type, newtype a data?
+
+Person1: Type vytvorí iba nové meno pre existujúci typ, nie nový odlišný typ. Takto je String synonymom zoznamu znakov a parametrická matica môže byť synonymom zoznamu zoznamov. Typový systém môže synonymum rozvinúť na pôvodný typ.
+
+Person2: Newtype už teda vytvára skutočne nový typ?
+
+Person1: Áno. Newtype vytvorí nový typ s práve jedným dátovým konštruktorom a jednou položkou. Ak zabalíme Int do typu UserId, hodnota UserId desať má typ UserId, nie Int. Tým zabránime náhodnému zamieňaniu identifikátora používateľa s obyčajným číslom.
+
+Person2: A data je najvšeobecnejšia z týchto možností?
+
+Person1: Data vytvorí nový algebraický dátový typ s jedným alebo viacerými dátovými konštruktormi. Typ Result môže mať napríklad konštruktor Success bez údajov a konštruktor Error nesúci reťazec. Komplexné typy môžu byť výčtové, rozšírené, parametrické aj rekurzívne, pričom jedna definícia môže patriť do viacerých skupín naraz.
+
+Person2: Ako by vyzeral vlastný parametrický zoznam?
+
+Person1: Typový konštruktor MyList má parameter á a dva dátové konštruktory. Empty vytvorí prázdny MyList ľubovoľného prvkového typu. Cons prijme prvok typu á a ďalší MyList typu á, čím pridá prvok na začiatok. Zoznam jednotka, dvojka vznikne dvomi vnorenými konštruktormi Cons ukončenými Empty.
+
+Person2: Podobne sa dá zadefinovať aj strom?
+
+Person1: Áno. Parametrický Tree môže mať konštruktor Leaf pre prázdny strom a Node, ktorý nesie hodnotu typu á a dva podstromy rovnakého typu. Je to všeobecný binárny strom. Binárnym vyhľadávacím stromom sa stane až vtedy, keď operácie zachovávajú invariant usporiadania.
+
+Person2: Čo ak má strom ukladať kľúč a hodnotu odlišných typov?
+
+Person1: Potom parametrizujeme oba. MapTree má typové parametre ká a vé. Prázdny konštruktor reprezentuje list a uzlový konštruktor nesie kľúč typu ká, hodnotu typu vé a ľavý aj pravý podstrom s rovnakými parametrami.
+
+Person2: Teraz typové triedy. Nie sú to triedy v objektovo orientovanom zmysle, správne?
+
+Person1: Správne. Typová trieda určuje množinu operácií, ktoré musí podporovať každý typ, ktorý je jej inštanciou. Je to mechanizmus ad hoc polymorfizmu a typovo bezpečného preťažovania. Vlastná trieda Describable by napríklad mohla požadovať operáciu describe, ktorá z hodnoty vytvorí reťazec.
+
+Person2: Ako sa potom číta obmedzenie Eq á pred typom funkcie elem?
+
+Person1: Znamená, že elem funguje pre ľubovoľný typ á, pokiaľ je á inštanciou triedy Eq. Funkcia potrebuje testovať rovnosť hľadaného prvku s prvkami zoznamu, preto typová podmienka zaručuje existenciu príslušnej operácie.
+
+Person2: Ktoré bežné typové triedy sú tu najdôležitejšie?
+
+Person1: Eq poskytuje rovnosť a nerovnosť. Pri vlastnej inštancii stačí minimálne definovať jednu z nich a druhá sa môže odvodiť. Ord poskytuje porovnávanie a operácie usporiadania, pričom predpokladá Eq. Minimálne možno dodať compare alebo operáciu menšie alebo rovné. Num združuje číselné operácie, ako sčítanie, odčítanie a násobenie, a umožňuje preťažovať číselné literály aj operátory.
+
+Person2: Ako by sme definovali rovnosť pre parametrický strom?
+
+Person1: Inštancia Eq pre Tree á potrebuje podmienku, že aj samotné á patrí do Eq. Dva listy sú rovnaké. Dva uzly sú rovnaké práve vtedy, keď sa rovnajú ich uložené hodnoty aj príslušné ľavé a pravé podstromy. Uzol a list sa nerovnajú.
+
+Person2: Vie niektoré takéto inštancie vytvoriť prekladač automaticky?
+
+Person1: Áno. Pri podporovaných triedach môžeme požiadať o odvodenie štandardnej inštancie. Výčtový typ Sign s hodnotami Neg, Zero a Pos môže napríklad automaticky odvodiť Eq, Ord a Show.
+
+Person2: Aký je teda širší význam typových tried?
+
+Person1: Umožňujú písať všeobecné funkcie a pritom presne vyjadriť, aké operácie od typu požadujeme. Zabezpečujú bezpečné preťažovanie a umožňujú začleniť vlastné typy do existujúcich knižničných funkcií.
+
+Person2: Čisté funkcie však nemajú vedľajšie účinky. Ako potom Haskell komunikuje s okolím?
+
+Person1: Pomocou akcií. Akcia typu IO á môže po vykonaní poskytnúť hodnotu typu á. GetChar poskytuje znak, getLine reťazec, putChar prijme znak a poskytne unit a putStrLn prijme reťazec a tiež poskytne unit. Vstupným bodom programu je akcia main typu IO unit.
+
+Person2: Čo presne znamená IO unit?
+
+Person1: Akcia môže vykonať komunikáciu s okolím, ale neposkytne žiadnu užitočnú výslednú hodnotu. Unit je iba formálny výsledok. Operácie pure a v starších materiáloch return vložia čistú hodnotu do akčného kontextu. Return tu neukončuje funkciu ako v imperatívnych jazykoch; v tomto použití má rovnaký význam ako pure.
+
+Person2: Ako sa jednotlivé akcie skladajú?
+
+Person1: Operátor bind, zapisovaný dvojicou väčšie ako a rovná sa, vezme akciu poskytujúcu á a funkciu, ktorá z á vytvorí ďalšiu akciu poskytujúcu bé. Druhý sekvenčný operátor skladá dve akcie, ale výsledok prvej ignoruje. Do notácia je syntaktický cukor pre takéto skladanie.
+
+Person2: A výraz so šípkou doľava v do notácii?
+
+Person1: Ten sprístupní výsledok akcie pod lokálnym menom. Program môže vypísať výzvu, načítať znak cez getChar a naviazať ho na meno cé, a potom ho odovzdať akcii putChar. Všeobecne pritom pure pracuje pre Applicative a bind aj sekvenovanie pre Monad; IO je konkrétny prípad.
+
+Person2: Dostávame sa k jadru okruhu. Čím sa lenivé vyhodnocovanie líši od striktného?
+
+Person1: Pri striktnom vyhodnocovaní sa argument vyhodnotí ešte pred použitím funkcie. Haskell používa nestriktnú stratégiu call by need. Výraz sa najprv nepočíta, ale zastupuje ho odložený výpočet nazývaný thunk. [short pause] Vyhodnotí sa až vtedy a iba do takej miery, akú vyžaduje výsledok.
+
+Person2: Čo sa s thunkom stane po vyhodnotení?
+
+Person1: Vypočítaná hodnota ho nahradí a pri ďalšom použití sa zdieľa. Každý konkrétny zdieľaný thunk sa preto vyhodnotí maximálne raz. Ak jeho hodnotu nikto nepotrebuje, nevyhodnotí sa vôbec. Dva samostatne vytvorené thunky s rovnakým výrazom sa však môžu počítať nezávisle.
+
+Person2: Práve zdieľanie teda odlišuje call by need od call by name?
+
+Person1: Presne. Call by name môže ten istý odložený výraz pri každom použití vyhodnotiť znova. Call by need si výsledok zapamätá. Dôsledkom je aj to, že funkcia, ktorá ignoruje druhý argument a vždy vracia jednotku, nemusí vyhodnotiť chybný výraz odovzdaný ako druhý argument.
+
+Person2: Najznámejšia ukážka používa nekonečný zoznam. Ako funguje?
+
+Person1: Rozsah od nuly bez hornej hranice opisuje potenciálne nekonečný zoznam. Keď z neho funkcia take požaduje prvých päť prvkov, vygeneruje sa iba prefix nula až štyri. Zvyšok sa nevyhodnotí, takže netreba vopred vytvoriť celý nekonečný zoznam.
+
+Person2: Nie každá operácia nad takým zoznamom však skončí.
+
+Person1: Áno. Last musí nájsť posledný prvok, a preto by musel prejsť celý nekonečný zoznam. Nikdy neskončí. Rovnaký problém má length, pretože potrebuje poznať počet všetkých prvkov.
+
+Person2: Ako je definovaná nekonečná Fibonacciho postupnosť?
+
+Person1: Zoznam fibs začína nulou a jednotkou. Jeho zvyšok vzniká po dvojiciach sčítaním samotného fibs a jeho chvosta. Vďaka rekurzívnemu zdieľaniu sa ďalšie hodnoty dopočítavajú podľa potreby. Take desať vráti prvých desať Fibonacciho čísel, no length fibs ani last fibs neskončia.
+
+Person2: Dá sa rovnaký princíp ukázať aj na našom vlastnom MyList?
+
+Person1: Áno. Funkcia from pre celé číslo en vytvorí Cons s hodnotou en a odloženým rekurzívnym pokračovaním od en plus jedna. Funkcia takeMy pre nekladný počet vráti prázdny bežný zoznam. Pri Empty tiež skončí a pri Cons vezme prvok a pokračuje so zníženým počtom.
+
+Person2: Čo sa stane pri takeMy päť nad from nula?
+
+Person1: Výsledkom je prefix nula až štyri. Rekurzívne volanie vo from zostáva thunkom a takeMy si postupne vyžiada iba päť konštruktorov Cons. Nekonečný zvyšok štruktúry sa nevytvorí.
+
+Person2: Lenivosť môže byť užitočná, ale pri vstupe zo súboru asi prináša aj riziká.
+
+Person1: Presne. HGetContents vracia obsah súboru lenivo. Samotné naviazanie hodnoty contents ešte nemusí načítať celý súbor; čítanie nastáva až pri vyhodnocovaní reťazca. Preto záleží na tom, kedy obsah skutočne vynútime a kedy zatvoríme handle.
+
+Person2: Aké poradie je správne pri počítaní riadkov?
+
+Person1: Najprv otvoríme súbor v režime čítania, získame contents a lokálne definujeme počet ako dĺžku zoznamu riadkov. Potom počet vytlačíme. Práve tlač vynúti prejdenie contents, a teda načítanie potrebného obsahu ešte pred následným zatvorením handle.
+
+Person2: A čo sa pokazí, ak handle zavrieme pred vytlačením počtu?
+
+Person1: Počet riadkov môže byť stále iba thunk závislý od contents. Po explicitnom zatvorení handle už lenivý obsah nemožno spoľahlivo spotrebovať. Výsledok môže byť prázdny alebo skrátený a implementácia môže pri ďalšom pokuse o čítanie vyvolať výnimku. Nejde o to, že handle zmizol z pamäte, ale o to, že bol zatvorený skôr, než sa obsah spotreboval.
+
+Person2: Zhrniem si to. Haskell je čistý, staticky typovaný jazyk s parametrickým aj ad hoc polymorfizmom. Type iba pomenúva existujúci typ, newtype odlišuje nový jednozložkový typ a data tvorí algebraické typy. Typové triedy určujú požadované operácie, IO akcie oddeľujú komunikáciu s okolím od čistých funkcií a call by need pracuje s thunkmi, ktoré vyhodnotí podľa potreby a výsledok zdieľa. Vďaka tomu fungujú konečné prefixy nekonečných štruktúr, no pri operáciách vyžadujúcich celý nekonečný zoznam alebo pri predčasnom zatvorení lenivého vstupu musíme byť opatrní.

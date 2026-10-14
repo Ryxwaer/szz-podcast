@@ -1,0 +1,123 @@
+Person1: Témou je zhluková analýza: jej princíp, vzdialenostné funkcie, rozdeľujúce metódy ká means a ká medoids, hierarchické metódy a metódy založené na hustote. Cieľom je automaticky odhaliť skupiny podobných objektov.
+
+Person2: Čo presne robí zo skupiny objektov zhluk?
+
+Person1: Objekty v jednom zhluku si majú byť navzájom podobné a zároveň sa majú odlišovať od objektov v ostatných zhlukoch. Zhluková analýza preto hľadá podobnosti v dátach a podľa nich rozdeľuje objekty do tried. Podobnosť alebo odlišnosť vyjadruje vzdialenostná funkcia. Kvalita výsledku závisí od voľby tejto funkcie aj od implementácie metódy a ukazuje, ako dobre sme odhalili skryté vzory v dátach.
+
+Person2: Takže na rozdiel od klasifikácie vopred nepoznáme správne triedy?
+
+Person1: Presne. Ide o učenie bez učiteľa. Nemáme preddefinované triedy ani trénovaciu množinu s označenými príkladmi. Zhlukovanie môžeme použiť samostatne na skúmanie distribúcie dát alebo ako predspracovanie pre ďalšie algoritmy. Slúži aj na kompresiu, keď zhluk zastupuje viac objektov, na segmentáciu, výskum trhu, rozpoznávanie vzorov, detekciu odľahlých hodnôt či bioinformatiku, napríklad pri evolučných stromoch a hľadaní génov s podobnou funkciou.
+
+Person2: Podľa čoho posudzujeme, či je zhlukovacia metóda prakticky dobrá?
+
+Person1: Mala by byť škálovateľná, zvládať rozsiahle množiny, rôzne typy atribútov aj vysokú dimenzionalitu. Chceme zhluky rôznych tvarov, málo požadovaných znalostí pri nastavovaní parametrov, odolnosť voči šumu a odľahlým hodnotám, necitlivosť na poradie záznamov a možnosť spracovať nové dáta. Výsledné zhluky majú byť najmä interpretovateľné a použiteľné.
+
+Person2: V akej podobe algoritmus dostáva vstup?
+
+Person1: Buď ako dátovú maticu, kde sú uložené samotné atribúty objektov, alebo ako vzdialenostnú maticu, kde je pre každú dvojicu objektov ich vzdialenosť. Vzdialenostná matica má na diagonále nuly a je symetrická, preto stačí uložiť jednu trojuholníkovú polovicu. Druhá polovica by bola redundantná.
+
+Person2: Aké podmienky musí spĺňať skutočná vzdialenostná funkcia?
+
+Person1: [short pause] Vzdialenosť je nezáporná, vzdialenosť objektu od seba samého je nulová a vzdialenosť z prvého objektu do druhého je rovnaká ako opačným smerom. Navyše platí trojuholníková nerovnosť: priama vzdialenosť medzi dvoma objektmi nemôže byť väčšia než cesta cez tretí objekt. Toto sú nezápornosť, identita, symetria a trojuholníková nerovnosť.
+
+Person2: A ktoré vzdialenosti sa bežne používajú pri číselných atribútoch?
+
+Person1: Euklidovská vzdialenosť zodpovedá priamej čiare: rozdiely v jednotlivých súradniciach umocníme na druhú, sčítame a odmocníme. Manhattanovská vzdialenosť sčíta absolútne hodnoty rozdielov, akoby sme sa pohybovali po pravouhlej sieti ulíc. Minkowského vzdialenosť obe zovšeobecňuje. Napríklad medzi bodmi so súradnicami jedna, dva a tri, päť je euklidovská vzdialenosť približne tri celých šesťdesiatjeden stotín, kým manhattanovská je päť.
+
+Person2: Voľba vzdialenosti teda musí rešpektovať aj typ premennej, nielen algoritmus.
+
+Person1: Áno. Pri binárnych premenných máme iba dva stavy a pracujeme s kontingenčnou tabuľkou a koeficientmi zhody alebo nezhody. Pri symetrickej binárnej premennej sú oba stavy rovnako významné, takže zámena kódovania nula a jedna nič nemení. Koeficient jednoduchej nezhody je počet nezhôd vydelený počtom všetkých porovnaní.
+
+Person2: Čo sa zmení pri asymetrickej binárnej premennej?
+
+Person1: Jeden stav je významnejší. Napríklad pozitívny výsledok testu na ochorenie nesie inú informáciu než negatívny. Zhoda dvoch núl sa preto ignoruje. Vzdialenosť je počet nezhôd vydelený počtom prípadov, v ktorých sa aspoň pri jednom objekte objavila významná hodnota jedna. Výsledok už nie je invariantný voči zámene núl a jednotiek.
+
+Person2: A ako sa porovnávajú nominálne a ordinálne hodnoty?
+
+Person1: Nominálna premenná môže mať viac než dva neusporiadané stavy. Používa sa jednoduchá nezhoda: od celkového počtu nominálnych premenných odčítame počet zhôd a výsledok vydelíme celkovým počtom premenných. Atribútom môžeme priradiť váhy alebo každý stav previesť na samostatnú binárnu premennú. Ordinálne hodnoty už poradie majú. Priradíme im poradia od jedna po počet úrovní a rozsahy jednotlivých premenných transformujeme na interval od nuly po jedna.
+
+Person2: Zostávajú pomerové premenné a kombinácia rôznych typov.
+
+Person1: Pomerové hodnoty môžu byť merané na nelineárnej, často exponenciálnej stupnici. Priame spracovanie ako intervalových dát môže výsledok skresliť. Lepšou možnosťou je logaritmická transformácia a následné intervalové spracovanie, prípadne ordinálny prístup. Pri zmiešaných atribútoch môžeme analyzovať každý typ osobitne, čo býva nevyhovujúce, alebo všetky atribúty spracovať spoločne.
+
+Person2: Prejdime k rozdeľujúcim metódam. Aký majú spoločný princíp?
+
+Person1: Databázu s en objektmi rozdelia do ká neprázdnych tried, pričom každý objekt patrí práve do jednej triedy a ká nie je väčšie než en. Počet tried musíme zadať vopred. Kritériom býva štvorcová chyba. Nájsť presné optimum by vyžadovalo preveriť všetky možné rozdelenia, preto sa používajú heuristiky ká means a ká medoids.
+
+Person2: Ako vyzerá všeobecný iteratívny postup?
+
+Person1: Najprv náhodne vyberieme ká objektov ako počiatočných reprezentantov zhlukov a ostatné objekty priradíme podľa podobnosti. Potom opakovane určujeme nové stredy a presúvame objekty podľa vzdialenosti od nich. Algoritmus skončí, keď sa už žiadny objekt nepresunie.
+
+Person2: Čím je špecifická metóda ká means?
+
+Person1: Každú triedu reprezentuje fiktívny centrálny bod, centroid. Každý jeho atribút je priemerom príslušných atribútov objektov v triede. V každom cykle teda priradíme objekty k najbližšiemu centroidu a potom centroidy prepočítame. Funguje dobre pre kompaktné a pomerne dobre oddelené zhluky.
+
+Person2: Aké má ká means obmedzenia?
+
+Person1: Je citlivá na šum a odľahlé hodnoty, pretože priemer môže extrémna hodnota výrazne posunúť. Nevie dobre nájsť zhluky rôznych veľkostí ani nekonvexných tvarov. Výsledok ovplyvňuje aj inicializácia, spôsob výpočtu centroidu a použitá vzdialenosť. Jej zložitosť rastie približne ako súčin počtu objektov, počtu zhlukov a počtu iterácií.
+
+Person2: Ká medoids rieši citlivosť na odľahlé hodnoty tým, že nepoužíva fiktívny priemer?
+
+Person1: Áno. Zhluk reprezentuje medoid, čiže skutočný objekt z databázy, ktorý leží najbližšie k stredu triedy. Odľahlé hodnoty a šum preto majú menší vplyv než pri ká means. Cena za túto robustnosť je zložitejší výpočet, takže metóda je efektívna najmä pri menšom počte dát.
+
+Person2: Ako sa rozhodne, či sa aktuálny medoid má vymeniť za iný objekt?
+
+Person1: Ľubovoľne zvolíme ká počiatočných medoidov, ostatné objekty priradíme k najbližšiemu z nich a vyberieme náhodný nereprezentujúci objekt ako kandidáta. Potom vyhodnotíme cenu výmeny jedného aktuálneho medoidu za kandidáta: zisťujeme, ako by sa zmenilo priradenie objektov a ich celková vzdialenosť od reprezentantov.
+
+Person2: Aké možnosti pri tejto výmene nastávajú pre jeden posudzovaný objekt?
+
+Person1: Sú štyri. Objekt pôvodne patriaci k vymieňanému medoidu môže po výmene prejsť k inému starému medoidu alebo k novému kandidátovi. Objekt patriaci k inému medoidu môže zostať tam, kde bol, alebo prejsť ku kandidátovi. Pre každý objekt vypočítame zmenu jeho príspevku k vzdialenosti a všetky zmeny sčítame.
+
+Person2: Kedy sa výmena prijme a kedy algoritmus skončí?
+
+Person1: Záporná celková zmena znamená, že sa vzdialenosti zmenšili, takže výmenu prijmeme a dostaneme novú množinu ká medoidov. Priraďovanie a skúšanie výmen opakujeme, kým už nenastane žiadna zmena. Zapamätaj si kontrast: ká means reprezentuje zhluk priemerovým, často neexistujúcim bodom, ká medoids skutočným objektom.
+
+Person2: Ďalšou skupinou sú hierarchické metódy. V čom sa líšia od rozdeľujúcich metód?
+
+Person1: Vytvárajú hierarchický rozklad dát podľa vzdialenostnej matice. Počet tried netreba zadať vopred, hoci je vhodné určiť podmienku ukončenia alebo požadovanú úroveň hierarchie. Výsledok si môžeme predstaviť ako strom postupných spojení alebo rozdelení.
+
+Person2: Existujú dva opačné smery budovania tejto hierarchie, však?
+
+Person1: Áno. Zhlukujúci, teda aglomeratívny prístup ide zdola nahor. Na začiatku tvorí každý objekt vlastnú triedu a následne sa spájajú najpodobnejšie triedy, až kým nezostane jedna alebo nedosiahneme požadovanú úroveň. Rozdeľujúci prístup ide zhora nadol. Začne všetkými objektmi v jednej triede a tú postupne delí, až kým nie je každý objekt samostatne alebo nesplníme ukončovaciu podmienku.
+
+Person2: Ako sa určuje vzdialenosť medzi celými zhlukmi?
+
+Person1: Pri single link berieme minimálnu vzdialenosť medzi dvojicou objektov z rôznych zhlukov. Pri complete link berieme maximálnu. Ďalšími možnosťami sú vzdialenosť stredov alebo priemerná vzdialenosť medzi objektmi. Táto voľba ovplyvňuje, ktoré zhluky sa považujú za najbližšie.
+
+Person2: Aká je hlavná nevýhoda hierarchického postupu?
+
+Person1: Rozhodnutia sú nezvratné. Keď zhluky spojíme, už ich neskôr nerozdelíme, a pri deliacej metóde je to opačne. Chybné skoré rozhodnutie sa preto nedá opraviť. Hoci poznámka uvádza menšiu výpočtovú zložitosť, zároveň zdôrazňuje zlú škálovateľnosť. Pomôcť môže kombinácia hierarchického zhlukovania s inou metódou alebo dôkladnejšia analýza väzieb medzi objektmi.
+
+Person2: Kam patrí metóda Chameleon?
+
+Person1: Je to hierarchická metóda s dynamickým modelovaním. Postupne spája malé zhluky veľmi podobných objektov a využíva graf ká najbližších susedov. Dokáže nájsť zhluky rôznych tvarov. Jej zložitosť v najhoršom prípade rastie kvadraticky s počtom objektov.
+
+Person2: Teraz metódy založené na hustote. Aká je ich základná predstava?
+
+Person1: Zhluky chápu ako oblasti s vysokou hustotou objektov, ktoré oddeľujú oblasti s nízkou hustotou. Zhluk rozširujú, kým hustota v susedstve neklesne pod hranicu. Vďaka tomu nájdu aj zhluky rôznych tvarov a dokážu odfiltrovať šum a odľahlé hodnoty. Nevýhodou je nutnosť vhodne nastaviť parameter hustoty.
+
+Person2: Najznámejším príkladom je DBSCAN. Ktoré pojmy pri ňom musím vedieť?
+
+Person1: Najprv epsilon okolie, teda okolie bodu s polomerom epsilon. Jadro je objekt, ktorého epsilon okolie obsahuje aspoň stanovený minimálny počet objektov, označovaný MinPts. Bod pé je priamo dosiahnuteľný z bodu kvé na základe hustoty, ak leží v jeho epsilon okolí a kvé je jadro.
+
+Person2: Priama dosiahnuteľnosť ešte nestačí na opísanie celého zhluku.
+
+Person1: Preto máme dosiahnuteľnosť cez reťaz bodov. Bod pé je dosiahnuteľný z kvé, ak existuje postupnosť od kvé po pé, v ktorej je každý nasledujúci bod priamo dosiahnuteľný z predchádzajúceho. Dva body sú spojené na základe hustoty, ak existuje spoločný bod, z ktorého sú oba dosiahnuteľné. Zhluk je potom maximálna množina takto hustotne spojených bodov.
+
+Person2: Ako DBSCAN prakticky vytvára zhluky?
+
+Person1: Prehľadá databázu, nájde jadrá a založí príslušné zhluky. Následne vyhľadáva objekty priamo dosiahnuteľné z jadier, pripája ich a podľa hustotných väzieb spája zhluky. Skončí, keď už nemožno pripojiť ďalší objekt. Kritickým problémom je nastavenie polomeru epsilon a minimálneho počtu bodov MinPts.
+
+Person2: Druhou hustotnou metódou v poznámke je DENCLUE. Na čom stojí?
+
+Person1: DENCLUE používa distribučné funkcie hustoty. Vplyv každého objektu na okolie modeluje funkciou vplyvu odvodenou od vzdialenosti, napríklad euklidovskej. Jednoduchá obdĺžniková funkcia priradí vplyv jedna bodom vo vzdialenosti najviac sigma a vplyv nula vzdialenejším bodom.
+
+Person2: Ako sa z jednotlivých vplyvov získajú zhluky?
+
+Person1: Celková hustota v danom bode je súčet vplyvov všetkých objektov na tento bod. Funkciu hustoty celého priestoru teda analyticky vytvoríme ako súčet jednotlivých funkcií vplyvu. Centrá zhlukov ležia v lokálnych maximách tejto celkovej hustoty.
+
+Person2: Aké sú výhody a slabina metódy DENCLUE?
+
+Person1: Má pevný matematický základ, vie matematicky opísať zhluky ľubovoľného tvaru, dobre spracúva šum a odľahlé hodnoty a je rýchlejšia než DBSCAN. Slabinou zostáva nastavenie parametrov, podobne ako pri ďalších hustotných metódach.
+
+Person2: Zhrniem si to. Zhlukovanie je učenie bez učiteľa a výsledok stojí na správnej vzdialenosti pre daný typ atribútov. Ká means používa centroid a je rýchlejšia, ale citlivá na odľahlé hodnoty; ká medoids používa skutočný objekt a je robustnejšia, no výpočtovo náročnejšia. Hierarchické metódy budujú nezvratnú stromovú štruktúru bez nutnosti vopred poznať počet zhlukov. Hustotné metódy, ako DBSCAN a DENCLUE, nachádzajú aj nepravidelné tvary a dobre oddeľujú šum, ale vyžadujú rozumné nastavenie parametrov.

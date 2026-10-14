@@ -1,0 +1,155 @@
+Person1: Témou sú distribuované a paralelné algoritmy nad zoznamami, stromami a grafmi. Začneme viazanými zoznamami, na nich si ukážeme zdvojovanie cesty aj rozbíjanie symetrie, a potom tieto techniky prenesieme na stromy pomocou Eulerovho priechodu.
+
+Person2: Prečo je paralelná práca s viazaným zoznamom náročnejšia než práca s obyčajným poľom?
+
+Person1: Viazaný zoznam nemá prirodzené globálne indexovanie podľa poradia. Každý prvok pozná svoju hodnotu a svojho nasledovníka, typicky uloženého v poli nasledovníkov, ale procesor pridelený jednému prvku nevidí, ako ďaleko je tento prvok od začiatku alebo od konca. Globálnu informáciu preto musíme zostaviť z lokálnych odkazov.
+
+Person2: Jedna jednoduchá úloha je nájsť ku každému prvku jeho predchodcu. Dá sa to urobiť bez prechodu celým zoznamom?
+
+Person1: Áno. Všetky položky poľa predchodcov najprv paralelne nastavíme na nil. Potom každý prvok, ktorý neukazuje sám na seba, zapíše svoj index ako predchodcu svojho nasledovníka. Hlava zostane bez predchodcu a koncový prvok sa neprepíše sám sebou. Pri jednom procesore na prvok je čas konštantný a celková cena lineárna.
+
+Person2: Dôležitejšou úlohou je list ranking. Čo presne pri ňom počítame?
+
+Person1: Každému prvku priradíme jeho vzdialenosť od konca zoznamu. Posledný prvok ukazuje sám na seba a má rank nula. Každý ostatný prvok začína s rankom jedna, pretože zatiaľ pozná iba jednu hranu k svojmu nasledovníkovi.
+
+Person2: Sekvenčne by sme jednoducho išli od konca, ale ako sa zoznam spracuje paralelne?
+
+Person1: Použije sa pointer jumping, nazývaný aj path doubling, teda preskakovanie ukazovateľov alebo zdvojovanie cesty. V každom kole každý aktívny prvok pripočíta rank svojho aktuálneho nasledovníka a potom svoj ukazovateľ presmeruje na nasledovníka tohto nasledovníka. Všetky aktualizácie jedného kola musia čítať hodnoty zo stavu na konci predchádzajúceho kola.
+
+Person2: Prečo je tá posledná podmienka taká dôležitá?
+
+Person1: Bez synchrónnych kôl by niektorý procesor mohol čítať už zmenený ukazovateľ a iný ešte pôvodný. Výsledok by potom nezodpovedal zdvojnásobeniu rovnako dlhej cesty. Pri správnom postupe pozná prvok po prvom kole súhrn cez dve pôvodné hrany, po druhom cez štyri, potom cez osem a tak ďalej.
+
+Person2: Čiže skúmaná vzdialenosť rastie exponenciálne.
+
+Person1: Presne. Po ká kolách obsiahne cesta až dve na ká pôvodných hrán. [short pause] Na pokrytie zoznamu dĺžky en preto stačí rádovo logaritmus z en kôl. Pri en procesoroch je čas logaritmický, ale cena je en krát logaritmus z en, takže základná verzia nie je cenovo optimálna.
+
+Person2: Veľmi podobne sa vraj počíta suma sufixov. Čo je sufix v zozname?
+
+Person1: Sufix daného prvku tvorí tento prvok a všetky prvky za ním až po koniec. Pre každý prvok chceme skombinovať hodnoty celého jeho sufixu. Nemusí ísť len o sčítanie, stačí asociatívna operácia, pri ktorej nezáleží na zátvorkovaní.
+
+Person2: A opäť sa zdvojuje cesta?
+
+Person1: Áno. Namiesto rankov sa kombinujú čiastočné výsledky príslušnou asociatívnou operáciou a ukazovatele opäť preskakujú nasledovníkov. Koncový prvok dočasne dostane neutrálny prvok operácie. Keďže jeho pôvodná hodnota bola týmto krokom nahradená, na záver ju treba pripojiť ku každému výsledku. Čas aj cena základnej verzie sú rovnaké ako pri list rankingu.
+
+Person2: Ako sa odstráni nadbytočná práca, aby bola cena optimálna?
+
+Person1: Optimalizovaný list ranking, označovaný ako list ranking revisited, postupne znižuje počet aktívnych prvkov. Má jumping fázu a rekonštrukčnú fázu. V jumping fáze sa v každom kole uspí približne polovica vhodných aktívnych prvkov a ku každému sa uloží čas uspania.
+
+Person2: Čo sa stane so zoznamom, keď prvok zaspí?
+
+Person1: Jeho predchodca absorbuje jeho čiastočný rank a presmeruje svoj ukazovateľ priamo na nasledovníka odstráneného prvku. Je to lokálne vystrihnutie zo zoznamu. Fáza pokračuje, až kým hlava skráteného zoznamu neukazuje priamo na koniec.
+
+Person2: Tým sme však rank uspaného prvku ešte nedopočítali.
+
+Person1: Preto nasleduje rekonštrukcia. Prvky sa budia v opačnom poradí, než zaspávali. Prebudený prvok pripočíta k svojmu čiastočnému ranku už hotový rank svojho nasledovníka. Pri sume sufixov sa namiesto sčítania použije pôvodná asociatívna operácia.
+
+Person2: Najjednoduchšie by bolo uspať každý druhý prvok. Prečo sa to nerobí priamo?
+
+Person1: Procesor pri svojom prvku nevie, či je prvok na párnej alebo nepárnej pozícii zoznamu. Ak by to chcel zistiť, musel by v podstate najprv vyriešiť list ranking. Toto je problém symetrie: lokálne podobné prvky nemajú informáciu, podľa ktorej by sa konzistentne rozdelili na dve skupiny.
+
+Person2: Jedným riešením je Random mating?
+
+Person1: Áno. Každý aktívny procesor si hodí mincou a označí svoj prvok ako mužský alebo ženský. Ak je prvok ženský a jeho nasledovník mužský, mužský nasledovník sa uspí. Ženský prvok zostane aktívny, absorbuje jeho rank a preskočí ho. Táto konfigurácia vznikne s pravdepodobnosťou jedna štvrtina.
+
+Person2: Takže v priemere stále odstraňujeme konštantnú časť zoznamu.
+
+Person1: Presne, a preto je počet kôl pre veľké en s vysokou pravdepodobnosťou logaritmický. Čas uspania určí poradie rekonštrukcie: prvky sa spracujú od najvyššieho času nadol a každý doplní výsledok pomocou nasledovníka.
+
+Person2: Znamená geometrický pokles aktívnych prvkov automaticky aj lineárnu cenu?
+
+Person1: Nie, tu je dôležitá záludnosť. Súčet počtov aktívnych prvkov tvorí geometrický rad a je lineárny, ale ten vyjadruje užitočnú prácu. Ak má stroj počas všetkých logaritmicky mnohých kôl fyzicky pridelených en procesorov, formálna cena zostáva en krát logaritmus z en.
+
+Person2: Ako teda vznikne skutočne optimálna implementácia?
+
+Person1: Random mating sa simuluje pomocou en delené logaritmom z en stále pracujúcich procesorov. Každý spravuje zásobník približne logaritmicky mnohých prvkov a pri odstránení vykoná lokálnu operáciu vystrihnutia. Čas zostane logaritmický, ale súčin počtu procesorov a času už je lineárny.
+
+Person2: Ďalším spôsobom rozbitia symetrie je ofarbenie zoznamu. Ako sa definuje ká ofarbenie?
+
+Person1: Každému prvku priradíme jednu z ká farieb tak, aby susedné prvky mali rôzne farby. Začiatočné unikátne farby získame z binárnych identifikátorov procesorov. Pre každý prvok paralelne nájdeme najnižšiu bitovú pozíciu, na ktorej sa jeho identifikátor líši od identifikátora nasledovníka.
+
+Person2: A ako z tejto pozície vznikne nová farba?
+
+Person1: Nová farba zakóduje dve informácie: číslo nájdenej bitovej pozície a hodnotu bitu aktuálneho prvku na tejto pozícii. Preto vznikne najviac dvojnásobok logaritmu z en farieb. Susedia nemôžu dostať rovnakú dvojicu, takže ofarbenie zostane korektné, a prvé zmenšenie počtu farieb trvá konštantný čas.
+
+Person2: Dá sa počet farieb znižovať opakovane?
+
+Person1: Áno. Ak máme ká farieb, rovnakým postupom ich znížime najviac na dvojnásobok zaokrúhleného logaritmu z ká. Po rádovo logaritmus star z en kolách zostane konštantný počet farieb a ten sa lokálnou redukciou zníži na tri.
+
+Person2: S ofarbením súvisí ruling set. Čo tento pojem znamená?
+
+Person1: Ká ruling set je podmnožina prvkov s dvomi vlastnosťami. Žiadne dva vybrané prvky nesusedia a každý nevybraný prvok má vo vzdialenosti najviac ká nasledujúci vybraný prvok. Vybrané prvky teda fungujú ako nezávislé oddeľovače, ktoré nie sú príliš ďaleko od zvyšku zoznamu.
+
+Person2: Ako sa ruling set vytvorí z ká ofarbenia?
+
+Person1: V konštantnom čase možno vybrať lokálne minimá farieb a hlavu zoznamu označiť ako vybranú. Dve susedné lokálne minimá sa nemôžu vybrať súčasne. Z ká ofarbenia tým dostaneme dva ká ruling set, pretože vzdialenosť medzi vhodnými oddeľovačmi je najviac dvojnásobok počtu farieb.
+
+Person2: A ak chceme priamo dva ruling set?
+
+Person1: Najprv vytvoríme ofarbenie s najviac dvojnásobkom logaritmu z en farieb. Farby potom prechádzame postupne od najnižšej. V jednom kroku spracujeme paralelne všetky prvky rovnakej farby. Prvok vyberieme iba vtedy, keď ešte nie je vybraný on, jeho predchodca ani jeho nasledovník. Počet sekvenčných farebných krokov je logaritmický.
+
+Person2: Presuňme sa k stromom. Prečo sa pri paralelných stromových algoritmoch zavádza Eulerovský priechod?
+
+Person1: Eulerovský priechod prevedie stromovú štruktúru na lineárnu štruktúru, nad ktorou vieme použiť list ranking alebo sumu sufixov. Každú neorientovanú hranu nahradíme dvojicou opačne orientovaných hrán a priechod prejde každú pôvodnú hranu v oboch smeroch. Vznikne Eulerova kružnica.
+
+Person2: Ako sa táto kružnica reprezentuje?
+
+Person1: Strom máme v zoznamoch susednosti a pole E tour priraďuje každej orientovanej hrane jej nasledujúcu orientovanú hranu v priechode. Ak strom obsahuje en vrcholov, pole má dva en mínus dva prvkov, pretože strom má en mínus jedna neorientovaných hrán a každú použijeme dvakrát.
+
+Person2: Ako vieme pole E tour vytvoriť paralelne v konštantnom čase?
+
+Person1: Každému procesoru pridelíme jednu orientovanú hranu z vrcholu u do vrcholu v a pozrieme sa na jej reverznú hranu z v do u. Ak má reverzná hrana v zozname susednosti ďalšieho nasledovníka, ten bude nasledujúcou hranou Eulerovho priechodu. Ak ho nemá, pokračujeme prvou hranou v zozname susedov cieľového vrcholu v. Všetky položky poľa sa určia nezávisle a paralelne.
+
+Person2: Na vytvorenie kružnice teda nepotrebujeme koreň. Kedy ho zavedieme?
+
+Person1: Až pri prerezaní kružnice na zoznam. Vyberieme hranu, ktorá vedie do zvoleného koreňa, a nastavíme ju tak, aby v poli E tour ukazovala sama na seba. Táto hrana sa stane koncom zoznamu a od tohto momentu môžeme nad E tour spustiť zoznamové algoritmy.
+
+Person2: Aký je všeobecný vzor výpočtov nad stromom?
+
+Person1: Najprv v konštantnom čase vytvoríme E tour a pripravíme hodnoty orientovaných hrán. Potom nad vzniknutým zoznamom spočítame sumu sufixov alebo list ranking a napokon paralelne vykonáme jednoduchú korekciu. Dominantná je logaritmická zoznamová fáza. Pri optimálnej simulácii s en delené logaritmom z en procesormi dostaneme logaritmický čas a lineárnu cenu.
+
+Person2: Ukážme najprv, ako sa určí pozícia každej hrany v Eulerovej ceste.
+
+Person1: Po vytvorení E tour a prerezaní pri koreni vykonáme list ranking. Rank hrany udáva vzdialenosť od konca, my však chceme pozíciu od začiatku. Preto od celkového počtu orientovaných hrán, teda od dva en mínus dva, odčítame rank danej hrany. Všetky pozície sa dopočítajú paralelne.
+
+Person2: Ako z pozícií spoznáme rodiča vrcholu?
+
+Person1: Každá pôvodná hrana sa v priechode objaví raz smerom nadol a raz smerom späť. Tá orientácia, ktorá má menšiu pozíciu, je dopredná. Ak je dopredná hrana z u do v, potom u je rodičom vrcholu v.
+
+Person2: Čo treba nastaviť, ak chceme preorder poradie vrcholov?
+
+Person1: Dopredným hranám priradíme váhu jedna a spätným nula. Nad Eulerovou cestou vypočítame sumy sufixov. Pre doprednú hranu do vrcholu v vezmeme en mínus jej sufixová váha plus jedna. To je preorder číslo vrcholu v. Koreň má preorder číslo jedna.
+
+Person2: Prečo tento postup zachytí práve preorder?
+
+Person1: Jednotky označujú prvé vstupy do nových vrcholov. Sufixová suma povie, koľko takých vstupov zostáva od danej hrany po koniec. Odčítaním od celkového počtu vrcholov túto orientáciu obrátime na poradie od začiatku priechodu.
+
+Person2: Podobne sa dá vypočítať aj počet nasledovníkov, teda veľkosť podstromu?
+
+Person1: Áno. Opäť dáme dopredným hranám váhu jedna a spätným nula a spočítame sumy sufixov. Pre doprednú hranu z u do v odčítame sufixovú váhu reverznej hrany z v do u od váhy doprednej hrany. Rozdiel udáva počet vrcholov patriacich do podstromu v podľa tejto definície. Pre koreň je výsledkom en.
+
+Person2: A ako sa určí úroveň alebo hĺbka vrcholu?
+
+Person1: Teraz dáme doprednej hrane váhu mínus jedna a spätnej hrane plus jedna. Sufixová suma tak sleduje zmenu hĺbky pri pohybe Eulerovým priechodom. Pre doprednú hranu vstupujúcu do vrcholu v je úroveň v rovná jej sufixovej váhe plus jedna. Koreň má úroveň nula.
+
+Person2: Eulerovský priechod teda rieši veľa úloh. Prečo ešte potrebujeme kontrakciu stromu?
+
+Person1: Nie každý problém sa dá vyjadriť jednoduchou sumou hodnôt na Eulerovej ceste. Typickým príkladom je vyhodnotenie aritmetického výrazu uloženého v binárnom strome. Tam treba priebežne zlučovať význam podstromov, a na to slúži kontrakcia stromu.
+
+Person2: Z akých operácií sa všeobecná kontrakcia skladá?
+
+Person1: Operácia rejk odstráni list a zlúči jeho informáciu s rodičom. Operácia kompres pracuje na reťazci vrcholov prvého stupňa: odstráni každý druhý vrchol a jeho informáciu zlúči so susedom. Kombináciou oboch operácií sa strom v každom kole výrazne zmenší.
+
+Person2: Pri stromoch aritmetických výrazov sa používa špeciálna operácia šant. Ako funguje?
+
+Person1: Vyberieme list u, ktorého rodič nie je koreň. Odstránime list aj jeho rodiča a súrodenecký podstrom pripojíme k pôvodnému starému rodičovi. Hodnota odstránenej časti výrazu sa pritom zapracuje do funkcie na zostávajúcej hrane, takže sa význam výrazu nestratí.
+
+Person2: Môžeme operáciu šant vykonať naraz na všetkých listoch?
+
+Person1: Nie. Paralelne vyberáme čo najviac listov, ale nesmieme súčasne spracovať listy, ktorých rodičia spolu susedia, pretože ich zmeny by kolidovali. Listy uložíme do poľa a rozdelíme podľa nepárnych a párnych pozícií.
+
+Person2: Aké je potom poradie jedného kola kontrakcie?
+
+Person1: Najprv spracujeme vhodné nepárne listy, osobitne ľavé a potom zostávajúce. Následne analogicky spracujeme párne listy. Tým sa vyhneme konfliktom a zároveň odstránime dostatočne veľkú časť stromu.
+
+Person2: Počet listov sa teda v každom kole približne zmenší na polovicu, takže kontrakcia skončí za logaritmický čas. Hlavná myšlienka celého okruhu je podobná: zoznamy zrýchľujeme zdvojovaním cesty a redukciou aktívnych prvkov, stromy linearizujeme Eulerovým priechodom alebo ich zmenšujeme kontrakciou, pričom optimálnu cenu získame vhodným počtom procesorov.

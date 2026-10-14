@@ -1,0 +1,215 @@
+Person1: Témou tohto výkladu je pravdepodobnosť a náhodné veličiny. Začneme pravdepodobnostným priestorom, potom prejdeme podmienenú pravdepodobnosť, nezávislosť, funkčné a číselné charakteristiky náhodných veličín, významné rozdelenia a napokon generovanie náhodných veličín.
+
+Person2: Čo presne tvorí pravdepodobnostný priestor?
+
+Person1: Najprv máme základný priestor omega, teda neprázdnu množinu všetkých možných výsledkov náhodného pokusu. Môže byť konečný, spočítateľne nekonečný aj nespočítateľný. Pri meraní teploty môže byť základným priestorom napríklad celá množina reálnych čísel. Náhodný jav je množina výsledkov, čiže podmnožina základného priestoru.
+
+Person2: Môžeme za jav považovať ľubovoľnú podmnožinu?
+
+Person1: Nie vždy. Pracujeme iba s merateľnými javmi. Ich systém označujeme ako sigma algebru a požadujeme tri vlastnosti. Obsahuje celý základný priestor, s každým javom obsahuje aj jeho doplnok a je uzavretý na spočítateľné zjednotenia. Pravdepodobnostná miera potom každému merateľnému javu priradí číslo od nuly po jeden.
+
+Person2: A aké axiómy musí táto miera spĺňať?
+
+Person1: Kolmogorovove axiómy hovoria, že pravdepodobnosť celého základného priestoru je jedna, pravdepodobnosť každého javu je nezáporná a pre spočítateľnú postupnosť po dvojiciach disjunktných javov sa pravdepodobnosť ich zjednotenia rovná súčtu ich pravdepodobností. [short pause] Trojica základný priestor, sigma algebra a pravdepodobnostná miera je pravdepodobnostný priestor.
+
+Person2: Čo z týchto axióm vieme odvodiť?
+
+Person1: Nemožný jav má pravdepodobnosť nula. Pravdepodobnosť doplnku javu je jedna mínus pravdepodobnosť javu. Ak je jeden jav podmnožinou druhého, nemôže mať väčšiu pravdepodobnosť. A pravdepodobnosť zjednotenia dvoch javov získame ako súčet ich pravdepodobností mínus pravdepodobnosť ich prieniku.
+
+Person2: Kedy môžeme pravdepodobnosť počítať ako počet priaznivých výsledkov delený počtom všetkých výsledkov?
+
+Person1: Iba v konečnom priestore s rovnako pravdepodobnými výsledkami. Nie je to všeobecná definícia pravdepodobnosti. Ak pravdepodobnosť odhadujeme z dát, prirodzeným odhadom je relatívna početnosť, teda počet výskytov javu delený celkovým počtom pozorovaní.
+
+Person2: Ako sa zmení pravdepodobnosť javu, keď už vieme, že nastal iný jav?
+
+Person1: To opisuje podmienená pravdepodobnosť. Ak má jav bé kladnú pravdepodobnosť, pravdepodobnosť javu á za podmienky bé je pravdepodobnosť ich prieniku delená pravdepodobnosťou bé. Podmienka bé teda zúži uvažovaný priestor výsledkov iba na výsledky v bé.
+
+Person2: Dá sa z tejto definície vyjadriť pravdepodobnosť prieniku?
+
+Person1: Áno. Pravdepodobnosť prieniku á a bé je pravdepodobnosť bé krát pravdepodobnosť á podmienená bé. Rovnako je to pravdepodobnosť á krát pravdepodobnosť bé podmienená á. Pre viac javov dostávame reťazové pravidlo: začneme pravdepodobnosťou prvého javu a postupne násobíme pravdepodobnosť každého ďalšieho javu podmienenú prienikom všetkých predchádzajúcich.
+
+Person2: Kde do toho vstupuje veta o úplnej pravdepodobnosti?
+
+Person1: Predstavme si hypotézy, ktoré tvoria rozklad celého základného priestoru, navzájom sa neprekrývajú a každá má kladnú pravdepodobnosť. Pravdepodobnosť pozorovaného javu potom dostaneme ako súčet cez všetky hypotézy. Pri každej násobíme pravdepodobnosť pozorovania za danej hypotézy pravdepodobnosťou samotnej hypotézy.
+
+Person2: A Bayesov vzorec obráti smer podmienenia?
+
+Person1: Presne. [short pause] Aposteriórna pravdepodobnosť hypotézy po pozorovaní dát sa rovná vierohodnosti dát za tejto hypotézy krát apriórna pravdepodobnosť hypotézy, a to celé delené evidenciou. Evidencia je súčet rovnakých súčinov cez všetky hypotézy a zabezpečí, že výsledné pravdepodobnosti majú správnu normalizáciu.
+
+Person2: Zopakujme si názvy jednotlivých častí, lebo sa ľahko zamieňajú.
+
+Person1: Pravdepodobnosť hypotézy pred dátami je prior. Pravdepodobnosť dát pri danej hypotéze je likelihood, teda vierohodnosť. Pravdepodobnosť samotných dát je evidencia. Pravdepodobnosť hypotézy po zohľadnení dát je posterior. Pri konjugovanom priore navyše posterior patrí do rovnakého typu rozdelenia ako prior. Napríklad beta rozdelenie je konjugované k Bernoulliho a binomickej vierohodnosti.
+
+Person2: Teraz nezávislosť. Aká je jej základná definícia pre dva javy?
+
+Person1: Javy á a bé sú nezávislé, ak pravdepodobnosť ich prieniku je súčin ich pravdepodobností. Ak sú príslušné podmienené pravdepodobnosti definované, znamená to tiež, že informácia o výskyte jedného javu nemení pravdepodobnosť druhého.
+
+Person2: Je nezávislosť to isté ako nezlučiteľnosť?
+
+Person1: Nie, a to je dôležitý rozdiel. Nezlučiteľné javy nemôžu nastať súčasne. Ak majú oba kladnú pravdepodobnosť, ich prienik má pravdepodobnosť nula, ale súčin ich pravdepodobností je kladný, takže sú závislé. Nezávislé sú napríklad výsledky dvoch samostatných hodov kockou. Závislé môžu byť javy, že vonku svieti slnko a že teplota je vyššia ako dvadsaťpäť stupňov Celzia.
+
+Person2: A čo nezávislosť viac než dvoch javov?
+
+Person1: Vzájomná nezávislosť vyžaduje, aby sa pravdepodobnosť prieniku rovnala súčinu pravdepodobností pre každú neprázdnu podmnožinu daných javov. Nestačí skontrolovať iba všetky dvojice. Párová nezávislosť sama osebe nemusí znamenať vzájomnú nezávislosť.
+
+Person2: Prejdime k náhodnej veličine. Čo je na nej vlastne náhodné?
+
+Person1: Reálna náhodná veličina je merateľné zobrazenie zo základného priestoru do reálnych čísel. Pre každú reálnu hranicu musí byť jav, že hodnota veličiny neprekročí túto hranicu, merateľný. Samotná funkcia nie je náhodná. Náhodný je výsledok pokusu, ktorý funkcia prevedie na číslo. Pri dvoch hodoch mincou môže napríklad udávať počet hláv.
+
+Person2: Aký je rozdiel medzi diskrétnou a spojitou náhodnou veličinou?
+
+Person1: Diskrétna veličina nadobúda najviac spočítateľne veľa hodnôt, napríklad počet chýb v pakete. Spojitou sa v tomto okruhu myslí veličina opísateľná hustotou, napríklad čas odozvy alebo teplota. Presnejšie, nie každé nediskrétne rozdelenie musí mať hustotu, ale v základnom členení sa spojitou veličinou myslí absolútne spojitá veličina. Vo všeobecnosti existujú aj náhodné vektory a náhodné prvky, no tu pracujeme s reálnou náhodnou veličinou.
+
+Person2: Ktorá funkcia opisuje rozdelenie každej náhodnej veličiny bez ohľadu na jej typ?
+
+Person1: Distribučná funkcia. V bode iks udáva pravdepodobnosť, že náhodná veličina je menšia alebo rovná iks. Úplne určuje rozdelenie. Jej hodnoty ležia medzi nulou a jednotkou, je neklesajúca a sprava spojitá. Pri iks idúcom do mínus nekonečna smeruje k nule a pri iks idúcom do plus nekonečna smeruje k jednotke.
+
+Person2: Ako z nej vypočítame pravdepodobnosť intervalu alebo konkrétneho bodu?
+
+Person1: Pravdepodobnosť, že veličina je väčšia než á a najviac bé, je rozdiel distribučnej funkcie v bé a v á. Pravdepodobnosť konkrétnej hodnoty iks je veľkosť skoku distribučnej funkcie v tomto bode, teda hodnota v bode mínus limita zľava.
+
+Person2: Čím opisujeme diskrétnu veličinu?
+
+Person1: Pravdepodobnostnou funkciou. Každej hodnote iks priradí pravdepodobnosť, že veličina nadobudne práve iks. Hodnoty tejto funkcie sú nezáporné a ich súčet cez všetky možné hodnoty je jedna. Distribučnú funkciu získame sčítaním pravdepodobností všetkých hodnôt, ktoré sú najviac iks.
+
+Person2: A pri spojitej veličine používame hustotu?
+
+Person1: Áno. Hustota je nezáporná funkcia a jej integrál cez celú reálnu os je jedna. Distribučná funkcia v bode iks je integrál hustoty od mínus nekonečna po iks. Pravdepodobnosť intervalu je plocha pod hustotou nad týmto intervalom. Tam, kde je distribučná funkcia derivovateľná, je hustota jej deriváciou.
+
+Person2: Pri spojitej veličine je pravdepodobnosť jedného bodu nulová, však?
+
+Person1: Áno. Preto pri pravdepodobnosti intervalu nezáleží na tom, či jeho koncové body zahrnieme. Zároveň hodnota hustoty nie je pravdepodobnosť bodu a môže byť väčšia ako jedna. Napríklad rovnomerná veličina na intervale od nuly po jednu polovicu má hustotu dva. Plocha je však dva krát jedna polovica, čiže jedna. Hustota má aj fyzikálnu jednotku na jednotku veličiny, kým pravdepodobnosť je bezrozmerná.
+
+Person2: Ako tieto charakteristiky odhadneme z pozorovaných dát?
+
+Person1: Empirická distribučná funkcia v bode iks je podiel pozorovaní menších alebo rovných iks. Diskrétnu pravdepodobnostnú funkciu odhadneme relatívnymi početnosťami jednotlivých hodnôt. Hustotu môžeme odhadnúť histogramom. Ak má priečinok šírku há a obsahuje určitý počet pozorovaní, jeho výška je tento počet delený celkovým počtom pozorovaní a šírkou priečinka.
+
+Person2: Prečo pri histograme delíme aj šírkou?
+
+Person1: Aby obsah obdĺžnika zodpovedal relatívnej početnosti v priečinku a celková plocha histogramu bola jedna. Príliš úzke priečinky vytvárajú šum, príliš široké zakrývajú štruktúru dát. Hladšou alternatívou je jadrový odhad hustoty, pri ktorom šírka pásma riadi rovnaký kompromis medzi šumom a vyhladením.
+
+Person2: Ako definujeme nezávislosť náhodných veličín?
+
+Person1: Veličiny iks a ypsilon sú nezávislé, ak pre ľubovoľné dve borelovské množiny platí, že pravdepodobnosť súčasného zaradenia iks do prvej a ypsilon do druhej je súčin príslušných okrajových pravdepodobností. Ekvivalentne sa ich spoločná distribučná funkcia rozloží na súčin okrajových distribučných funkcií.
+
+Person2: Dá sa to podobne rozpoznať aj z pravdepodobnostnej funkcie alebo hustoty?
+
+Person1: Ak spoločná pravdepodobnostná funkcia alebo hustota existuje, pri nezávislosti sa rozloží na súčin okrajových funkcií. Pre nezávislé veličiny s existujúcimi strednými hodnotami sa tiež stredná hodnota ich súčinu rovná súčinu stredných hodnôt.
+
+Person2: Znamená nulová kovariancia automaticky nezávislosť?
+
+Person1: Nie. Nezávislosť pri existujúcich druhých momentoch implikuje nulovú kovarianciu, ale opačný smer všeobecne neplatí. Nekorelované veličiny teda môžu byť závislé.
+
+Person2: Poďme k číselným charakteristikám. Ako chápať strednú hodnotu?
+
+Person1: Stredná hodnota je dlhodobý vážený priemer, nie nevyhnutne najpravdepodobnejšia hodnota. Pri diskrétnej veličine sčítame každú možnú hodnotu násobenú jej pravdepodobnosťou. Pri spojitej veličine integrujeme hodnotu násobenú hustotou cez celú reálnu os. Rovnaký princíp platí pre funkciu náhodnej veličiny: priemerujeme hodnoty tejto funkcie podľa rozdelenia pôvodnej veličiny.
+
+Person2: Aké vlastnosti strednej hodnoty sú najdôležitejšie?
+
+Person1: Je lineárna aj bez predpokladu nezávislosti. Stredná hodnota lineárnej kombinácie sa rovná rovnakej lineárnej kombinácii stredných hodnôt, pričom konštanta zostáva konštantou. Modus je na rozdiel od strednej hodnoty miesto maxima pravdepodobnostnej funkcie alebo hustoty. Nemusia sa rovnať a rozdelenie môže mať viac modusov.
+
+Person2: Rozptyl potom meria rozptýlenie okolo strednej hodnoty?
+
+Person1: Áno. Rozptyl je stredná hodnota štvorca odchýlky od priemeru. Ekvivalentne je to stredná hodnota druhej mocniny veličiny mínus druhá mocnina strednej hodnoty. Je nezáporný a môže byť nulový práve vtedy, keď je veličina s pravdepodobnosťou jedna konštantná.
+
+Person2: A smerodajná odchýlka?
+
+Person1: Je druhá odmocnina z rozptylu, takže má rovnakú jednotku ako pôvodná veličina. Pri vynásobení veličiny konštantou á sa rozptyl násobí druhou mocninou á. Pripočítanie konštanty rozptyl nemení.
+
+Person2: Ako do toho zapadá kovariancia?
+
+Person1: Kovariancia dvoch veličín je stredná hodnota súčinu ich odchýlok od vlastných priemerov. Možno ju zapísať aj ako strednú hodnotu súčinu mínus súčin stredných hodnôt. Rozptyl súčtu dvoch veličín je súčet ich rozptylov plus dvojnásobok kovariancie. Pri nezávislých veličinách kovariancia zmizne, takže rozptyl súčtu aj rozdielu je súčet rozptylov.
+
+Person2: Čo sú momenty a šikmosť?
+
+Person1: Káty všeobecný moment je stredná hodnota kátej mocniny veličiny. Káty centrálny moment je stredná hodnota kátej mocniny odchýlky od priemeru. Prvý centrálny moment je nula a druhý je rozptyl. Ak je smerodajná odchýlka kladná, koeficient šikmosti je tretí centrálny moment vydelený treťou mocninou smerodajnej odchýlky.
+
+Person2: Ako znamienko šikmosti interpretujeme?
+
+Person1: Kladná šikmosť znamená dlhší pravý chvost a záporná dlhší ľavý chvost. Symetrické rozdelenie s existujúcim tretím momentom má šikmosť nula. Špicatosť je štandardizovaný štvrtý centrálny moment. Normálne rozdelenie má špicatosť tri, teda nadbytočnú špicatosť nula. Špicatosť nevyjadruje iba výšku vrcholu, výrazne ju ovplyvňujú aj chvosty.
+
+Person2: Teraz si systematicky prejdime významné diskrétne rozdelenia. Začnime Bernoulliho rozdelením.
+
+Person1: Bernoulliho, nazývané aj alternatívne rozdelenie, opisuje jediný pokus s neúspechom nula a úspechom jedna. Parameter pé je pravdepodobnosť úspechu a leží medzi nulou a jednotkou. Stredná hodnota je pé a rozptyl pé krát jedna mínus pé. Bernoulliho veličina zároveň funguje ako indikátor javu.
+
+Person2: Binomické rozdelenie je počet úspechov vo viacerých takých pokusoch?
+
+Person1: Áno. Opisuje počet úspechov v en nezávislých Bernoulliho pokusoch s rovnakou pravdepodobnosťou úspechu pé. Pravdepodobnosť presne ká úspechov tvorí počet možností vybrať ká úspešných pokusov z en, násobený pé na kátu a jedna mínus pé na mocninu en mínus ká. Stredná hodnota je en krát pé a rozptyl en krát pé krát jedna mínus pé.
+
+Person2: Čo pridáva multinomické rozdelenie?
+
+Person1: Zovšeobecňuje binomické rozdelenie na viac možných výsledkov jedného pokusu. V en nezávislých pokusoch sledujeme vektor početností jednotlivých kategórií, pričom pravdepodobnosti kategórií majú súčet jedna a početnosti súčet en. Pravdepodobnosť konkrétneho vektora obsahuje multinomický koeficient a súčin mocnín pravdepodobností kategórií.
+
+Person2: Aké má tento vektor stredné hodnoty, rozptyly a kovariancie?
+
+Person1: Pre kategóriu jé je stredná početnosť en krát pé jé a rozptyl en krát pé jé krát jedna mínus pé jé. Kovariancia dvoch rôznych kategórií je záporná, konkrétne mínus en krát súčin ich pravdepodobností. Dôvod je, že pevný celkový počet en rozdeľujeme medzi kategórie. Binomické rozdelenie je prípad dvoch kategórií.
+
+Person2: Geometrické rozdelenie sleduje čakanie na prvý úspech?
+
+Person1: Presne. Opisuje počet nezávislých Bernoulliho pokusov vrátane pokusu s prvým úspechom. Pre ká od jednej vyššie je pravdepodobnosť jedna mínus pé na mocninu ká mínus jedna, krát pé. Stredná hodnota je jedna delené pé a rozptyl jedna mínus pé delené druhou mocninou pé. Parameter pé musí byť kladný. Toto rozdelenie je bezpamäťové: po doterajších neúspechoch sa rozdelenie ďalšieho čakania nemení.
+
+Person2: A diskrétne rovnomerné rozdelenie?
+
+Person1: Prideľuje rovnakú pravdepodobnosť všetkým celým číslam od á po bé vrátane. Každá hodnota má pravdepodobnosť jedna delené počtom týchto čísel. Stredná hodnota je polovica súčtu krajných hodnôt. Rozptyl je druhá mocnina počtu hodnôt mínus jedna, delené dvanásť. Typickým príkladom je spravodlivá kocka.
+
+Person2: Kedy použijeme hypergeometrické rozdelenie namiesto binomického?
+
+Person1: Pri výbere bez vracania. Zo súboru veľkosti veľké en, ktorý obsahuje veľké em úspešných prvkov, náhodne vyberieme malé en prvkov a sledujeme počet úspešných. Pravdepodobnosť ká úspechov je počet možností vybrať ká úspešných a zvyšok neúspešných, delený počtom všetkých výberov veľkosti malé en.
+
+Person2: Čo platí pre jeho priemer a rozptyl?
+
+Person1: Stredná hodnota je malé en krát podiel veľké em ku veľké en. Rozptyl obsahuje binomický člen malé en krát tento podiel krát jedna mínus tento podiel a navyše korekciu za výber bez vracania, teda veľké en mínus malé en delené veľké en mínus jedna. Na rozdiel od binomického modelu tu jednotlivé výbery nie sú nezávislé.
+
+Person2: Posledné významné diskrétne rozdelenie je Poissonovo?
+
+Person1: Áno. Poissonovo rozdelenie s kladným parametrom lambda opisuje počet udalostí v pevnom intervale pri konštantnej intenzite a nezávislých prírastkoch. Pravdepodobnosť ká udalostí je exponenciála na mínus lambda krát lambda na kátu, delené ká faktoriál. Stredná hodnota aj rozptyl sa rovnajú lambda. Príkladom je počet požiadaviek prijatých serverom za minútu pri vhodnom modeli.
+
+Person2: Prejdime na významné spojité rozdelenia. Čo znamená, že rozdelenie je parametrické?
+
+Person1: Patrí do rodiny určenej konečným počtom parametrov. Tie môžu určovať polohu, mierku alebo tvar. Najjednoduchším príkladom je spojité rovnomerné rozdelenie na intervale od á po bé, kde á je menšie než bé.
+
+Person2: Ako vyzerá jeho hustota a distribučná funkcia?
+
+Person1: Hustota je na danom intervale konštantná, konkrétne jedna delené dĺžkou intervalu, a mimo neho je nulová. Distribučná funkcia je pred intervalom nula, na intervale rastie lineárne z nuly na jednotku a za intervalom je jedna. Stredná hodnota je polovica súčtu á a bé. Rozptyl je druhá mocnina dĺžky intervalu delená dvanásť. Modeluje hodnotu bez preferencie polohy v intervale.
+
+Person2: Exponenciálne rozdelenie súvisí s Poissonovým procesom?
+
+Person1: Áno. Pri kladnej intenzite lambda opisuje čas čakania na ďalšiu udalosť homogénneho Poissonovho procesu. Pre nezáporné iks je hustota lambda krát exponenciála na mínus lambda iks a distribučná funkcia jedna mínus táto exponenciála. Pre záporné hodnoty sú obe nulové. Stredná hodnota je jedna delené lambda a rozptyl jedna delené druhou mocninou lambda. Aj exponenciálne rozdelenie je bezpamäťové.
+
+Person2: A normálne rozdelenie?
+
+Person1: Normálne rozdelenie je určené strednou hodnotou mí a kladným rozptylom sigma na druhú. Jeho hustota má zvonovitý tvar a je symetrická okolo mí. Stredná hodnota je mí a rozptyl sigma na druhú. Distribučná funkcia nemá elementárny uzavretý tvar.
+
+Person2: Ako pri normálnom rozdelení počítame pravdepodobnosti?
+
+Person1: Veličinu štandardizujeme: odčítame mí a výsledok vydelíme smerodajnou odchýlkou sigma. Dostaneme štandardné normálne rozdelenie so strednou hodnotou nula a rozptylom jedna a použijeme jeho distribučnú funkciu fí. Približne šesťdesiatosem celých dvadsaťsedem stotín percenta hodnôt leží do jednej smerodajnej odchýlky od priemeru, deväťdesiatpäť celých štyridsaťpäť stotín percenta do dvoch a deväťdesiatdeväť celých sedemdesiattri stotín percenta do troch.
+
+Person2: Ktoré ďalšie spojité rozdelenia sú dôležité najmä v štatistike?
+
+Person1: Gama rozdelenie modeluje kladné časy čakania do viacerých udalostí a exponenciálne rozdelenie je jeho špeciálny prípad. Chí kvadrát rozdelenie vzniká ako súčet štvorcov nezávislých štandardných normálnych veličín a používa sa pri odhadoch a testoch rozptylu aj pri testoch dobrej zhody.
+
+Person2: A Studentovo té a Fisherovo Snedecorovo ef rozdelenie?
+
+Person1: Studentovo té rozdelenie sa používa pre štandardizovaný priemer pri neznámom rozptyle, najmä pri malých výberoch z normálneho rozdelenia. Fisherovo Snedecorovo ef rozdelenie je pomer dvoch škálovaných nezávislých chí kvadrát veličín. Uplatňuje sa pri porovnávaní rozptylov a v analýze rozptylu, teda ANOVA.
+
+Person2: Zostáva generovanie náhodných veličín. Je počítačový generátor naozaj náhodný?
+
+Person1: Bežný pseudonáhodný generátor je deterministický algoritmus. Zo začiatočného stavu, seedu, vytvára reprodukovateľnú postupnosť, ktorá štatisticky napodobňuje náhodnosť. Skutočnú fyzikálnu náhodnosť možno získavať z externého zdroja entropie. Na bezpečnostné účely potrebujeme kryptograficky bezpečný generátor.
+
+Person2: Prečo je základom simulácií práve rovnomerné rozdelenie od nuly po jednotku?
+
+Person1: Pretože z neho vieme transformáciami vytvoriť mnohé ďalšie rozdelenia. Pri inverznej transformačnej metóde vložíme rovnomernú hodnotu do zovšeobecnenej inverznej distribučnej funkcie cieľového rozdelenia. Výsledok má požadovanú distribučnú funkciu.
+
+Person2: Ako to funguje pri diskrétnom rozdelení?
+
+Person1: Interval od nuly po jednotku rozdelíme podľa kumulatívnych pravdepodobností jednotlivých hodnôt. Vygenerované rovnomerné číslo priradíme hodnote, do ktorej čiastkového intervalu padlo. Pri zamietacej metóde zasa generujeme kandidáta z jednoduchšieho rozdelenia a prijmeme ho s pravdepodobnosťou určenou pomerom cieľovej a obalovej hustoty.
+
+Person2: Uveďme ešte konkrétne inverzné transformácie.
+
+Person1: Rovnomernú veličinu na intervale od á po bé dostaneme tak, že k á pripočítame dĺžku intervalu krát rovnomernú veličinu od nuly po jednotku. Exponenciálnu veličinu s intenzitou lambda získame ako mínus prirodzený logaritmus jednej mínus rovnomerná veličina, delený lambda.
+
+Person2: A normálne rozdelenie sa dá generovať Boxovou Mullerovou transformáciou?
+
+Person1: Áno. Z dvoch nezávislých rovnomerných veličín od nuly po jednotku vytvorí Boxova Mullerova transformácia pomocou logaritmu, odmocniny, sínusu a kosínusu dve nezávislé štandardné normálne veličiny. Je to konkrétny príklad toho, ako deterministická transformácia náhodných vstupov vytvorí požadované rozdelenie.
+
+Person2: Najdôležitejšie je teda rozlišovať jav od náhodnej veličiny, nezávislosť od nezlučiteľnosti a pravdepodobnosť od hustoty. Rozdelenie úplne určuje distribučná funkcia, číselne ho opisujú najmä stredná hodnota a rozptyl, Bayesov vzorec aktualizuje prior na posterior a pri konkrétnej úlohe musíme správne vybrať rozdelenie podľa mechanizmu pokusu. Napokon, simulácie zvyčajne začínajú rovnomernými pseudonáhodnými číslami a vhodnou transformáciou.

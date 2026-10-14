@@ -1,0 +1,151 @@
+Person1: Vitaj pri výklade okruhu Objektovo orientované databázové systémy - kolekcie a štruktúra, objekt, dedičnosť a vzťahy. Začneme štruktúrovanými dátovými typmi a postupne prejdeme až k porovnaniu objektového modelu s relačným a k objektovo-relačnému mapovaniu.
+
+Person2: Čo presne znamená, že dátový typ je štruktúrovaný?
+
+Person1: Znamená to, že jeho hodnota je zložená z ďalších hodnôt. Základné spôsoby skladania sú dva: štruktúra a kolekcia. Navyše sa môžu vnárať, takže vlastnosť štruktúry môže obsahovať inú štruktúru alebo celú kolekciu.
+
+Person2: Aký je medzi štruktúrou a kolekciou rozdiel?
+
+Person1: Štruktúra má pomenované vlastnosti a každá vlastnosť môže mať vlastný dátový typ. Pristupujeme k nim podľa mena. Kolekcia naopak obsahuje viac prvkov spoločného typu a pracujeme s nimi operáciami kolekcie alebo pomocou indexu. Príkladom kolekcie je množina, zoznam alebo mapa.
+
+Person2: Dá sa takto pozerať aj na relačnú tabuľku?
+
+Person1: Áno. Relačná tabuľka je kolekcia riadkových štruktúr. V základnom relačnom modeli však vlastnosti riadka používajú jednoduché typy. Objektový model ide ďalej a prirodzene pracuje aj s vnorenými štruktúrami, kolekciami a odkazmi.
+
+Person2: A kedy sa zo štruktúry stáva objekt?
+
+Person1: Rozhodujúca je identita. Prostá štruktúra je určená iba svojou hodnotou. Ak majú dve prosté štruktúry úplne rovnaké hodnoty, nemožno ich rozlíšiť ako dve samostatné entity. Objekt je štruktúrovaná hodnota s vlastnou identitou. Dva objekty teda môžu mať rovnaké vlastnosti, ale stále ide o dva odlišné objekty.
+
+Person2: Identita zároveň znamená, že odkaz na objekt zostane platný aj po zmene jeho vlastností?
+
+Person1: Presne tak. Na objekt možno stabilne odkazovať aj po zmene jeho hodnôt. Túto identitu reprezentuje objektový identifikátor, skrátene OID. Je to systémová hodnota, ktorá jednoznačne identifikuje objekt a zostáva stabilná počas jeho života.
+
+Person2: Je OID to isté ako obchodný kľúč alebo adresa objektu v pamäti?
+
+Person1: Nie. OID nie je používateľský obchodný kľúč a nemusí byť ani fyzickou adresou v pamäti. Je nezávislý od aktuálnych vlastností objektu a slúži ako cieľ referencií. Databázový systém musí podľa neho vedieť objekt efektívne nájsť, typicky pomocou internej indexovej štruktúry.
+
+Person2: Kam sa objektový model zaraďuje medzi ostatné databázové modely?
+
+Person1: Relačný model ukladá en-tice jednoduchých hodnôt do relácií a vzťahy pri dotaze rekonštruuje spojením tabuliek. Objektový model ukladá objekty, vnorené štruktúry, kolekcie a odkazy, pričom schému tvoria triedy. Medzi jednoduché NoSQL modely patria databázy typu kľúč-hodnota, dokumentové a stĺpcové databázy. Grafový model zas priamo reprezentuje entity a vzťahy pomocou uzlov a hrán.
+
+Person2: Ako sa trieda chápe priamo v objektovej databáze?
+
+Person1: Trieda definuje schému objektov, teda mená a typy vlastností, vzťahy a prípadnú dedičnosť. Objekt je jej inštancia s konkrétnymi hodnotami vlastností a vlastnou identitou. Objekty jednej triedy tvoria množinu možných hodnôt príslušného dátového typu.
+
+Person2: Je to úplne rovnaké ako trieda v objektovo orientovanom programe?
+
+Person1: Nie celkom. V tomto výklade sa trieda chápe predovšetkým ako dátový typ bez procedurálnych metód. Objektový dátový model teda prenáša triedy, objekty, dedičnosť a referencie do modelovania perzistentných dát.
+
+Person2: Prejdime k vzťahom. Ako sa vzťah medzi objektmi ukladá?
+
+Person1: Vzťah je súčasťou schémy aj dát. Vlastnosť jedného objektu obsahuje buď referenciu na iný objekt, alebo kolekciu referencií. Vďaka tomu možno v objektovom modeli po vzťahoch priamo navigovať.
+
+Person2: Tu si treba odlíšiť vnorenie hodnoty od odkazu na samostatný objekt, však?
+
+Person1: Áno, to je zásadný rozdiel. Pri vnorení prostej štruktúry je hodnota člena priamo súčasťou vlastníka. Nemá samostatnú identitu ani nezávislý životný cyklus. Pri odkaze vlastnosť obsahuje OID iného objektu. Odkazovaný člen má vlastnú identitu a môže ho zdieľať viac vlastníkov.
+
+Person2: A čo vnorená kolekcia oproti kolekcii odkazov?
+
+Person1: Vnorená kolekcia štruktúr vytvára hierarchiu hodnôt. Kolekcia odkazov vytvára vzťah k viacerým samostatným objektom. [short pause] Zapamätaj si teda: vnorenie znamená hodnotu patriacu vlastníkovi, referencia znamená samostatný objekt s OID.
+
+Person2: Ako sa pomocou referencií vyjadria bežné kardinality vzťahov?
+
+Person1: Pri vzťahu jeden k jednému obsahuje vlastnosť vlastníka jeden odkaz na členský objekt. Pri vzťahu jeden k viacerým obsahuje kolekciu odkazov na členské objekty. Ak kolekcie odkazov existujú na oboch stranách, vznikne vzťah mnoho k mnohým.
+
+Person2: Čím sa to líši od relačnej databázy?
+
+Person1: Objektový model uchováva referencie priamo, takže vzťah netreba pri každom prístupe znovu skladať operáciou JOIN. Relačný model realizuje vzťahy cudzími kľúčmi a pri dotaze ich typicky spája.
+
+Person2: Čo znamená, že vzťah je inverzný alebo obojsmerný?
+
+Person1: Dve referenčné vlastnosti sa označia ako navzájom inverzné. Keď vznikne alebo zanikne odkaz z objektu A na objekt B, databáza automaticky vytvorí alebo zruší zodpovedajúci odkaz z objektu B na objekt A. Udržiava teda obe strany vzťahu konzistentné.
+
+Person2: Platí to aj pre kolekcie?
+
+Person1: Áno. Inverzné vzťahy môžu byť jeden k jednému aj jeden k viacerým. Pri vzťahu jeden k viacerým sa inverzný odkaz vytvára s každým prvkom príslušnej kolekcie, nie s kolekciou ako celkom. Dve kolekcie inverzných odkazov môžu reprezentovať vzťah mnoho k mnohým.
+
+Person2: Ďalšou veľkou témou je dedičnosť. Čo v dátovom modeli vyjadruje?
+
+Person1: Dedičnosť vyjadruje odvodenie špecializovanejšieho typu od všeobecnejšieho. Pri generalizácii vyčleníme spoločné vlastnosti do predka. Pri špecializácii vytvoríme následníka s doplnenými alebo spresnenými vlastnosťami. Graf dedičnosti pritom musí byť acyklický.
+
+Person2: Dá sa dediť medzi ľubovoľnými druhmi dátových typov?
+
+Person1: Nie. Dedičnosť sa uvažuje iba medzi rovnakými druhmi štruktúr: medzi objektmi navzájom alebo medzi prostými štruktúrami navzájom. Nie je definovaná medzi objektom a prostou štruktúrou a neuplatňuje sa ani na výčtové typy či kolekcie.
+
+Person2: Ako sa následník odlišuje od predka?
+
+Person1: Pomocou diferencií. Následník môže pridať novú vlastnosť, upraviť alebo spresniť existujúcu vlastnosť, prípadne vlastnosť predka zrušiť. Najbežnejšie je pridávanie. Úprava alebo zrušenie však nesmie porušiť požadovanú typovú kompatibilitu.
+
+Person2: Ujasnime si ešte pojmy predok a následník.
+
+Person1: Predok je typ, z ktorého odvodzujeme. Následník je odvodený typ. Pri jednom kroku hovoríme o priamom predkovi a priamom následníkovi. Vzťah predok-následník je tranzitívny, takže zahŕňa aj vzdialenejšie úrovne hierarchie.
+
+Person2: Aký je rozdiel medzi jednoduchou a viacnásobnou dedičnosťou?
+
+Person1: Pri jednoduchej dedičnosti má každý následník najviac jedného priameho predka a hierarchia má tvar stromu. Pri viacnásobnej dedičnosti môže mať následník viac priamych predkov, takže hierarchia tvorí acyklický graf. Vtedy treba riešiť aj konflikty rovnomenných zdedených vlastností.
+
+Person2: Ako s dedičnosťou súvisí typová kompatibilita?
+
+Person1: Každá inštancia následníka je zároveň inštanciou všetkých svojich predkov. Objekt typu Študent preto možno použiť tam, kde sa očakáva objekt typu Osoba, ale nie opačne. Hovoríme, že následník je typovo kompatibilný s predkom.
+
+Person2: Objekt teda nemá iba jeden typ?
+
+Person1: Má svoj vlastný typ a súčasne typy všetkých priamych aj nepriamych predkov. Kolekcia deklarovaná pre typ predka preto môže obsahovať aj objekty jeho následníkov.
+
+Person2: A čo abstraktné a konkrétne typy?
+
+Person1: Abstraktný typ slúži ako spoločný základ hierarchie. Nemožno vytvoriť objekt, ktorého všetky typy sú abstraktné. Konkrétny typ naopak môže mať priame inštancie. Abstraktný typ však môže mať extent obsahujúci objekty jeho konkrétnych následníkov.
+
+Person2: Čo je extent?
+
+Person1: Extent je systémom udržiavaná kolekcia všetkých objektov určitého typu vrátane objektov odvodených typov. Je typickým vstupným bodom do objektovej databázy. Od extentu sa potom pokračuje navigáciou po referenciách.
+
+Person2: Ako sa extent udržiava pri vytváraní objektu?
+
+Person1: Nový objekt sa zaradí do extentu vlastného typu aj do extentov jeho predkov, pokiaľ sú definované. Deklarovanie extentov na všetkých úrovniach dedičnosti však môže spomaľovať vytváranie a rušenie objektov.
+
+Person2: Môžeme teraz systematicky porovnať relačný a objektový model?
+
+Person1: V schéme relačný model definuje tabuľky a stĺpce, kým objektový model definuje triedy a ich vlastnosti. V dátach relačný model používa riadky s prevažne jednoduchými hodnotami. Objektový model používa objekty, ktoré môžu obsahovať jednoduché aj štruktúrované hodnoty a kolekcie.
+
+Person2: Rozdiel je aj v identite a vzťahoch.
+
+Person1: Áno. Relačný riadok sa identifikuje kľúčom, zatiaľ čo objekt má systémovú identitu OID nezávislú od hodnoty. Relačný model realizuje vzťahy cudzími kľúčmi a skladá ich pomocou JOIN. Objektový model ich definuje v schéme a ukladá ako vnorenie alebo referencie.
+
+Person2: A ako sa líši spôsob prístupu k dátam?
+
+Person1: V relačnej databáze prevažujú deklaratívne dotazy. V objektovej databáze je bežným vstupom extent, od ktorého sa ďalej naviguje po vzťahoch.
+
+Person2: Kam potom patrí objektovo-relačné mapovanie, teda ORM?
+
+Person1: ORM mapuje objekty aplikačného jazyka na relačné tabuľky. Nie je to objektová databáza. Je to vrstva, ktorá prekladá objektové operácie a vzťahy do relačného modelu.
+
+Person2: Ako túto úlohu rieši Jakarta Persistence?
+
+Person1: V Jakarta Persistence, skrátene JPA, trieda označená anotáciou Entity predstavuje perzistentnú entitu a anotácia Id označuje jej identifikátor. Entity Manager poskytuje operácie persist, merge a remove. Dotazovať možno pomocou JPQL alebo Criteria API.
+
+Person2: Ako JPA mapuje vzťahy a vnorené hodnoty?
+
+Person1: Vzťahy mapuje anotáciami One to One, One to Many, Many to One a Many to Many. Ich databázové prepojenie možno určiť anotáciou Join Column alebo Join Table. Hodnotový vnorený typ sa mapuje pomocou Embeddable a Embedded.
+
+Person2: Čo riadi kaskáda a spôsob načítania?
+
+Person1: Nastavenie cascade určuje, ktoré operácie sa prenesú z vlastníka na členy vzťahu. Fetch Type s hodnotou LAZY alebo EAGER určuje čas načítania.
+
+Person2: Pri mapovaní dedičnosti existuje viac stratégií. Začnime mapped superclass.
+
+Person1: Pri mapped superclass predok nie je entitou ani samostatnou tabuľkou. Iba poskytuje zdedené mapovanie. Nemožno naň viesť vzťah ani nad ním polymorfne dotazovať.
+
+Person2: Ako funguje stratégia table per class?
+
+Person1: Každá konkrétna trieda má vlastnú tabuľku aj so zdedenými stĺpcami. Polymorfné dotazy nad predkom preto vyžadujú kombinovanie tabuliek.
+
+Person2: A stratégia single table?
+
+Person1: Celá dedičná hierarchia sa uloží do jednej tabuľky a konkrétny typ určuje diskriminátor. Dotazy sú efektívne, ale stĺpce vlastností podtried často obsahujú hodnotu NULL.
+
+Person2: Zostáva stratégia joined.
+
+Person1: Pri joined má každá trieda vlastnú tabuľku a objekt sa skladá pomocou spojení. Táto stratégia zachováva normalizáciu a integritné obmedzenia, ale polymorfné dotazy vyžadujú operácie JOIN.
+
+Person2: Zhrniem si jadro okruhu. Štruktúra skladá pomenované vlastnosti, kolekcia prvky spoločného typu a objekt k štruktúrovanej hodnote pridáva stabilnú identitu OID. Vzťahy sa ukladajú vnorením alebo referenciami a môžu byť inverzné, dedičnosť vytvára acyklickú hierarchiu typovo kompatibilných predkov a následníkov a extent sprístupňuje objekty daného typu aj jeho podtypov. Objektový model pritom treba odlišovať od ORM, ktoré iba mapuje aplikačné objekty na relačné tabuľky.

@@ -1,0 +1,131 @@
+Person1: Témou tohto výkladu je význam kľúčov, hodnôt a mapovania kľúč-hodnota v rôznych typoch NoSQL databáz. Prejdeme od čistého úložiska kľúč-hodnota cez stĺpcové a širokostĺpcové databázy až po dokumenty, grafy a časové rady.
+
+Person2: Začnime teda tým, čo vlastne označenie NoSQL znamená.
+
+Person1: NoSQL znamená Not Only SQL, čiže nielen SQL. Tieto databázy možno prevádzkovať aj centrálne, ale ich sila sa prejavuje najmä v distribuovanej architektúre. Väčšina z nich je open source a sú navrhnuté tak, aby dobre pracovali s veľkým objemom a rozmanitosťou dát.
+
+Person2: Aké sú ich hlavné výhody oproti tradičnému relačnému prístupu?
+
+Person1: Ponúkajú vysokú škálovateľnosť a elasticitu, napríklad v peer to peer architektúre s distribuovanou hašovacou tabuľkou. Dokážu ukladať heterogénne dáta bez pevnej databázovej schémy a bez relačného dátového modelu, napríklad ako JSON alebo dvojice kľúč-hodnota. Podporujú aj zmiešané úlohy, distribuované filtrovanie a spracovanie dát, dátovú lokalitu či upraviteľné algoritmy, ako je MapReduce.
+
+Person2: Táto flexibilita však asi niečo stojí.
+
+Person1: Áno. Namiesto vlastností ACID sa často používa model BASE, teda v zásade dostupný systém, mäkký stav a postupná konzistencia. Zabezpečenie konzistencie je potom náročnejšie. Zároveň neexistuje jeden štandardizovaný dotazovací jazyk porovnateľný so SQL a zvyčajne chýba aj operácia JOIN.
+
+Person2: Ako do toho zapadá samotné úložisko kľúč-hodnota?
+
+Person1: Je to databázová obdoba mapovej štruktúry, akú poznáme z programovania. Príkladom je std map v cé plus plus, HashMap v Jave alebo dictionary v Pythone. Ku každému jednoznačnému kľúču je priradená práve jedna hodnota.
+
+Person2: Aké základné operácie takéto úložisko poskytuje?
+
+Person1: Sú tri. Operácia get podľa kľúča získa uložené dáta, alebo zlyhá, ak daný kľúč neexistuje. Operácia set uloží hodnotu pod kľúčom a prípadnú pôvodnú hodnotu nahradí. Operácia delete dáta pod daným kľúčom odstráni.
+
+Person2: Čo je dôležité vedieť o kľúči?
+
+Person1: Kľúč musí byť jedinečný, pretože duplicita kľúča nie je povolená. Môže byť aj zložený, napríklad z hlavnej a spresňujúcej časti. Jedna časť potom identifikuje štruktúru a druhá konkrétnu položku v nej.
+
+Person2: A ako databáza chápe hodnotu?
+
+Person1: V čistom úložisku kľúč-hodnota ju chápe ako BLOB, teda nepriehľadný blok dát. Databáza nerozumie jeho vnútornej štruktúre, uchováva ho ako celok a spracovanie zabezpečuje aplikácia. Dáta preto možno ukladať bez schémy, ale databáza ich nevie sama podrobne analyzovať.
+
+Person2: Ako sa kľúče indexujú v lokálnej databáze?
+
+Person1: Jednou možnosťou sú stromové štruktúry, napríklad B plus stromy alebo LSM stromy. Podporujú rozsiahle a intervalové skeny, ale sú pomalšie než hašovanie. Druhou možnosťou je hašovacia tabuľka, ktorá je veľmi rýchla pri priamom vyhľadaní podľa kľúča, no rozsiahle skeny nepodporuje.
+
+Person2: Čiže strom je vhodnejší, keď potrebujem poradie alebo rozsah, a hašovanie pri presnom kľúči?
+
+Person1: Presne tak. [short pause] Pri distribuovaní dát naprieč klastrom sa potom používa buď adresárová architektúra, ktorá mapuje kľúče na uzly s príslušnými hodnotami, alebo distribuovaná hašovacia tabuľka, ktorá rozdelí množinu dvojíc kľúč-hodnota medzi viac uzlov.
+
+Person2: Aké problémy musí škálovateľné úložisko vyriešiť?
+
+Person1: Musí sa škálovať na stovky uzlov a umožniť jednoduché pridávanie ďalších. Potrebuje odolnosť proti zlyhaniu uzlov bez straty dát alebo výkonu, musí riešiť konzistenciu aj pri strate správ a zvládať heterogénne peer to peer prostredie s dobrou latenciou a priepustnosťou.
+
+Person2: Tu sa prejaví aj CAP teoréma, však?
+
+Person1: Áno. CAP teoréma hovorí, že nemožno súčasne zaručiť konzistenciu, dostupnosť a toleranciu rozdelenia siete. Distribuovaná databáza preto musí medzi týmito vlastnosťami voliť podľa situácie a svojho návrhu.
+
+Person2: Posuňme sa k stĺpcovým databázam. Ako sa v nich prejavuje mapovanie kľúč-hodnota?
+
+Person1: Príkladom je SAP HANA so slovníkovým kódovaním. Stĺpec sa rozdelí na slovník a vektor atribútov. Slovník uchováva všetky odlišné hodnoty a každej implicitne priradí identifikátor hodnoty. Vektor atribútov potom pre každú pozíciu v stĺpci uloží iba tento identifikátor, pričom samotná pozícia je daná implicitne.
+
+Person2: Ako potom prebehne dotaz na konkrétnu hodnotu?
+
+Person1: Najprv sa v slovníku nájde identifikátor hľadanej hodnoty, napríklad mena Mary. Potom sa podľa tohto identifikátora prehľadá vektor atribútov. Vo výsledku sa identifikátor znovu nahradí zodpovedajúcou hodnotou zo slovníka.
+
+Person2: Prečo sa vôbec dáta ukladajú po stĺpcoch namiesto po riadkoch?
+
+Person1: Pri riadkovom rozložení sú atribúty jednej n-tice uložené spolu. Rekonštrukcia celého záznamu je preto lacná, ale sekvenčné skenovanie jediného atribútu má vyššie náklady. Pri stĺpcovom rozložení sú dáta uložené po atribútoch, takže dobre využívajú rýchle sekvenčné skenovanie v hlavnej pamäti, no rekonštrukcia celých n-tíc je nákladnejšia.
+
+Person2: Ľahko sa tu zamieňa stĺpcová databáza s databázou so širokými stĺpcami. Sú to rovnaké modely?
+
+Person1: Nie, a toto je podstatný rozdiel. Stĺpcová relačná databáza, ako SAP HANA, má pevne definovanú tabuľku a jej atribúty fyzicky ukladá po stĺpcoch. Wide column databáza naopak ukladá riedke riadky s dynamickou množinou stĺpcov. Podobný názov teda neznamená rovnaký dátový model.
+
+Person2: Aké databázy patria medzi úložiská so širokými stĺpcami?
+
+Person1: Typickými príkladmi sú Cassandra od Facebooku a BigTable od Googlu. Tento model sa opisuje pomocou tabuliek, rodín stĺpcov a riadkových kľúčov. Je vhodný najmä pre distribuované systémy, ktoré vyžadujú vysoký výkon a škálovateľnosť, napríklad služby typu Facebook alebo Spotify.
+
+Person2: Ako vyzerá jeden riadok v takomto modeli?
+
+Person1: Každý riadok musí mať unikátny riadkový kľúč, ktorý môže byť zložený z viacerých hodnôt. Tento kľúč ukazuje na zoznam dvojíc stĺpec-hodnota. Kľúčom v každej dvojici je názov stĺpca a hodnotou sú uložené dáta. Rôzne riadky môžu mať rozdielne stĺpce a hodnoty môžu byť usporiadané vo viacerých úrovniach.
+
+Person2: A čo tvorí tabuľku?
+
+Person1: Množina riadkov tvorí rodinu stĺpcov, teda tabuľku. V rámci rodiny majú riadkové kľúče rovnaký typ a sú unikátne. Zjednodušene si možno zapamätať, že povinný riadkový kľúč vedie k dynamickej mape názvov stĺpcov a ich hodnôt.
+
+Person2: Ako sa to líši od typického relačného riadka?
+
+Person1: Relačná databáza zvykne uložiť skupinu súvisiacich faktov, napríklad meno, adresu a číslo účtu, do jedného pevne štruktúrovaného riadka. Úložisko so širokými stĺpcami tieto fakty organizuje do stĺpcov, pričom každý stĺpec zahŕňa viacero takýchto skupín a jednotlivé riadky môžu byť riedke.
+
+Person2: BigTable ide v mapovaní ešte o úroveň ďalej. Čím je určená jeho bunka?
+
+Person1: Bunka je určená viacúrovňovým kľúčom. Riadkový kľúč identifikuje riadok, rodina stĺpcov spolu s kvalifikátorom identifikuje stĺpec a časová pečiatka identifikuje konkrétnu verziu hodnoty. [short pause] Celé mapovanie teda vedie od trojice riadok, stĺpec a časová pečiatka k hodnote.
+
+Person2: To znamená, že jeden riadok je riedka mapa stĺpcov a jedna bunka môže mať viac verzií?
+
+Person1: Áno. Jednotlivé verzie tej istej bunky sa rozlišujú časovou pečiatkou. Kľúč tu preto nie je iba jeden jednoduchý identifikátor, ale viac úrovní, ktoré postupne určia riadok, stĺpec a časovú verziu.
+
+Person2: Ako tento princíp konkrétne používa Apache Cassandra?
+
+Person1: Cassandra je vysoko škálovateľná, výkonná a distribuovaná databáza na spracovanie veľkého množstva dát naprieč servermi. Klaster združuje uzly a keyspace je najvyšší dátový kontajner. Obsahuje tabuľky, teda rodiny stĺpcov, a uzly uchovávajú repliky dát.
+
+Person2: Akú úlohu majú partition key a clustering key?
+
+Person1: Partition key sa hašuje a určuje rozdelenie dát tabuľky medzi uzly. Clustering key určuje lokálne poradie dát vnútri jednej partície, a tým umožňuje intervalové skenovanie v jej rozsahu. Prvý kľúč teda rozhoduje, kde dáta budú, druhý, ako budú v danej partícii usporiadané.
+
+Person2: A aký úložný mechanizmus Cassandra používa?
+
+Person1: Je založená na LSM strome, konkrétne na memtable a nemenných SSTable, nie na B plus strome. Cassandra je odolná proti chybám, poskytuje nastaviteľnú konzistenciu a konfliktné zmeny štandardne rieši podľa časových pečiatok princípom last write wins, teda vyhrá posledný zápis.
+
+Person2: Ďalším typom sú dokumentové databázy. Sú ešte stále modelom kľúč-hodnota?
+
+Person1: V podstate áno, ale hodnota je štruktúrovaná. Príkladom je MongoDB. Kľúčom býva identifikátor dokumentu, napríklad pole podčiarkovník id, a hodnotou je celý dokument vo formáte XML, JSON alebo objektu.
+
+Person2: Čím sa to líši od nepriehľadného BLOBu v čistom úložisku?
+
+Person1: Dokumentová databáza vidí dovnútra hodnoty, rozumie jej štruktúre a dokáže ju analyzovať. Dokument môže obsahovať vnorené štruktúry, kolekcie aj odkazy na iné záznamy. Preto sú možné zložitejšie dotazy než iba priame vyhľadanie podľa kľúča.
+
+Person2: Ako sa princíp kľúč-hodnota objavuje v grafovej databáze?
+
+Person1: Graf ako celok nie je čisté úložisko kľúč-hodnota. Príkladom je Neo štyri j. Uzly a hrany majú identifikátor a typ, ale ich vlastnosti sú dvojice kľúč-hodnota. Uzly opisujú entity domény a vzťahy definujú ich prepojenia.
+
+Person2: Môžeš to ukázať na jednoduchom príklade?
+
+Person1: Predstav si tri uzly, dve osoby a jedno mesto. Hrany môžu vyjadrovať, že jedna osoba pozná druhú a že žije v danom meste. Identifikátor, typ, meno, vek či dátum platnosti vzťahu sú vlastnosti priradené k uzlom alebo hranám vo forme kľúčov a hodnôt.
+
+Person2: Aké prevádzkové vlastnosti grafové databázy ponúkajú?
+
+Person1: Majú transakčné pozadie, podporujú viac používateľov a typicky vykonávajú malé čítacie a zapisovacie dotazy nad časťou grafu. Ich silnou stránkou je prevádzková robustnosť a vysoká súbežná škálovateľnosť.
+
+Person2: Zostávajú nám databázy pre časové rady. Čo je kľúčom a hodnotou tam?
+
+Person1: Zjednodušene je kľúčom čas a hodnota predstavuje pozorovanie, ktoré nemusí byť numerické. Dáta postupne pribúdajú, takže úložisko je nemenné a typu append only. Často medzi nimi existuje sériová závislosť, čiže hodnota v jednom čase je štatisticky závislá od bodu v inom čase.
+
+Person2: Ako je dátový bod určený napríklad v InfluxDB?
+
+Person1: Bod v InfluxDB určuje meranie, tagy, fieldy a časová pečiatka. V jeho TSM úložisku tvorí kľúč dvojica series key a časová pečiatka a hodnotou je nameraná hodnota. Čas je teda súčasťou presnej identifikácie bodu, nie iba ďalší voľný atribút.
+
+Person2: Keď si to spojím, kľúč vždy slúži na identifikáciu, ale význam hodnoty sa medzi modelmi výrazne mení.
+
+Person1: Presne. V čistom úložisku je hodnota nepriehľadný BLOB. V dokumentovej databáze je to štruktúrovaný dokument, ktorému databáza rozumie. V širokostĺpcovom modeli vedie riadkový a prípadne viacúrovňový kľúč k riedkej mape buniek a ich verzií. V grafe sú dvojice kľúč-hodnota vlastnosťami uzlov a hrán. V časových radoch je identifikácia úzko previazaná s časovou pečiatkou.
+
+Person2: Najdôležitejšie je teda nezameniť stĺpcové uloženie pevnej relačnej tabuľky s dynamickým wide column modelom, rozumieť jedinečnosti a možnému skladaniu kľúča a pri každom type vedieť povedať, čo presne kľúč identifikuje a akú štruktúru má hodnota. K tomu patrí aj vedomie, že distribuovaná škálovateľnosť prináša otázky konzistencie, dostupnosti a odolnosti proti rozdeleniu siete.

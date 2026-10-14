@@ -1,0 +1,179 @@
+Person1: Témou tohto výkladu je Prolog a jeho spôsob vyhodnocovania: základný princíp, unifikácia, správanie vstavaných predikátov a operátor rezu vrátane vhodného a nevhodného použitia. Prolog je deklaratívny logický jazyk. Programátor zapisuje, čo má platiť, pomocou faktov a pravidiel, kým konkrétny postup hľadania riešenia určuje operačná sémantika jazyka.
+
+Person2: Čiže deklaratívny opis a skutočný postup výpočtu musíme rozlišovať. Aký je formálny základ čistého jadra Prologu?
+
+Person1: Sú ním definitné Hornove klauzuly. Hornova klauzula je disjunkcia literálov s najviac jedným pozitívnym literálom. Definitnú klauzulu môžeme chápať ako implikáciu: hlava platí, ak platí konjunkcia cieľov v tele. Pri vyhodnocovaní potom Prolog využíva unifikáciu, rekurziu a spätné prehľadávanie.
+
+Person2: Skôr než prejdeme k vyhodnocovaniu, ujasnime si stavebné prvky programu.
+
+Person1: Základom je term. Konštantou môže byť číslo alebo atóm, napríklad atóm kote. Bežný atóm sa začína malým písmenom. Ak obsahuje medzeru, špeciálne znaky alebo sa začína veľkým písmenom, zapisuje sa do jednoduchých úvodzoviek. Premenná sa začína veľkým písmenom alebo podčiarkovníkom. Každý výskyt samostatného podčiarkovníka je nová, nezávislá anonymná premenná.
+
+Person2: A zložený term je napríklad strom s koreňom a dvoma podstromami?
+
+Person1: Presne. Zložený term sa skladá z funktora a argumentov, napríklad tree s tromi argumentmi: hodnotou desať a dvoma listami. Fakt je Hornova klauzula s prázdnym telom, napríklad tvrdenie, že John je muž. Pravidlo má hlavu a telo; dvojbodka s pomlčkou ich oddeľuje a čiarka medzi cieľmi tela vyjadruje konjunkciu.
+
+Person2: Ako sa od termu alebo pravidla odlišuje predikát a dopyt?
+
+Person1: Predikát je určený menom a aritou. Napríklad parent s aritou dva je iný predikát než rovnako pomenovaný predikát s iným počtom argumentov. Dopyt je cieľ alebo konjunkcia cieľov s prázdnou hlavou. Fakty, pravidlá aj dopyty sa v Prologu ukončujú bodkou.
+
+Person2: Teraz môžeme prejsť k unifikácii. Čo presne hľadá?
+
+Person1: Unifikácia hľadá substitúciu premenných, po ktorej budú dva termy syntakticky rovnaké. Prebieha implicitne, keď Prolog porovnáva vybraný cieľ s hlavou klauzuly, alebo explicitne pomocou predikátu rovná sa s aritou dva. Rovnaké konštanty sa unifikujú, rôzne konštanty nie.
+
+Person2: A voľná premenná sa môže naviazať na konkrétny term.
+
+Person1: Áno. Ak zjednotíme premennú X s atómom kote, X sa naň naviaže. Dve voľné premenné sa môžu unifikovať priamo a vytvoria spoločné viazanie. Keď potom jednu z nich naviažeme na term, prejaví sa to aj na druhej. Už naviazaná premenná však nemôže súčasne označovať dva rôzne termy.
+
+Person2: Aké podmienky platia pri zložených termoch?
+
+Person1: Musia mať rovnaký funktor, rovnakú aritu a všetky zodpovedajúce argumenty musia byť unifikovateľné. Ak zjednotíme term chova s argumentmi X a kote s termom chova s argumentmi tomas a Y, získame X rovné tomas a Y rovné kote. Rozdielny funktor alebo rozdielna arita spôsobí zlyhanie.
+
+Person2: Čo znamená najobecnejší unifikátor, skrátene MGU?
+
+Person1: Unifikátor je substitúcia, ktorá termy zjednotí. Najobecnejší unifikátor nepridáva nijaké zbytočné obmedzenia. Každý iný unifikátor tých istých termov možno z najobecnejšieho unifikátora získať ďalšou substitúciou. Ide teda o riešenie, ktoré zachováva čo najviac voľnosti.
+
+Person2: Ako sa k takému unifikátoru algoritmicky dopracujeme?
+
+Person1: Robinsonov algoritmus odstráni rovnaké časti termov a termy s rovnakým funktorom a aritou rozloží na dvojice zodpovedajúcich argumentov. Ak je v dvojici premenná a term, nahradí premennú týmto termom vo všetkých zostávajúcich dvojiciach. Postup opakuje, kým nezíska MGU, alebo zlyhá pri konflikte konštánt, funktorov či arít.
+
+Person2: Je tam ešte kontrola výskytu pre prípad, že by sme chceli X naviazať na term, ktorý už X obsahuje.
+
+Person1: Áno. Formálny algoritmus takú väzbu zakazuje kontrolou výskytu, po anglicky occur-check. Bežné implementácie ju však pri obyčajnej unifikácii z výkonnostných dôvodov typicky nevykonávajú. Pokus zjednotiť X s termom f obsahujúcim to isté X preto môže vytvoriť cyklický term alebo sa správať podľa konkrétnej implementácie.
+
+Person2: Kde sa unifikácia prakticky využíva najčastejšie?
+
+Person1: Napríklad pri rozklade zoznamu. Zjednotenie zoznamu L s tvarom, ktorý má hlavu H a chvost T, naviaže H na prvý prvok a T na zvyšok. Unifikáciou tiež vytvárame štruktúry a odovzdávame vstupy aj výsledky predikátov. Pri volaní member nad zoznamom sa hľadaná premenná postupne zjednocuje s nájdenými prvkami.
+
+Person2: Unifikácia teda vysvetľuje jednotlivý krok. Ako z nej Prolog zostaví celé vyhodnotenie dopytu?
+
+Person1: Operačná sémantika je založená na SLD rezolúcii, teda lineárnej rezolúcii s výberovým pravidlom pre definitné klauzuly. Aktuálny dopyt sa chápe ako zoznam cieľov. Prolog vždy vyberie najľavejší cieľ a klauzuly príslušného predikátu skúša zhora nadol v poradí zápisu.
+
+Person2: Čo sa stane po výbere konkrétnej klauzuly?
+
+Person1: Jej premenné sa najskôr premenujú na čerstvé premenné, aby sa nezamiešali s premennými iných použití klauzuly. Vybraný cieľ sa unifikuje s hlavou prvej vhodnej klauzuly. Následne ho Prolog nahradí cieľmi z tela klauzuly, aplikuje získanú substitúciu a rovnakým spôsobom pokračuje do hĺbky.
+
+Person2: Kedy je derivácia úspešná a čo tvorí odpoveď?
+
+Person1: Uspeje, keď zostane prázdny zoznam cieľov. Zloženie substitúcií získaných počas celej derivácie tvorí odpoveď na pôvodný dopyt. Uzavretý dopyt bez pomenovaných premenných vypíše true, ak sa dôkaz nájde. Ak sa nájsť nedá, výsledkom je false. Pri dopyte s premennými dostaneme úspešnú substitúciu.
+
+Person2: Prehľadávanie do hĺbky je dôležitý praktický detail, však?
+
+Person1: Áno. Je to implementačná voľba Prologu, nie nutná vlastnosť logického programu. Je jednoduchá a pamäťovo úsporná, ale poradie klauzúl a cieľov môže rozhodovať o ukončení. Prolog môže uviaznuť v nekonečnej vetve, hoci riešenie existuje v inej časti vyhľadávacieho priestoru.
+
+Person2: Tu vstupujú do hry body výberu a spätné prehľadávanie.
+
+Person1: Ak existujú ďalšie použiteľné klauzuly alebo ďalšie riešenia podcieľa, vznikne bod výberu. Pri neskoršom zlyhaní Prolog zruší viazania vytvorené od posledného bodu výberu, obnoví jeho stav a skúsi ďalšiu alternatívu. Ak už nijaký bod výberu neexistuje, zlyhá celý dopyt.
+
+Person2: V ladiacom výpise tomu zodpovedajú stavy call, exit, redo a fail. Redo znamená návrat k bodu výberu a pokus o ďalšiu možnosť.
+
+Person1: Správne. Ak používateľ po prvej odpovedi požiada o ďalšiu, Prolog pokračuje práve spätným prehľadávaním. Nevracia sa však ľubovoľne. Vráti sa k poslednému skutočnému bodu výberu a úspešný vnorený cieľ neskúša znova, ak v ňom nezostala použiteľná alternatíva.
+
+Person2: Ukážme si to najprv na faktoriáli.
+
+Person1: Predikát factorial s aritou dva má fakt pre základný prípad: faktoriál nuly je jedna. Rekurzívne pravidlo pre kladné N najprv overí, že N je väčšie než nula, vypočíta predchodcu, rekurzívne zistí jeho faktoriál a výsledok vynásobí pôvodným N. Podmienka zároveň zabráni rekurzívnej vetve pre nulu a záporné čísla.
+
+Person2: Ako sa vyhodnotí faktoriál troch s neznámym výsledkom F?
+
+Person1: Cieľ sa neunifikuje so základným faktom pre nulu, preto sa použije rekurzívna klauzula. N sa naviaže na tri, podmienka uspeje a aritmetické vyhodnotenie vytvorí predchodcu dva. Rekurzia pokračuje cez dva a jeden až k nule. Tam dostane výsledok jedna a pri návrate vypočíta postupne jedna, dva a napokon šesť.
+
+Person2: Faktoriál ukazuje rekurziu a aritmetiku, ale nie veľa skutočného nedeterminizmu.
+
+Person1: Lepším príkladom spätného prehľadávania je member. Prvá klauzula uspeje, ak sa hľadaný prvok zjednotí s hlavou zoznamu. Druhá ignoruje hlavu a rekurzívne hľadá v chvoste. Pre zoznam obsahujúci a, b a znovu a dostaneme pri opakovanom vyžiadaní odpovedí postupne a, b a a.
+
+Person2: Pri každej ďalšej odpovedi sa teda Prolog vráti k poslednému bodu výberu, zruší neskoršie väzby a skúsi inú klauzulu alebo ďalší prvok.
+
+Person1: Presne. Teraz prejdime k vstavaným predikátom. Tie sú potrebné na praktické programovanie, ale často majú operačný alebo mimologický význam a niektoré vykonávajú vedľajšie účinky. Mnohé pri spätnom prehľadávaní neponúkajú ďalšie riešenia, no nie je to všeobecné pravidlo. Predikát repeat je zámerne znovusplniteľný.
+
+Person2: Pri skúške sa často zamieňa unifikácia, aritmetické vyhodnotenie a číselné porovnanie.
+
+Person1: Preto ich odlíšme veľmi presne. Unifikácia rovná sa iba pracuje s termami. Ak zjednotíme X s termom jedna plus dva, X sa naviaže na tento zložený term, nie na číslo tri. Operátor is najskôr vyhodnotí pravú stranu ako aritmetický výraz a potom unifikuje číselný výsledok s ľavou stranou.
+
+Person2: Takže is nie je imperatívne priradenie ani riešenie rovnice.
+
+Person1: Áno, je jednosmerný. X is jedna plus dva naviaže X na celé číslo tri. Aj celé číslo tri is jedna plus dva uspeje. Desatinné tri celá nula is jedna plus dva však zlyhá, lebo výsledkom pravej strany je celé číslo tri a tieto termy sa neunifikujú.
+
+Person2: Naproti tomu aritmetický predikát rovná sa dvojbodka rovná sa porovnáva číselné hodnoty, takže tri celá nula a jedna plus dva považuje za rovnaké.
+
+Person1: Presne. Podobne aritmetické nerovná sa a relačné operátory menší, menší alebo rovný, väčší a väčší alebo rovný vyhodnotia oba výrazy a porovnajú ich číselné hodnoty. Nie sú náhradou unifikácie.
+
+Person2: Čo ak pravá strana is ešte nie je dostatočne konkretizovaná?
+
+Person1: Musí byť v okamihu volania vyhodnotiteľná. Ak chceme vypočítať X ako Y plus jedna a Y je voľné, vznikne chyba inštanciácie, nie obyčajné zlyhanie. Nearitmetický term spôsobí typovú chybu a delenie nulou aritmetickú chybu.
+
+Person2: A známy zápis X is X plus jedna nefunguje ako inkrementácia.
+
+Person1: Pri voľnom X vyvolá chybu inštanciácie. Ak je X už naviazané na číslo, pravá strana sa síce vypočíta, ale pokus unifikovať pôvodné číslo s odlišným výsledkom zlyhá. Ak je X naviazané na nearitmetický term, vznikne typová chyba.
+
+Person2: Poďme teraz odlíšiť ďalšie testy nad termami. Čo robí nerovná sa s lomkou?
+
+Person1: Predikát, ktorý sa číta ako neunifikovateľné, uspeje práve vtedy, keď termy v okamihu volania nemožno unifikovať. Nie je to odložené obmedzenie. Preto test, že voľné X je neunifikovateľné s atómom a, zlyhá: voľné X by sa totiž s a unifikovať dalo.
+
+Person2: A dvojité rovná sa testuje identitu termov bez vytvárania väzieb.
+
+Person1: Áno. Dve rôzne voľné premenné nie sú identické, hoci sa dajú unifikovať. Predikát var uspeje iba pre voľnú premennú. Ak najprv X naviažeme na číslo, následný var zlyhá. Predikát nonvar uspeje, ak argument nie je voľná premenná.
+
+Person2: Pri nonvar pritom nemusí byť celý term úplne konkretizovaný.
+
+Person1: Správne. Zložený term node obsahujúci voľný argument už sám nie je voľnou premennou, takže nonvar nad celým termom uspeje. Typové testy integer, atom a atomic overujú celé číslo, atóm alebo atómický term a nevytvárajú nové väzby. Medzi atómické termy patria najmä atómy a čísla; ďalšie prípady závisia od implementácie.
+
+Person2: Aké vstavané predikáty umožňujú rozkladať a skladať termy?
+
+Person1: Functor môže z termu zistiť názov funktora a aritu alebo podľa názvu a arity vytvoriť term s čerstvými premennými. Napríklad z termu node s dvoma argumentmi získa názov node a aritu dva. Predikát arg sprístupní argument na zvolenej pozícii, napríklad druhý argument termu node s argumentmi a a b je b.
+
+Person2: A operátor rovná sa bodka bodka pracuje medzi termom a zoznamovou reprezentáciou.
+
+Person1: Presne. Term node s argumentmi desať, leaf a leaf prevedie na zoznam, ktorého prvým prvkom je funktor node a ďalšími prvkami sú argumenty. Funguje aj opačne. Pri viacprvkovom zozname však prvý prvok musí určovať platný funktor, inak vznikne chyba.
+
+Person2: Metapredikát call potom umožňuje takto vytvorený term vyhodnotiť ako cieľ.
+
+Person1: Áno. Ak zostavíme cieľ member s hľadaným X a zoznamom a, b, call ho vykoná, akoby bol zapísaný priamo na danom mieste. Postupne môže vrátiť X rovné a a X rovné b. Voľný argument predikátu call však vyvolá chybu inštanciácie.
+
+Person2: Zo základných riadiacich predikátov true vždy uspeje a fail vždy zlyhá.
+
+Person1: A repeat uspeje, pričom sa pri spätnom prehľadávaní môže opakovane znovu splniť. Predikáty read a write pracujú so vstupom a výstupom. Ich vedľajšie účinky sa pri spätnom prehľadávaní automaticky nevracajú. Prolog teda môže zrušiť logické väzby, ale už vypísaný text tým nezmizne.
+
+Person2: Medzi operačne citlivé konštrukcie patrí aj negácia ako neúspech.
+
+Person1: Predikát spätné lomítko plus cieľ uspeje, ak sa cieľ nepodarí dokázať, a zlyhá, ak cieľ aspoň raz uspeje. Nejde o klasickú logickú negáciu, ale o negáciu ako neúspech pri predpoklade uzavretého sveta. Väzby vytvorené počas skúšania cieľa sa po dokončení negácie nezachovajú.
+
+Person2: Preto je bezpečné používať ju najmä na dostatočne konkretizované, ideálne uzavreté ciele.
+
+Person1: Presne. Staršiu implementáciu not možno zapísať pomocou call, rezu a fail. Ak volaný cieľ uspeje, rez zabráni skúšaniu druhej klauzuly a fail vynúti neúspech. Ak cieľ neuspeje, použije sa druhá klauzula, ktorá uspeje. Tým sa dostávame k samotnému operátoru rezu.
+
+Person2: Čo rez robí v okamihu vykonania?
+
+Person1: Rez, zapisovaný výkričníkom, je cieľ, ktorý pri prvom vykonaní vždy uspeje. Zároveň sa zaviaže k rozhodnutiam urobeným pred ním v aktuálnom volaní predikátu. Predstavme si klauzulu, ktorej telo vykoná a, potom b, potom rez, potom c a d.
+
+Person2: Ktoré alternatívy po prechode cez rez zmiznú?
+
+Person1: Odstránia sa zostávajúce alternatívne klauzuly pre aktuálne volanie daného predikátu a body výberu vytvorené cieľmi a a b vľavo od rezu. Body výberu, ktoré neskôr vytvoria c a d napravo od rezu, zostávajú použiteľné.
+
+Person2: Ak sa možnosti napravo vyčerpajú, spätné prehľadávanie už nemôže prejsť cez rez doľava a aktuálne volanie zlyhá.
+
+Person1: Áno. Dôležité je hovoriť o aktuálnom volaní predikátu, nie o globálnom zastavení celého programu. Rez mení iba príslušnú časť vyhľadávacieho stromu. Podľa vplyvu na deklaratívny význam rozlišujeme zelený a červený rez.
+
+Person2: Zelený rez odstráni iba vetvy, ktoré by aj tak nepriniesli nové platné odpovede.
+
+Person1: Preto nemení deklaratívny význam predikátu. Môže zlepšiť efektivitu alebo odstrániť duplicitné dôkazy. Príkladom je maximum dvoch čísel, kde prvá klauzula vráti X, ak je X väčšie alebo rovné Y, vykoná rez, a druhá vráti Y iba pri podmienke X menšie než Y.
+
+Person2: Tieto podmienky sa pre číselné vstupy navzájom vylučujú. Bez rezu by výsledky ostali rovnaké, iba by sa po návrate zbytočne skúsila druhá klauzula.
+
+Person1: Presne. Červený rez naopak mení množinu logických odpovedí programu. Časť významu je potom ukrytá v poradí klauzúl a operačnom správaní. Taký program býva citlivý na poradie klauzúl aj na režim argumentov, a preto sa ťažšie chápe a udržiava.
+
+Person2: Ako vyzerá červená verzia maxima?
+
+Person1: Prvá klauzula zostane rovnaká: pri X väčšom alebo rovnom Y vráti X a vykoná rez. Druhá však bez podmienky vždy vráti Y. Bez rezu by pri X väčšom alebo rovnom Y mohla vytvoriť ďalšiu, nesprávnu odpoveď. Rez je teda súčasťou významu a predikát navyše predpokladá, že prvé dva argumenty sú pri volaní čísla.
+
+Person2: Rez môžeme použiť aj na ponechanie prvého nájdeného výskytu v zozname.
+
+Person1: Áno. Predikát member_first v prvej klauzule zjednotí hľadaný prvok s hlavou zoznamu a hneď vykoná rez. Druhá klauzula hľadá rekurzívne v chvoste. Po prvom úspešnom zjednotení rez odstráni alternatívnu rekurzívnu klauzulu pre dané volanie, takže ďalšie výskyty už nevygeneruje.
+
+Person2: Kedy je teda rez vhodným nástrojom?
+
+Person1: Keď odstraňuje preukázateľne zbytočné alebo duplicitné vetvy. Tiež keď špecifikácia zámerne žiada iba prvé riešenie a generovanie sa má po jeho nájdení skončiť. Kombinácia rezu a fail sa môže použiť pri implementácii negácie ako neúspechu alebo cielene zakázanej vetvy.
+
+Person2: A nevhodný je vtedy, keď odsekne platné riešenia predikátu, ktorý ich má generovať všetky.
+
+Person1: Rovnako nevhodné je rezom zakrývať chyby alebo chýbajúce podmienky, spoliehať sa na neočakávaný režim argumentov bez dokumentovania, alebo ho použiť tam, kde sa rovnaký význam dá jasnejšie vyjadriť vzájomne sa vylučujúcimi podmienkami.
+
+Person2: Pri hodnotení rezu teda nestačí overiť prvú očakávanú odpoveď. Treba porovnať celú množinu odpovedí programu s rezom a bez neho. Z celého okruhu si odnášam najmä toto: Prolog rieši najľavejší cieľ, klauzuly skúša zhora nadol a do hĺbky, termy spája unifikáciou a pri zlyhaní sa vracia k bodom výberu. Vstavané predikáty musíme chápať podľa ich konkrétneho operačného správania a rez používať iba vtedy, keď presne vieme, ktoré alternatívy odstraňuje.

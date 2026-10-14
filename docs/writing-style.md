@@ -42,6 +42,7 @@ končí Person2**.
 - Intro (Person1): pomenuj tému okruhu. Stručne, hneď k veci.
 - Vychádzaj zo zdrojovej poznámky - pokry celý jej obsah.
 - Poradie môže byť pedagogické (od základov k detailom), nemusí kopírovať poznámku.
+- Tvojou úlohou nie je len prepísať zdrojový text, ale ho aj poslucháča naučiť: kde to uznáš za vhodné (komplikovanejšie časti) uveď prirovnania, pokús sa to spraviť zapametatelné.
 - Jasne uveď prechody medzi sekciami; upozorni na podstatné a ľahko zameniteľné pojmy.
 - Ťažké alebo ľahko prehliadnuteľné veci pokojne zopakuj alebo na ne nadviaž
   otázkou cez Person2.

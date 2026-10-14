@@ -1,0 +1,155 @@
+Person1: Témou tohto výkladu sú distribuované a paralelné algoritmy triedenia, algoritmus Select a algoritmy vyhľadávania. Začneme metrikami paralelných algoritmov, pretože práve podľa nich budeme posudzovať, či je konkrétne riešenie naozaj dobré.
+
+Person2: Pri sekvenčných algoritmoch sledujeme hlavne čas a pamäť. Čo navyše potrebujeme pri paralelných algoritmoch?
+
+Person1: Sledujeme počet procesorov potrebných vzhľadom na veľkosť vstupu, cenu paralelného riešenia, zrýchlenie a efektívnosť. Cena je súčin počtu procesorov a paralelného času. Zrýchlenie je pomer sekvenčného času k paralelnému času. Efektívnosť je pomer sekvenčného času k cene paralelného riešenia.
+
+Person2: Ako z efektívnosti zistíme, či je algoritmus optimálny?
+
+Person1: Ak ho porovnávame s optimálnym sekvenčným algoritmom, efektívnosť nemôže byť väčšia než jedna. Cena paralelného algoritmu totiž nemôže byť asymptoticky menšia než čas optimálneho sekvenčného riešenia. Efektívnosť menšia než jedna znamená neoptimálne riešenie, často pre réžiu paralelizácie. Pri efektívnosti jedna je riešenie optimálne. Hovoríme tiež, že algoritmus je cenovo optimálny, keď jeho cena asymptoticky zodpovedá optimálnemu sekvenčnému času.
+
+Person2: Prejdime teda k paralelnému triedeniu. Aké predpoklady budeme používať?
+
+Person1: Typicky predpokladáme, že žiadne dva prvky nie sú rovnaké. Ak sa rovnaké hodnoty vyskytujú, ku každej môžeme pridať jej pôvodné poradie a triediť unikátne dvojice tvorené hodnotou a poradím. Referenčným sekvenčným porovnávacím algoritmom môže byť merge sort s časom rádu en krát logaritmus en.
+
+Person2: Prvým algoritmom je enumeration sort na mriežke. Aká je jeho hlavná myšlienka?
+
+Person1: Pozícia prvku v zoradenej postupnosti, pri číslovaní od jednotky, je jedna plus počet prvkov, ktoré sú od neho menšie. Algoritmus použije mriežku en krát en procesorov. Procesory v riadkoch a stĺpcoch sú prepojené do binárnych stromov a každý porovnáva dvojicu prvkov uloženú v registroch A a B. Ďalší register, rank, zhromažďuje výsledok porovnaní.
+
+Person2: Ako sa z jednotlivých porovnaní vypočíta výsledné poradie?
+
+Person1: Každý prvok sa pomocou jedného radu procesorov porovná so všetkými ostatnými. Ak je prvok príslušného riadka väčší než porovnávaný prvok, rank dostane jednotku, inak nulu. Tieto hodnoty sa v každom riadku sčítajú po stromovej štruktúre a v prvom stĺpci sa pripočíta jedna. Výsledný rank je teda jedna plus počet menších prvkov. Nakoniec sa prvok premiestni na pozíciu určenú svojím rankom.
+
+Person2: Prečo každý z týchto krokov trvá logaritmický čas?
+
+Person1: Rozoslanie hodnôt v riadkoch a stĺpcoch prebieha po binárnych stromoch, preto prvý krok trvá rád logaritmus en. Aj sčítanie rankov je stromová redukcia s rovnakým časom. Presun prvkov podľa ranku sa vedie cez diagonálu, aby sa zabránilo konfliktom, a pre stromové posielanie má opäť logaritmický čas.
+
+Person2: Čiže celkový čas vyzerá dobre, ale cena už nie?
+
+Person1: Presne. Celkový čas je rádu logaritmus en, no potrebujeme en na druhú procesorov. Cena je preto rádu en na druhú krát logaritmus en, čo je podstatne viac než en krát logaritmus en pri optimálnom sekvenčnom triedení. Enumeration sort na mriežke teda nie je cenovo optimálny.
+
+Person2: Ukážme si rank na krátkom vstupe štyri, jedna, tri, dva.
+
+Person1: Počty menších prvkov sú v tomto poradí tri, nula, dva a jeden. Po pripočítaní jednotky dostaneme ranky štyri, jedna, tri a dva. Hodnota štyri ide na štvrtú pozíciu, jednotka na prvú, trojka na tretiu a dvojka na druhú. Výsledok je jedna, dva, tri, štyri.
+
+Person2: Ako funguje odd-even transposition sort?
+
+Person1: Je to paralelná analógia bubble sortu na lineárnom poli en procesorov, pričom každý procesor drží jednu hodnotu. V nepárnej fáze sa spoja nepárne procesory so susedom vpravo a prípadne si hodnoty vymenia, aby menšia zostala vľavo. V párnej fáze urobia to isté dvojice začínajúce párnym procesorom. Po najviac en fázach je postupnosť zoradená. Čas je rádu en a pri en procesoroch cena rádu en na druhú, takže algoritmus nie je optimálny.
+
+Person2: Ako vyzerajú fázy na vstupe štyri, tri, jedna, dva?
+
+Person1: Po prvej nepárnej fáze dostaneme tri, štyri, jedna, dva. Párna fáza porovná strednú dvojicu a vznikne tri, jedna, štyri, dva. Ďalšia nepárna fáza dá jedna, tri, dva, štyri a nasledujúca párna fáza výsledok jedna, dva, tri, štyri.
+
+Person2: Odd-even merge sort má podobný názov, ale inú architektúru, však?
+
+Person1: Áno. Triedi pomocou siete špeciálnych porovnávacích procesorov. Každý má dva vstupy a dva výstupy, low a high. Menšiu vstupnú hodnotu pošle na low a väčšiu na high. Kaskáda takýchto sietí vytvára na každej úrovni zoradené podpostupnosti, až vznikne celý zoradený výstup. Čas je rádu logaritmus na druhú z en a cena rádu en krát logaritmus na štvrtú z en. Ani toto riešenie nie je cenovo optimálne.
+
+Person2: Pri merge-splitting sorte sa vraciame k lineárnemu poľu procesorov. Čím sa líši od transpozičného triedenia?
+
+Person1: Jeden procesor už nedrží iba jednu hodnotu, ale celú podpostupnosť. Každý z pé procesorov najskôr sekvenčne zoradí svoj blok dĺžky en delené pé. Potom sa striedajú nepárne a párne susedné dvojice procesorov. Dvojica svoje zoradené bloky zlúči a následne rozdelí tak, aby ľavý procesor dostal menšiu polovicu a pravý väčšiu polovicu.
+
+Person2: Aký čas a cenu tým získame?
+
+Person1: Úvodné lokálne triedenie trvá rád en delené pé krát logaritmus z en delené pé. Jedna merge-split fáza trvá rád en delené pé a vykoná sa rádovo pé fáz, takže táto časť trvá rád en. Celkový čas je preto súčtom lokálneho triedenia a lineárneho člena. Cena je rádu en krát logaritmus en plus en krát pé. Algoritmus je cenovo optimálny, ak počet procesorov pé neprekročí rád logaritmus en.
+
+Person2: Ďalší optimálny algoritmus je pipeline merge sort. Ako v ňom prúdia dáta?
+
+Person1: Procesory sú opäť v lineárnom poli, ale dáta do nich postupne vstupujú ako na zreťazenej linke. Prvý procesor striedavo rozdeľuje prichádzajúce prvky do dvoch výstupných frontov. Každý ďalší procesor spája dve už zoradené postupnosti rovnakej dĺžky. Najprv sa spájajú jednotkové postupnosti do dvojíc, potom dvojice do štvoríc a tak ďalej. Posledný procesor spojí dve polovice dĺžky en delené dvoma.
+
+Person2: Koľko procesorov a cyklov pipeline potrebuje?
+
+Person1: Používa logaritmus en plus jeden procesorov. Skončí po dvojnásobku en plus logaritmus en mínus jeden cykloch, takže asymptotický čas je rád en. Cena je rád en krát logaritmus en a zodpovedá optimálnemu sekvenčnému triedeniu. Pipeline merge sort je preto cenovo optimálny.
+
+Person2: Ako by spracoval vstup štyri, jedna, tri, dva?
+
+Person1: Pri štyroch prvkoch použijeme logaritmus so základom dva zo štyroch plus jeden, teda tri procesory. Prvý prvky striedavo rozdelí do dvoch frontov. Druhý z nich vytvorí zoradené dvojice jedna, štyri a dva, tri. Tretí procesor obe dvojice spojí na jedna, dva, tri, štyri.
+
+Person2: Enumeration sort existuje aj na lineárnom poli so spoločnou zbernicou. Aké registre má každý procesor?
+
+Person1: Máme en procesorov a zbernicu, ktorá v jednom kroku prenesie jednu hodnotu. Register X drží vlastný prvok procesora a počas behu sa nemení. Registrom Y postupne prechádzajú všetky vstupné prvky posúvané doprava. Register C počíta, koľkokrát bolo X väčšie než prechádzajúce Y. Register Z nakoniec uchová prvok patriaci na danú zoradenú pozíciu.
+
+Person2: Ako sa tieto registre používajú počas dvojnásobku en krokov?
+
+Person1: Najprv sa C nastaví na jedna. Kým vstup nie je vyčerpaný, hodnota s poradím i sa cez zbernicu vloží do registra X procesora i, súčasne vstúpi do registra Y prvého procesora a všetky hodnoty Y sa posunú doprava. Každý procesor s neprázdnymi X a Y ich porovná a zvýši C, ak je X väčšie. Takto C postupne nadobudne finálny rank prvku.
+
+Person2: A kedy sa prvok dostane na svoju cieľovú pozíciu?
+
+Person1: Po vyčerpaní vstupu začne v každom kroku jeden procesor vysielať cez zbernicu svoje X. Odošle ho procesoru, ktorého číslo určuje jeho register C, a prijímajúci procesor ho uloží do Z. Každý krok teda umiestni jeden prvok na finálne miesto. Na konci procesory posúvajú registre Z doprava a vytvoria zoradenú postupnosť.
+
+Person2: Čas je tu lineárny, ale používame lineárny počet procesorov.
+
+Person1: Áno. Čas je rádu en a pri en procesoroch je cena rádu en na druhú. Lineárna verzia enumeration sortu preto nie je cenovo optimálna, hoci používa oveľa menej procesorov než mriežková verzia.
+
+Person2: Čo robí minimum extraction sort?
+
+Person1: Používa stromovú hierarchiu s en listami, logaritmus en plus jednou úrovňou a celkovo dvojnásobok en mínus jedným procesorom. Každý list drží jeden prvok. Nelistový procesor porovná hodnoty svojich dvoch synov a menšiu pošle otcovi. Prvé minimum sa dostane ku koreňu za logaritmus en plus jeden krokov. Každý ďalší z en mínus jedného prvkov potrebuje dva kroky, jeden na porovnanie a jeden na uloženie. Celkový čas je dvojnásobok en plus logaritmus en mínus jeden, teda rád en. Cena je rádu en na druhú, takže algoritmus nie je optimálny.
+
+Person2: Bucket sort už optimálny je. Akú stromovú štruktúru využíva?
+
+Person1: Má strom s em listovými procesormi, pričom en je dva na em, takže em je logaritmus en. Celý strom má dvojnásobok em mínus jeden procesorov, teda dvojnásobok logaritmu en mínus jeden. Každý list drží en delené em prvkov a zoradí ich optimálnym sekvenčným algoritmom, napríklad heap sortom alebo merge sortom. Každý nelistový procesor sekvenčne zlúči dve zoradené postupnosti.
+
+Person2: Prečo má napriek sekvenčnej práci v uzloch celkový čas rád en?
+
+Person1: Množstvo práce pri zlučovaní rastie smerom ku koreňu, ale súčet časov po úrovniach zostáva lineárny vo veľkosti vstupu. Procesorov je logaritmický počet, preto je cena rádu en krát logaritmus en. Tá sa zhoduje s optimálnym sekvenčným porovnávacím triedením, takže bucket sort v tejto architektúre je cenovo optimálny.
+
+Person2: Median Finding and Splitting používa rovnakú architektúru. Čo robí namiesto zlučovania?
+
+Person1: Nelistový procesor dokáže algoritmom Select nájsť medián svojej postupnosti v lineárnom čase. Podľa mediánu rozdelí prvky tak, že hodnoty menšie alebo rovné mediánu pošle ľavému synovi a hodnoty väčšie než medián pravému synovi. Medián sa teda nestratí. Ide o paralelnú verziu quicksortu: namiesto sekvenčného rekurzívneho spracovania oboch častí sa rozdelené časti posielajú ďalej stromom. Čas je rádu en a cena rádu en krát logaritmus en, takže aj tento algoritmus je optimálny.
+
+Person2: Tým sa dostávame k samotnému algoritmu Select. Čo presne hľadá?
+
+Person1: Select hľadá ká-ty najmenší prvok postupnosti. Medián je špeciálny prípad, keď ká zodpovedá polovici počtu prvkov. Algoritmus pracuje metódou rozdeľuj a panuj. Vstup rozdelí na malé podzoznamy konštantnej dĺžky kvé, pričom kvé je aspoň päť. Každý malý zoznam možno zoradiť a získať jeho medián.
+
+Person2: Na čo slúži medián týchto mediánov?
+
+Person1: Mediány malých skupín vytvoria nový zoznam a z neho sa vypočíta medián mediánov. Podľa tejto deliacej hodnoty sa pôvodné prvky rozdelia na menšie, rovné a väčšie. Z veľkostí týchto troch častí zistíme, kde leží hľadaný ká-ty prvok, a rekurzívne pokračujeme iba v príslušnej časti. Pri skupinách veľkosti aspoň päť má Select lineárnu časovú zložitosť.
+
+Person2: Ako sa Select paralelizuje na modeli EREW PRAM?
+
+Person1: Postupnosť sa rozdelí medzi veľké en procesorov na podpostupnosti veľkosti malé en delené veľké en. Každý procesor paralelne nájde sekvenčným Selectom medián svojho bloku a zapíše ho do poľa mediánov. Medián tohto poľa sa nájde rekurzívnym volaním Parallel Select s menším počtom procesorov. Potom Parallel Splitting rozdelí celý vstup na množiny menších, rovnakých a väčších hodnôt. Podľa ich veľkostí sa pokračuje v ľavej časti, vráti sa deliaci prvok z prostrednej časti alebo sa pokračuje v pravej časti.
+
+Person2: Najcitlivejšie miesto je teda paralelné rozdelenie. Ako Parallel Splitting zabráni kolíziám pri zápise?
+
+Person1: Najprv sa deliaca hodnota rozpošle všetkým procesorom procedúrou broadcast v čase rádu logaritmus veľké en. Každý procesor sekvenčne rozdelí svoj blok na lokálne časti menšie, rovné a väčšie, čo trvá rád malé en delené veľké en. Potom sa z veľkostí lokálnych častí vypočítajú prefixové súčty.
+
+Person2: Prefixové súčty určia, kam má každý procesor zapisovať?
+
+Person1: Presne. V čase rádu logaritmus veľké en sa z nich získajú začiatočné indexy jednotlivých blokov v spoločných výsledných postupnostiach. Každý procesor tak dostane vlastný neprekrývajúci sa úsek a paralelný zápis prebehne bez kolízií. Samotné spojenie lokálnych častí trvá rád malé en delené veľké en.
+
+Person2: Akú výslednú zložitosť a cenu dosahuje Parallel Select?
+
+Person1: Pre malé en väčšie než štyri a počet procesorov veľké en menší než malé en delené logaritmom malé en je čas rádu malé en delené veľké en. Pri tejto podmienke totiž logaritmická réžia broadcastu a prefixových súčtov nepreváži lokálnu prácu. Cena je súčin veľkého en procesorov a času malé en delené veľké en, teda rád malé en. Parallel Select aj Parallel Splitting sú preto cenovo optimálne.
+
+Person2: Prejdime k vyhľadávaniu. Aký je základný rozdiel medzi zoradenou a nezoradenou postupnosťou?
+
+Person1: Máme postupnosť en prvkov a hľadanú hodnotu. Zisťujeme, či sa v postupnosti nachádza, a prípadne aj jej index. V nezoradenej postupnosti potrebuje optimálny sekvenčný algoritmus lineárny čas. V zoradenej postupnosti použijeme binárne vyhľadávanie s logaritmickým časom.
+
+Person2: Ako rozšíri binárne vyhľadávanie algoritmus N-ary search?
+
+Person1: Pracuje nad zoradenou postupnosťou na modeli CREW PRAM. Namiesto jedného deliaceho prvku použije veľké en procesorov a aktuálny interval rozdelí pomocou veľkého en hraničných prvkov na veľké en plus jednu častí. Procesory naraz porovnajú hranice s hľadanou hodnotou. Ak niektorá hranica presne zodpovedá hľadanej hodnote, vráti sa jej index. Inak pokračujeme v jedinej časti medzi susednými hranicami, kde ľavé porovnanie ukazuje doprava a pravé doľava.
+
+Person2: Koľko takýchto iterácií potrebujeme?
+
+Person1: Počet iterácií je horné celé číslo z pomeru logaritmu malé en plus jedna a logaritmu veľké en plus jedna. Inými slovami, čas je rád logaritmus so základom veľké en plus jedna z malého en plus jedna. Pri veľkom en procesoroch je cena rád veľké en krát tento logaritmus. V porovnaní s optimálnym sekvenčným binárnym vyhľadávaním preto N-ary search nie je cenovo optimálny.
+
+Person2: Pri nezoradenej postupnosti môžeme každému procesoru prideliť vlastný blok. Čo potom určuje celkový čas?
+
+Person1: Každý z veľkého en procesorov sekvenčne prehľadá blok dĺžky malé en delené veľké en, takže lokálne hľadanie má čas tohto rádu. Rozdiel medzi modelmi zdieľanej pamäte vzniká pri prvom kroku, teda distribúcii hľadanej hodnoty, a pri treťom kroku, teda spojení čiastkových výsledkov.
+
+Person2: Začnime modelom EREW.
+
+Person1: V EREW sa hľadaná hodnota rozpošle stromom v čase rádu logaritmus veľké en a stromové spojenie výsledkov trvá rovnako dlho. Celkový čas je rád logaritmus veľké en plus malé en delené veľké en. Cena je rád veľké en krát logaritmus veľké en plus malé en. Pre všeobecný počet procesorov sa algoritmus uvádza ako neoptimálny. Ak však platí, že veľké en krát logaritmus veľké en je najviac rádu malé en, cena klesne na rád malé en.
+
+Person2: V modeli CREW môžu procesory hľadanú hodnotu čítať súčasne. Čo sa tým zmení?
+
+Person1: Distribúcia hľadanej hodnoty trvá konštantný čas, no spojenie čiastkových výsledkov zostáva logaritmické. Celkový čas je preto opäť rád logaritmus veľké en plus malé en delené veľké en a cena rád veľké en krát logaritmus veľké en plus malé en. Aj tu dostaneme cenu rádu malé en, ak počet procesorov spĺňa obmedzenie, že veľké en krát jeho logaritmus je najviac rádu malé en.
+
+Person2: A prečo je CRCW v tomto prípade cenovo optimálny?
+
+Person1: Súčasné čítanie aj zápis umožnia distribúciu hodnoty a spojenie výsledkov v konštantnom čase. Ak zisťujeme iba existenciu, všetky úspešné procesory môžu v režime COMMON zapísať tú istú jednotku. Ak chceme index a prvky nemusia byť unikátne, musíme určiť pravidlo konfliktu, napríklad PRIORITY. Celkový čas je rád malé en delené veľké en a cena rád malé en, takže algoritmus je cenovo optimálny.
+
+Person2: Zostáva tree search. Ako využíva strom procesorov?
+
+Person1: Každý list drží jeden prvok zoznamu. Koreň načíta hľadanú hodnotu a odovzdáva ju synom, až sa dostane ku všetkým listom. List nastaví výsledok na jednotku, ak sa jeho prvok rovná hľadanej hodnote, inak na nulu. Potom sa výsledky po úrovniach vracajú nahor a každý nelistový uzol vykoná logickú operáciu OR nad výsledkami synov. V koreni napokon dostaneme jednotku pri nájdení a nulu pri nenájdení. Stromové operácie trvajú rád logaritmus en, ale pri lineárnom počte procesorov je cena rádu en krát logaritmus en, takže tree search nie je cenovo optimálny.
+
+Person2: Najdôležitejšie je teda vždy oddeliť malý paralelný čas od skutočnej ceny. Pri triedení porovnávame cenu s rádom en krát logaritmus en, pri Selecte a nezoradenom vyhľadávaní s lineárnou cenou. Optimálne vychádzajú napríklad pipeline merge sort, bucket sort, Median Finding and Splitting, Parallel Select a CRCW vyhľadávanie. Naopak rýchly algoritmus s priveľa procesormi, ako mriežkový enumeration sort či tree search, môže zostať cenovo neoptimálny.

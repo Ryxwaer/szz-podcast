@@ -1,0 +1,311 @@
+Person1: Témou tohto výkladu je problematika distribuovaného ukladania a prístupu k dátam. Budeme sledovať celý reťazec od architektúry databázového systému cez replikáciu a konzistenciu až po distribuované transakcie, Calvin, Spanner a Paxos.
+
+Person2: Začnime motiváciou. Prečo vôbec dáta distribuovať, keď je jeden databázový server jednoduchší?
+
+Person1: Hlavným dôvodom je odolnosť. Viac kópií dát umožní pokračovať po výpadku servera. Ďalším dôvodom je výkon a geografická blízkosť, pretože používateľ môže pristupovať ku kópii vo svojom regióne. Distribúcia tiež odstraňuje potrebu jedného globálneho správcu zámkov, ktorý by bol úzkym miestom a jediným bodom zlyhania. Zvyčajne sa pritom nekopíruje celá databáza všade. Dáta sa rozdelia na časti a každá časť má vlastnú mieru replikácie.
+
+Person2: Ktoré časti bežného systému riadenia databázy distribúciu skutočne riešia?
+
+Person1: Systém riadenia databázy vystupuje v modeli klient server ako server. Transportná vrstva komunikuje s klientmi aj ostatnými uzlami. Procesor dotazov vykonáva parsovanie, interpretáciu, validáciu a kontrolu prístupu. Optimalizátor odstraňuje nemožné alebo zbytočné operácie a vyberá efektívny plán. Vykonávacie jadro plán realizuje a skladá výsledky lokálnych aj vzdialených výpočtov. Komponent vzdialeného vykonávania zabezpečuje čítanie, zápis a replikáciu na iných uzloch.
+
+Person2: A čo zostáva vo vnútri lokálneho úložného jadra?
+
+Person1: Transakčný manažér plánuje transakcie a stráži logickú konzistenciu. Správca zámkov chráni objekty pri súbežnom prístupe a fyzickú integritu dát. Prístupové metódy spravujú organizáciu dát, napríklad haldové súbory či bé stromy. Správca bufferov drží dátové stránky v pamäti a recovery manažér zaznamenáva operácie, aby sa systém po poruche dokázal obnoviť.
+
+Person2: Pri vykonávaní sa často zamieňa súbežnosť a paralelizmus. Aký je medzi nimi rozdiel?
+
+Person1: Pri súbežnom vykonávaní všetky sekvencie krokov napredujú a prekrývajú sa v čase, ale v jednom okamihu môže procesor vykonávať iba jednu z nich. Pri paralelnom vykonávaní môžu kroky reálne bežať naraz, takže potrebujeme viac procesorov alebo jadier. Paralelizmus teda súbežnosť zahŕňa, ale nie každá súbežnosť je paralelná.
+
+Person2: Distribuované uzly musia komunikovať. Čo komplikuje samotnú komunikáciu?
+
+Person1: Komunikácia môže byť synchrónna alebo asynchrónna. Ak máme časové predpoklady, používame timeouty a opakované pokusy. Lenže odpoveď sa môže oneskoriť pre preťaženie, pomalý uzol, nedostupnosť alebo problém siete. Z oneskorenia preto nemožno s absolútnou istotou určiť, či uzol zlyhal. Systém musí mať model zlyhaní, redundanciu uzlov a dát a stanovenú mieru tolerancie chýb.
+
+Person2: Toto obmedzenie dobre ukazuje problém dvoch generálov, však?
+
+Person1: Presne. Dvaja generáli na opačných stranách mesta zvíťazia iba spoločným útokom. Prvý pošle správu s časom útoku, ale posol môže zlyhať. Druhý po prijatí odošle potvrdenie, no zlyhať môže aj tento posol. Potom by bolo treba potvrdiť potvrdenie a znova potvrdiť ďalšie potvrdenie. Reťaz nemožno konečne uzavrieť s absolútnou istotou, ak je kanál nespoľahlivý a komunikácia asynchrónna.
+
+Person2: Ako túto intuíciu spresňuje výsledok nemožnosti FLP?
+
+Person1: Výsledok FLP hovorí, že v úplne asynchrónnom systéme, v ktorom môže zlyhať proces, neexistuje protokol vždy zaručujúci konsenzus v ohraničenom čase. Konsenzus má tri dôležité podmienky. Zhoda znamená, že všetky rozhodnuté hodnoty sú rovnaké. Platnosť znamená, že rozhodnutú hodnotu niektorý proces skutočne navrhol. Ukončenie znamená, že každý nezlyhaný proces napokon rozhodne. Na zaručenie ukončenia preto potrebujeme aspoň určité synchronizačné alebo časové predpoklady.
+
+Person2: Ako sa v praxi zisťuje, či vzdialený uzol ešte žije?
+
+Person1: Ping odošle správu a do určitého času čaká odpoveď. Heartbeat naopak znamená, že proces periodicky oznamuje, že stále beží. Oba prístupy narážajú na nekonzistentné oneskorenie. Pokročilejší detektor bez timeoutov udržiava zoznam susedov, šíri identifikátory a informácie o cestách a pomocou heartbeat počítadiel odvodzuje živé uzly aj nepriamo. Pri outsourced heartbeats sa systém po neúspešnom pingu opýta ďalších uzlov, či o cieli niečo vedia. Nemusí vysielať všetkým a informácie môže zbierať súbežne.
+
+Person2: Keď je synchronizácia drahá, často sa zvolí leader. Aké vlastnosti musí jeho voľba zachovať?
+
+Person1: Rola leadera nie je trvalá a môže ju prevziať iný proces. Z hľadiska životnosti má väčšinu času nejaký leader existovať. Z hľadiska bezpečnosti môže byť leader najviac jeden. Leader potom môže koordinovať aj ďalšie funkcie systému.
+
+Person2: Ako prebieha bully algoritmus?
+
+Person1: Keď proces zistí nedostupnosť leadera, pošle volebnú správu všetkým procesom s vyšším identifikátorom. Ak sa niektorý ozve, voľba pokračuje medzi vyššie zoradenými procesmi. Ak neodpovie žiadny aktívny proces s vyšším poradím, iniciátor sa stane leaderom a oznámi to nižšie zoradeným procesom. Slabinou je rozdelenie siete, ktoré môže vytvoriť split brain s viacerými leadrami. Nestabilný uzol s vysokým poradím navyše môže vyvolávať opakované voľby.
+
+Person2: Invitation algoritmus sa k viacerým leadrom stavia inak.
+
+Person1: Áno, viac leaderov pripúšťa už svojou definíciou. Každý proces začne ako leader vlastnej skupiny a kontaktuje procesy mimo nej. Ak oslovený proces vedie inú skupinu, skupiny sa spoja. Ak nie, oznámi identifikátor svojho leadera. Leaderom spojenej skupiny sa stane leader väčšej skupiny a pri rovnosti rozhodne iná vlastnosť.
+
+Person2: A ring algoritmus využíva virtuálny prstenec?
+
+Person1: Po zlyhaní leadera sa volebná správa posúva po prstenci. Každý živý uzol do nej pridá svoj identifikátor. Keď sa správa vráti iniciátorovi, vyberie sa živý uzol s najvyšším poradím a iniciátor oznámi víťaza ostatným.
+
+Person2: Prejdime ku CAP teorému. Čo presne znamenajú jeho tri písmená?
+
+Person1: Konzistencia v CAP znamená atomickú, teda linearizovateľnú konzistenciu. Operácie sa javia ako jediná okamžitá postupnosť rešpektujúca poradie, akoby systém bežal na jednom stroji. Dostupnosť znamená, že každá požiadavka napokon dostane úspešnú odpoveď. Tolerancia rozdelenia siete znamená, že systém pokračuje aj vtedy, keď jeho časti medzi sebou nekomunikujú.
+
+Person2: Známa veta, že si môžeme vybrať ľubovoľné dve vlastnosti z troch, je teda zjednodušená?
+
+Person1: Áno. Distribuovaný systém musí s rozdelením siete počítať. Práve počas rozdelenia nemožno súčasne zachovať plnú konzistenciu aj dostupnosť. Cé pé systém radšej odmietne požiadavku, než by vrátil potenciálne nekonzistentné dáta. Á pé systém požiadavku obslúži, ale môže dočasne vrátiť nekonzistentnú hodnotu. Kompromis sa prejavuje najmä v okamihu partition, nie za normálnej prevádzky.
+
+Person2: Na ktoré dve časté zámeny si mám pri CAP dať pozor?
+
+Person1: Po prvé, partition je rozdelenie komunikácie, nie iba pád uzla. Všetky uzly môžu bežať a predsa spolu nevedia komunikovať. Po druhé, konzistencia v CAP nie je konzistencia transakcií v ACID. Ide o linearizovateľnosť. Súvisiacimi metrikami sú harvest a yield. Harvest meria úplnosť odpovede, napríklad či sme zo sto požadovaných riadkov získali deväťdesiatdeväť. Yield meria podiel úspešne dokončených požiadaviek.
+
+Person2: Ako sa správanie distribuovaného úložiska formálne modeluje?
+
+Person1: Jeden pohľad modeluje systém ako pole zdieľaných registrov. Operácie môžu uspieť alebo zlyhať a časové intervaly procesov sa rôzne prekrývajú. Pri bezpečnom registri môže čítanie prekrývajúce zápis vrátiť ľubovoľnú hodnotu. Binárny register tak môže počas súbežného čítania a zápisu obrazne blikať.
+
+Person2: Čím sú regulárny a atomický register silnejšie?
+
+Person1: Regulárny register pri prekrývaní vráti buď hodnotu posledného dokončeného zápisu, alebo hodnotu práve prebiehajúceho zápisu. Atomický register má jeden logický okamih účinku. Pred ním čítania vidia starú hodnotu a po ňom novú. Takáto atomicita je základný teoretický stavebný prvok. Keďže vykonávanie sa môže prekrývať a výsledky nemusia byť ihneď viditeľné, potrebujeme presne pomenovať model konzistencie.
+
+Person2: Začnime najsilnejším ideálom, prísnou konzistenciou.
+
+Person1: Pri prísnej konzistencii je každý zápis okamžite dostupný každému nasledujúcemu čítaniu ľubovoľného procesu. Replikácia je úplne transparentná. Model však predpokladá globálne hodiny a v reálnom distribuovanom systéme ho nemožno implementovať.
+
+Person2: Linearizovateľnosť je o niečo realistickejšia. Ako ju chápať?
+
+Person1: Účinok každej operácie nastane v jednom linearizačnom bode medzi jej začiatkom a koncom. Pred týmto bodom je viditeľný starý stav a po ňom nový, takže klient nepozoruje čiastočný zápis. Operácie dostanú úplné poradie, pričom súčasné zápisy sa vzájomne vylúčia. Pri prekrývajúcich sa operáciách môže existovať viac prípustných poradí, ale poradie neprekrývajúcich sa operácií musí rešpektovať reálny čas.
+
+Person2: Prečo ju napriek tomu mnohé systémy neposkytujú?
+
+Person1: Koordinácia potrebná na spoločné poradie je drahá. Atomický okamih je modelová predstava a globálna linearizovateľná história závisí aj od lokálnych záruk jednotlivých objektov. Systém preto často volí slabší model s lepšou dostupnosťou alebo latenciou.
+
+Person2: Aký je presný rozdiel medzi linearizovateľnosťou a sekvenčnou konzistenciou?
+
+Person1: Sekvenčná konzistencia tiež pripúšťa usporiadanie všetkých operácií do jednej sekvencie a zachováva poradie operácií každého procesu, typicky FIFO. Nemusí však rešpektovať reálny čas medzi rôznymi procesmi. Linearizovateľnosť reálny čas rešpektuje. Ak jedna operácia skončí skôr, než druhá začne, musí byť v globálnom poradí pred ňou.
+
+Person2: Kauzálna konzistencia potom sleduje iba príčinné vzťahy?
+
+Person1: Presne. Všetky procesy musia vidieť kauzálne súvisiace operácie v rovnakom poradí. Nezávislé súbežné zápisy môžu vidieť rozdielne. Na fóre musí každý vidieť príspevok pred odpoveďou a odpoveď pred reakciou na ňu. Dva nezávislé príspevky však môžu mať na rôznych uzloch rozdielne poradie. Implementácia používa logické hodiny a metadáta o predchádzajúcich udalostiach.
+
+Person2: Ako s tým súvisia session modely?
+
+Person1: Session modely sú orientované na skúsenosť jedného klienta. Monotónne čítanie zabráni, aby klient po novšej hodnote neskôr videl staršiu. Monotónne zápisy zachovajú poradie jeho zápisov. Read your writes zabezpečí, že klient uvidí vlastné zmeny. Writes follow reads zabezpečí, že jeho zápis nadviaže na stav, ktorý predtým čítal. Tieto záruky zodpovedajú pipeline RAM, označovanej aj ako PRAM alebo FIFO konzistencia, a nič nehovoria o vzájomnom poradí operácií rôznych klientov.
+
+Person2: Eventuálna konzistencia je ešte slabšia, ale veľmi praktická.
+
+Person1: Aktualizácie sa šíria asynchrónne, lebo okamžitá synchronizácia je drahá. Ak už nevzniknú nové zmeny, všetky repliky napokon vrátia poslednú zapísanú hodnotu. Nie je však určené, dokedy sa to stane. Konflikty rieši stratégia, napríklad last write wins alebo vektorové hodiny. Tento model patrí k prístupu BASE: základná dostupnosť, mäkký stav a eventuálna konzistencia.
+
+Person2: Čo navyše garantuje silná eventuálna konzistencia?
+
+Person1: Aktualizácie môžu doraziť neskoro aj v inom poradí, ale po doručení rovnakej množiny aktualizácií všetky uzly skončia v rovnakom platnom stave. Umožňujú to bezkonfliktné replikované dátové typy, teda CRDT. Ich operácie sa dajú zlúčiť bez konfliktu, takže napríklad replikované počítadlá môžu fungovať na viacerých uzloch aj počas rozdelenia siete.
+
+Person2: Rozdielnosť replík sa označuje ako entropia?
+
+Person1: Áno. Entropia vyjadruje mieru neusporiadanosti, konkrétne rozdielnosť stavov medzi uzlami. Je nežiaduca a systém ju znižuje opravou replík. Jedným mechanizmom je read repair. Koordinátor počas čítania osloví repliky, porovná odpovede a chýbajúce aktualizácie pošle zaostávajúcim uzlom. Oprava môže blokovať odpoveď alebo prebehnúť asynchrónne. Blokujúca oprava pri kvórovom čítaní poskytuje monotónnosť.
+
+Person2: Ako to vyzerá v databázach typu Dynamo a Cassandra?
+
+Person1: Dynamo štýl nemusí kontaktovať všetky repliky. Používa úrovne konzistencie a kvórové čítanie, pretože niektorá replika nemusela dostať každý zápis. Cassandra pri spájaní výsledkov používa iterátory a listenery, zrekonštruuje rozdiel medzi zlúčeným výsledkom a vstupmi a koordinátor upozorní repliky na chýbajúce dáta.
+
+Person2: Úplné dáta sa však nemusia prenášať pri každom porovnaní.
+
+Person1: Na to slúžia digest reads. Repliky najskôr vrátia iba haš. Ak sa všetky haše zhodujú, stavy sa považujú za rovnaké. Pri nezhode koordinátor ešte nevie, ktorá replika zaostáva, preto vykoná úplné čítanie, dáta zmieri a repliky aktualizuje.
+
+Person2: Hinted handoff opravuje problém už pri zápise?
+
+Person1: Áno. Ak cieľový uzol zápis nepotvrdí, koordinátor alebo iná replika uloží špeciálny záznam nazývaný hint. Po obnovení dostupnosti sa hint čo najskôr odošle cieľovému uzlu. Cassandra tento mechanizmus používa napríklad pri úrovni konzistencie ANY.
+
+Person2: A ako Merkleho strom určí, ktorá časť veľkého datasetu sa líši?
+
+Person1: Dáta sa rozdelia na vopred určené rozsahy a každý rozsah sa zahašuje samostatne. Vo vyšších úrovniach sa vždy zahašujú dvojice hašov až po koreň. Ak sú koreňové haše rozdielne, porovnávame iba vetvy s nezhodou. Tak presne lokalizujeme rozsahy na synchronizáciu bez prenosu celej tabuľky.
+
+Person2: Gossip potom rieši šírenie informácií pravdepodobnostne.
+
+Person1: Pripomína šírenie klebiet alebo nákazy. Proces bez aktualizácie je náchylný, proces s novou informáciou infekčný. Infekčný proces posiela aktualizáciu náhodným susedom. Keď sa informácia dostatočne rozšíri, procesy ju prestanú aktívne šíriť. Nejde o okamžité centrálne vysielanie, ale o kooperatívnu konvergenciu.
+
+Person2: Prejdime od konzistencie k fyzickým architektúram.
+
+Person1: V architektúre so zdieľanou pamäťou procesory s databázovým systémom zdieľajú hlavnú aj sekundárnu pamäť. Správy majú nízku latenciu, pretože sa používajú pamäť a ukazovatele. Synchronizuje sa prístup do pamäte, nie do vzdialenej databázy, ale spoločná hlavná pamäť sa môže stať úzkym miestom.
+
+Person2: Pri zdieľanom disku má každý procesor vlastnú hlavnú pamäť?
+
+Person1: Áno, spoločné je sekundárne úložisko. Architektúra je odolnejšia proti chybám a dáta možno prenášať priamo cez úložisko. Sieť k diskom sa však môže stať úzkym miestom a zápisy vyžadujú synchronizáciu.
+
+Person2: Dnes je typická architektúra s ničím nezdieľaným.
+
+Person1: Každý uzol má vlastnú inštanciu, procesor, pamäť aj disk. Vertikálne škálovanie zosilňuje jeden uzol pridaním jadier, pamäte alebo rýchlejších diskov. Horizontálne škálovanie pridáva ďalšie uzly. Obe možnosti majú limity a úzke miesta, no horizontálne škálovanie je pre distribuované databázy kľúčové.
+
+Person2: Ako odlíšime paralelný databázový systém od distribuovaného?
+
+Person1: V paralelnom systéme sa dáta rozdeľujú najmä pre výkon. Intra query paralelizmus rozdelí prácu jedného dotazu. Inter query paralelizmus súbežne vykonáva viac jednoduchých dotazov. Distribuovaný systém rieši aj geografickú vzdialenosť, autonómiu uzlov, replikáciu a poruchy komunikácie.
+
+Person2: Kam patria federované databázy?
+
+Person1: Používajú architektúru s ničím nezdieľaným. Každý uzol prevádzkuje nezávislý databázový systém, prípadne aj od iného výrobcu. Dáta sú často horizontálne fragmentované a federácia sa ich snaží integrovať do spoločného pohľadu. Heterogenita a autonómia jednotlivých uzlov však prinášajú mnoho problémov.
+
+Person2: Čo rozhoduje o dobrom rozdelení dát na fragmenty?
+
+Person1: Fragmentácia rozdeľuje dataset na podmnožiny. Rozmiestnenie má maximalizovať paralelizmus dotazov, minimalizovať sieťovú prevádzku, zabezpečiť dostupnosť replikáciou a držať prijateľnú cenu. Neexistuje jedno pravidlo vhodné pre každý workload.
+
+Person2: Ako funguje vertikálna fragmentácia?
+
+Person1: Každý fragment obsahuje vybrané stĺpce globálneho datasetu. Jeden fragment môže mať identifikátor a meno pre spracovanie poradia, iný krajinu, dátum narodenia a pohlavie pre analýzu. Kľúč musí byť v oboch častiach, aby sa dali znova spojiť.
+
+Person2: Horizontálna fragmentácia delí riadky podľa predikátu?
+
+Person1: Presne. Fragment môže obsahovať napríklad záznamy jednej krajiny alebo mesta. Úplnú množinu znova získame zjednotením fragmentov a jeden dotaz môže zasiahnuť viac fragmentov. V NoSQL klastroch sa týmto fragmentom hovorí shardy. Rozdelenie prináša distribúciu výkonu a v kombinácii s replikáciou aj redundanciu a dostupnosť.
+
+Person2: A zmiešaná a odvodená fragmentácia?
+
+Person1: Zmiešaná fragmentácia kombinuje delenie stĺpcov aj riadkov. Odvodená fragmentácia sa riadi inou tabuľkou, napríklad predaje sa rozdelia podľa fragmentov zákazníkov. Návrh je veľmi komplexný a jediné optimálne riešenie spravidla neexistuje.
+
+Person2: Fragmentácia určuje, kde sú rôzne dáta. Replikácia určuje, kde sú rovnaké?
+
+Person1: To je dobrá pomôcka. Pri replikácii sa fragmenty prekrývajú alebo sú na viacerých uzloch identické. Lokálna autonómia umožní uzlom pracovať s lokálnou kópiou. Viac kópií zvyšuje výkon a škálovateľnosť paralelným spracovaním a zvyšuje spoľahlivosť a dostupnosť, pretože po zlyhaní prevezmú prácu iné uzly. Replikácia môže byť synchrónna alebo asynchrónna, čo priamo ovplyvňuje konzistenciu a latenciu.
+
+Person2: Používateľ by však ideálne nemal rozmiestnenie riešiť.
+
+Person1: To je cieľ transparentnosti. Location transparency skrýva fyzické miesto dát. Fragmentation transparency dovolí dotazu pracovať nad ľubovoľnými fragmentmi. Replication transparency skrýva udržiavanie kópií. Access transparency poskytuje jednotný prístup aj pri rôznych databázových systémoch. Transaction transparency zachováva vlastnosti transakcie napriek tomu, že prechádza viacerými uzlami.
+
+Person2: Ako sa optimalizuje distribuovaný dotaz?
+
+Person1: Je to ťažšie než lokálne, pretože treba zohľadniť indexy, veľkosti tabuliek, vlastnosti fragmentov, umiestnenie dát aj cenu komunikácie. Najskôr sa dotaz rozloží do kanonickej formy relačnej algebry. Potom sa lokalizujú dáta, vytvoria fragmentové dotazy a odstráni nepotrebné spracovanie. Globálny optimalizátor vyberie plán podľa nákladového modelu a nakoniec každý uzol lokálne optimalizuje svoju cestu vykonávania.
+
+Person2: Distribuovaná transakcia potom potrebuje globálneho koordinátora a lokálnych účastníkov.
+
+Person1: Áno. Tesne previazaný systém sa snaží poskytnúť približne rovnaké vlastnosti ACID ako jeden stroj. Voľne previazaný systém častejšie používa optimistické riadenie súbežnosti. Treba pritom oddeliť dve úlohy: riadenie súbežnosti určuje prípustné poradie operácií a protokol potvrdenia chráni globálnu atomicitu.
+
+Person2: Začnime dvojfázovým uzamykaním, skrátene dva pé el.
+
+Person1: Pred čítaním treba získať zdieľaný zámok a pred aktualizáciou výlučný. Správca zámkov usporiada konfliktné požiadavky a nepridelené požiadavky čakajú. Protokol má rastovú fázu, v ktorej transakcia zámky získava, a zmenšovaciu fázu, v ktorej ich uvoľňuje. Problémom je deadlock.
+
+Person2: Aké sú rigorózny a statický variant?
+
+Person1: Rigorózny dva pé el drží všetky zámky až do potvrdenia transakcie a potom ich naraz uvoľní. Statický dva pé el sa konzervatívne pokúsi získať všetky zámky už na začiatku. Tým môže predísť niektorým problémom, ale vopred poznať všetky potrebné zámky nie je vždy možné.
+
+Person2: Ako sa mení umiestnenie správcu zámkov v distribuovaných variantoch?
+
+Person1: Pri primary site dva pé el je jeden centrálny správca pre všetky lokality. Koordinátor mu posiela žiadosti, po pridelení spustí podtransakcie a na konci požiada o uvoľnenie. Je to jednoduché, ale arbiter je úzke miesto. Pri primary copy variante sú správcovia rozdelení a každý zodpovedá za určenú podmnožinu dát, čím sa centralizácia čiastočne odstráni.
+
+Person2: Plne distribuovaný variant má správcu zámkov na každej lokalite?
+
+Person1: Áno. Pre ene lokalít môže transakcia potrebovať ene žiadostí, ene potvrdení, ene oznámení o dokončení a ene uvoľnení. Počet správ prudko rastie. Navyše môže vzniknúť globálny deadlock, ktorý lokálne grafy čakania nevidia. Základný distribuovaný dva pé el funguje, pokiaľ sa nepoužíva replikácia.
+
+Person2: Prečo replikácia lokálnu serializovateľnosť naruší?
+
+Person1: Predstav si dve lokality s replikovaným účtom. Jedna transakcia odčíta päťdesiat a druhá hodnotu zdvojnásobí. Každá lokalita môže operácie lokálne serializovať v inom poradí. Z rovnakej počiatočnej hodnoty potom vzniknú rozdielne výsledky, napríklad stopäťdesiat a sto. Lokálna správnosť teda sama osebe nezaručuje globálnu správnosť.
+
+Person2: A globálny deadlock môže byť skrytý medzi lokalitami?
+
+Person1: Áno. Dve transakcie môžu presúvať peniaze opačnými smermi medzi replikovanými účtami. Každý lokálny graf čakania vyzerá bez cyklu, ale po spojení závislostí vznikne globálny cyklus. Detekcia preto potrebuje globálny graf čakania a globálneho arbitra.
+
+Person2: Dvojfázový potvrdzovací protokol, teda dva pé cé, rieši inú úlohu než dva pé el.
+
+Person1: Presne. Dva pé cé chráni globálnu atomicitu: distribuovaná transakcia sa buď potvrdí všade, alebo zruší všade. Súbežnosť musí riešiť iný mechanizmus, napríklad dva pé el. V hlasovacej fáze koordinátor požiada účastníkov o hlas. V rozhodovacej fáze podľa hlasov oznámi commit alebo abort.
+
+Person2: Kde sa dva pé cé používa a čo robia timeouty?
+
+Person1: Používa sa napríklad v MySQL, PostgreSQL a MongoDB. Terminačný protokol používa timeout, no ten nerozozná pomalú sieť od prerušenej. Zotavovací protokol rieši reštart zlyhanej lokality a dohľadanie konečného rozhodnutia.
+
+Person2: Čo sa stane pri zlyhaní účastníka?
+
+Person1: Ak je účastník nedostupný ešte pri hlasovaní, koordinátor transakciu zruší. Niektoré systémy preto hlasujú nad skupinami uzlov, nie jednotlivými uzlami. Ak účastník zlyhá po prijatí návrhu, po obnove musí zistiť, či transakcia skončila potvrdením alebo zrušením. Dovtedy je v neistom stave a nemôže bezpečne spracovať súvisiace požiadavky.
+
+Person2: Závažnejšie je zlyhanie koordinátora po prvej fáze.
+
+Person1: Účastník už môže mať pripravené zmeny, ale nedostane príkaz commit ani abort. Rozhodnutie môže skúsiť získať od iného účastníka. Ak ho nikto nepozná, všetci čakajú na obnovenie koordinácie. Dva pé cé je preto blokujúci algoritmus. Po timeoute musí nový koordinátor obnoviť protokol pre danú transakciu.
+
+Person2: Trojfázový potvrdzovací protokol sa neistý stav snaží odstrániť pridaním prípravy.
+
+Person1: Najskôr koordinátor odošle návrh a zozbiera hlasy. Potom oznámi výsledok hlasovania. Ak sa má potvrdiť, odošle prepare, inak abort a skončí. V tretej fáze oznámi commit. Účastníci používajú timeouty a podľa dosiahnutého stavu automaticky zrušia alebo potvrdia transakciu.
+
+Person2: Prečo sa tri pé cé v praxi nepoužíva?
+
+Person1: Vyžaduje synchrónny model a predpokladá, že nenastane rozdelenie komunikácie. Ak koordinátor zlyhá pred prípravou, účastníci po timeoute zrušia transakciu. Po príprave môžu potvrdiť. Pri partition však jedna skupina môže byť pripravená a potvrdiť, zatiaľ čo iná prípravu nedostala a zruší. Vzniknú odporujúce si stavy, takže pridaná fáza nerieši najhorší realistický scenár.
+
+Person2: Ako sa správajú voľne previazané systémy?
+
+Person1: Používajú optimistickú stratégiu s predpokladom, že konflikty sú zriedkavé. Verzie sa sledujú časovými pečiatkami. Ak sa dáta od načítania zmenili, operácia sa vráti späť. Systém teda neplatí cenu zámkov pri každom prístupe, ale konflikt môže znamenať opakovanie práce.
+
+Person2: Dlho trvajúce transakcie sa nedajú rozumne držať pod globálnymi zámkami.
+
+Person1: Preto používajú kompenzácie. Lokálne transakcie sa potvrdia čo najskôr bez globálneho ACID a globálneho rollbacku. Ak neskôr globálny proces zlyhá, vykonajú sa nové transakcie, ktoré biznis logikou zrušia predchádzajúce účinky. Ak sa podarí hotel, ale zlyhá let, systém vytvorí zrušenie hotela.
+
+Person2: Kompenzácia teda nie je obyčajný rollback.
+
+Person1: Presne. Rollback vracia nepotvrdenú transakciu, kým kompenzácia je nová potvrdená operácia nad už viditeľným stavom. Medzitým mohli stav pozorovať alebo zmeniť iní používatelia, takže tento prístup porušuje izoláciu ACID.
+
+Person2: Calvin rieši koordináciu transakcií deterministickým poradím.
+
+Person1: Tradičné systémy používajú dva pé cé alebo optimistické riadenie, a tým získavajú nedeterministické poradie transakcií. Calvin určí poradie vopred a znižuje režijné náklady koordinácie. Je to rýchly distribuovaný transakčný protokol používaný napríklad vo FaunaDB.
+
+Person2: Akú úlohu má jeho sekvencer?
+
+Person1: Sekvencer je vstupný bod všetkých transakcií. Rozdeľuje čas na krátke epochy, transakcie zhromažďuje do dávok a stanoví ich globálne poradie. Po replikovaní dávku odovzdá plánovaču. Plánovač potom vykoná časti transakcií paralelne, ale zachová určené sériové poradie.
+
+Person2: Na plánovanie musí Calvin poznať čítaciu a zápisovú množinu.
+
+Person1: Čítacia množina opisuje závislosti a záznamy aktuálneho stavu, ktoré transakcia potrebuje. Zápisová množina určuje, ktoré výsledky zmení. Obmedzením je, že Calvin nepodporuje transakcie, pri ktorých až dodatočné čítanie počas vykonávania odhalí ďalšie potrebné čítania alebo zápisy.
+
+Person2: Ako plánovač riadi vykonanie pracovníkov?
+
+Person1: Najskôr analyzuje čítacie a zápisové množiny, určí lokálne záznamy a aktívnych účastníkov, ktorí budú modifikovať dáta. Potom zhromaždí lokálne vstupy a odošle ich týmto účastníkom. Aktívny uzol počká na dáta od ostatných, vykoná dávku a výsledok uloží lokálne. Ostatné uzly deterministicky urobia to isté, takže si výsledok nemusia navzájom posielať.
+
+Person2: Ako je Calvin nasadený a replikovaný?
+
+Person1: Sekvencer, plánovač, pracovník aj úložisko sú na každej lokalite. Na konsenzus o obsahu epochy alebo dávky sa môže použiť Paxos. Alternatívou je asynchrónna replikácia s leaderom. Leader zlepšuje latenciu bežnej prevádzky, ale zvyšuje cenu zotavenia po jeho výpadku.
+
+Person2: Spanner predstavuje voči Calvinu kontrast.
+
+Person1: Spanner používa dvojfázové potvrdenie nad konsenzuálnymi skupinami jednotlivých partícií a tak určuje globálne poradie transakcií. Ide o komplexný prístup, ktorý používa napríklad CockroachDB.
+
+Person2: Čím mu pomáha TrueTime?
+
+Person1: TrueTime je rozhranie k vysoko presným nástenným hodinám s ohraničenou neistotou. Namiesto predstierania jedného presného času vráti interval, v ktorom sa skutočný čas nachádza. Lokálna operácia sa môže úmyselne spomaliť a počkať, kým neistota pominie. Spanner túto záruku používa na časové usporiadanie operácií.
+
+Person2: Aké typy operácií Spanner rozlišuje?
+
+Person1: Read write transakcie používajú zámky, pesimistické riadenie súbežnosti a leadera. Read only transakcie zámky nepotrebujú a možno ich vykonať kdekoľvek. Pri snapshot read leader poskytne vhodnú časovú pečiatku. Čítanie konkrétnej pečiatky je konzistentné, pretože každá verzia hodnoty nesie pečiatku potvrdenia.
+
+Person2: Ako vyzerá jeho replikačná architektúra?
+
+Person1: Spanserver obsahuje tabuľky, úložisko a stavový stroj Paxos. Viac replík spanserverov tvorí Paxos skupinu, ktorá je jednotkou umiestnenia a replikácie. Každá skupina má dlhodobo zvoleného leadera. Leader drží zámky pre dva pé el, obsahuje transakčného manažéra a rieši dva pé cé. Počas transakcie komunikujú najmä leadri a zápisy idú cez leadera. Čítanie môže ísť priamo z tabuľky, ak je replika dostatočne aktuálna.
+
+Person2: Na záver teda potrebujeme pochopiť Paxos. Aké roly v ňom vystupujú?
+
+Person1: Navrhovatelia prijímajú hodnoty od klientov, vytvárajú návrhy a snažia sa získať hlasy. Akceptori hlasujú za prijatie návrhov alebo ich odmietajú. Na prijatie stačí väčšina, ale odolnosť vyžaduje viac akceptorov. Učiace sa procesy sa dozvedia dohodnutú hodnotu a uložia ju. Jeden účastník môže zastávať viac rolí a implementácie ich často kombinujú na jednej lokalite.
+
+Person2: Čo tvorí samotný návrh?
+
+Person1: Obsahuje hodnotu a monotónne rastúce číslo. Čísla vytvárajú úplné poradie návrhov a možno ich implementovať dvojicou identifikátora procesu a časovej pečiatky. Vyššie číslo predstavuje novší pokus.
+
+Person2: Paxos má hlasovaciu a replikačnú fázu. Čo sa deje v prvej?
+
+Person1: Navrhovateľ pošle väčšine akceptorov správu prepare s číslom návrhu. Ak akceptor ešte nesľúbil podporu vyššiemu číslu, sľúbi, že už neprijme nižší návrh. Ak predtým prijal nejakú hodnotu, v odpovedi promise uvedie číslo a hodnotu najvyššieho prijatého návrhu. Nižší prepare odmietne a oznámi najvyššie videné číslo, aby navrhovateľ mohol skúsiť vyššie.
+
+Person2: Akceptor teda môže sľúbiť podporu viacerým prepare správam, iba ak ich čísla rastú.
+
+Person1: Správne. Keď navrhovateľ získa promise od väčšiny, získal vedenie daného kola. Nemôže však vždy presadiť vlastnú hodnotu. Ak odpovede obsahujú už prijaté hodnoty, musí vybrať hodnotu patriacu k najvyššiemu číslu. Iba keď žiadna skoršia hodnota neexistuje, použije vlastnú.
+
+Person2: Ako pokračuje replikačná fáza?
+
+Person1: Navrhovateľ odošle accept s číslom a vybranou hodnotou. Akceptori návrh prijmú, pokiaľ medzičasom nesľúbili podporu vyššiemu číslu, a odpovedia accepted. Po dosiahnutí väčšiny je hodnota zvolená. Budúci úspešný navrhovateľ musí vďaka pravidlu výberu pokračovať s tou istou hodnotou, čím sa zachová zhoda.
+
+Person2: Kedy sa hodnotu dozvie učiaci sa proces?
+
+Person1: Keď dostane potvrdenie od väčšiny akceptorov. Akceptori ho môžu informovať priamo po prijatí hodnoty. Pri viacerých učiacich sa procesoch môže každý akceptor oznámiť výsledok každému, alebo sa výsledok ďalej šíri medzi učiacimi sa procesmi. Prakticky teda prvá fáza vyberie leadera kola a bezpečnú hodnotu, druhá hodnotu replikuje.
+
+Person2: Čo sa stane, ak si navrhovatelia rovnomerne rozdelia hlasy?
+
+Person1: Žiadny nezíska väčšinu a pokus sa musí zopakovať, typicky s vyšším číslom a vhodným načasovaním. V praxi sa stabilný leader používa na navrhovanie viacerých hodnôt, aby sa prvá fáza neopakovala pri každej položke a znížilo sa množstvo komunikácie.
+
+Person2: Prečo je kvórum zvyčajne práve väčšina?
+
+Person1: Každé dve väčšiny majú aspoň jedného spoločného účastníka. Tento prienik prenáša informáciu o už prijatej hodnote do ďalšieho kola, takže po prijatí nemožno rozhodnúť inú hodnotu. Paxos tak zachová bezpečnosť aj pri mnohých zlyhaniach: nevytvorí nekonzistentný stav, hoci pri nedostatku živých uzlov nemusí napredovať.
+
+Person2: Akú veľkosť systému potrebujeme na tolerovanie ef zlyhaní?
+
+Person1: Pre životnosť pri ef zlyhaných procesoch treba najmenej dva krát ef plus jeden proces. Väčšina potom zostane dostupná, ak zlyhá najviac ef procesov. Požiadavky možno poslať aj väčšiemu počtu uzlov, než vyžaduje kvórum, napríklad pre rýchlejšiu odpoveď alebo špekulatívne vykonávanie.
+
+Person2: Zhrniem si celý okruh. Distribuované uloženie prináša dostupnosť, výkon a geografickú blízkosť, ale núti nás riešiť neistú komunikáciu, voľbu leadera a kompromis CAP. Fragmentácia rozdeľuje dáta, replikácia vytvára kópie a model konzistencie určuje, čo klient smie pozorovať. Repliky sa opravujú cez read repair, digesty, hinty, Merkleho stromy či gossip. Distribuované dotazy musia počítať s cenou komunikácie a transakcie oddeľujú riadenie súbežnosti od atomického potvrdenia. Dva pé cé môže blokovať, tri pé cé nezvláda partition, kompenzácie riešia dlhé procesy a Calvin so Spannerom volia odlišné cesty ku globálnemu poradiu. Paxos napokon bezpečne rozhoduje cez rastúce návrhy a prekrývajúce sa väčšinové kvóra.

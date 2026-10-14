@@ -1,0 +1,223 @@
+Person1: Dolovanie asociačných pravidiel hľadá pravidelnosti v spoločnom výskyte položiek, udalostí alebo hodnôt. Typickou motiváciou je analýza nákupného košíka: ktoré produkty sa často predávajú spolu, čo sa kupuje pri nákupe počítača alebo pri kúpe čoho si zákazník často vezme aj televízor. Základnými pojmami sú frekventovaná množina, asociačné pravidlo, podpora a spoľahlivosť.
+
+Person2: Začnime teda frekventovanou množinou. Čo presne tento pojem znamená?
+
+Person1: Je to množina položiek, ktoré sa v skúmanej vzorke dát často vyskytujú spolu. Slovo často však nestačí samo osebe. Používateľ zadá minimálnu podporu a množina je frekventovaná vtedy, keď jej skutočná podpora tento prah prekročí. Takto oddeľujeme podstatné pravidelnosti od náhodných alebo príliš zriedkavých kombinácií.
+
+Person2: A ako sa z takej množiny dostaneme k asociačnému pravidlu?
+
+Person1: Asociačné pravidlo má ľavú stranu X a pravú stranu Y. Hovorí, že výskyt položiek z X je spojený s výskytom položiek z Y. Pravidlo musí dosiahnuť zadanú minimálnu podporu aj minimálnu spoľahlivosť. Dôležité je, že nejde o logickú implikáciu bez výnimiek, ale o pravidelnosť meranú nad dátami.
+
+Person2: Rozlíšme podporu a spoľahlivosť, lebo tieto dve miery sa ľahko zamieňajú.
+
+Person1: Podpora je pravdepodobnosť, že transakcia súčasne obsahuje položky z X aj z Y. Meria teda, ako často sa celá kombinácia objaví v databáze. Podpora je rovnaká aj pri opačnom smere pravidla, pretože súčasný výskyt X a Y sa zmenou smeru nemení.
+
+Person2: Spoľahlivosť už teda smer pravidla rešpektuje?
+
+Person1: Presne tak. Spoľahlivosť je podmienená pravdepodobnosť, že transakcia obsahujúca X obsahuje aj Y. Vyjadruje silu smerovanej implikácie. Pravidlo z X do Y preto môže mať inú spoľahlivosť než pravidlo z Y do X, hoci ich podpora je rovnaká. Silné asociačné pravidlo je také, ktoré prekročí používateľom zadaný prah podpory aj spoľahlivosti.
+
+Person2: Aký je základný postup dolovania?
+
+Person1: Má dve fázy. Najprv sa podľa minimálnej podpory vypočítajú frekventované množiny. To býva časovo náročnejšia časť. Potom sa z nich podľa minimálnej spoľahlivosti generujú silné asociačné pravidlá. Podmienka podpory je už v tejto druhej fáze zabezpečená tým, že vychádzame z frekventovaných množín.
+
+Person2: Nie všetky pravidlá však pracujú s rovnakým druhom dát. Aké typy rozlišujeme?
+
+Person1: Prvé rozdelenie je na booleovské a kvantitatívne pravidlá. Booleovské sledujú iba prítomnosť alebo neprítomnosť položky, napríklad či zákazník kúpil produkt X. Do kvantitatívnych pravidiel vstupujú číselné alebo iné hodnoty. Druhé rozdelenie je na jednodimenzionálne a viacdimenzionálne pravidlá.
+
+Person2: Čo tu znamená dimenzia?
+
+Person1: Jednodimenzionálne pravidlá typicky pochádzajú z transakčných databáz a opakujú ten istý predikát. Napríklad: ak zákazník kúpi mlieko, kúpi aj chlieb. Viacdimenzionálne pravidlá pochádzajú z relačných databáz a spájajú viaceré atribúty rozdielnych typov. Medzidimenzionálne pravidlo neopakuje predikáty, napríklad vek od devätnásť do dvadsaťpäť rokov spolu so zamestnaním študent súvisí s kúpou koly. Hybridné dimenzionálne pravidlo predikát opakuje, napríklad vek v tomto intervale a kúpa pukancov súvisia s kúpou koly.
+
+Person2: A čo jednoúrovňové a viacúrovňové pravidlá?
+
+Person1: Tie súvisia s hierarchiou položiek. Rožok môže byť konkrétnou položkou na nižšej úrovni a pečivo všeobecnejšou kategóriou na vyššej úrovni. Jednoúrovňové pravidlá ostávajú na jednej úrovni, viacúrovňové využívajú takéto úrovne abstrakcie.
+
+Person2: Prejdime k algoritmom pre jednodimenzionálne booleovské pravidlá. Základom je Apriori, však?
+
+Person1: Áno. Apriori najprv získava frekventované množiny a až potom sa z nich generujú pravidlá. Stojí na Apriori vlastnosti: každá podmnožina frekventovanej množiny musí byť tiež frekventovaná. Ak je napríklad dvojica A a B frekventovaná, frekventované musia byť aj samostatné množiny A a B.
+
+Person2: Dá sa táto vlastnosť použiť aj na vylučovanie kandidátov?
+
+Person1: Práve to je jej hlavný účel. Ak niektorá menšia množina nie je frekventovaná, žiadna jej nadmnožina nemôže byť frekventovaná. Algoritmus preto nemusí skúšať všetky kombinácie naslepo. Iteratívne hľadá frekventované množiny od kardinality jedna vyššie, teda jednomnožiny, dvojmnožiny a tak ďalej.
+
+Person2: Ako vyzerá jedna iterácia?
+
+Person1: Označme kandidátov veľkosti ká ako cé ká a skutočne frekventované množiny tejto veľkosti ako el ká. V spájacom kroku sa z frekventovaných množín predchádzajúcej veľkosti vytvoria noví kandidáti. Vo vylučovacom kroku sa odstránia kandidáti, ktorých niektorá potrebná podmnožina nie je frekventovaná. Potom sa prejde transakčná databáza, kandidátom obsiahnutým v transakciách sa zvýšia počty výskytov a ponechajú sa iba tie, ktoré spĺňajú minimálnu podporu.
+
+Person2: A algoritmus pokračuje, kým ešte nachádza neprázdnu úroveň frekventovaných množín?
+
+Person1: Áno. Začne frekventovanými jednotlivými položkami. Z nich vytvorí kandidátne dvojice, spočíta ich podporu a získa frekventované dvojice. Rovnaký postup opakuje pre trojice a ďalšie veľkosti. Výsledkom je zjednotenie frekventovaných množín zo všetkých úrovní.
+
+Person2: Skúsme si to predstaviť na príklade s minimálnou podporou päťdesiat percent.
+
+Person1: Najprv sa spočíta výskyt každej položky. Ak sa položka štyri nachádza iba v jednej zo štyroch transakcií, má podporu dvadsaťpäť percent a vylúči sa. Z ostávajúcich položiek sa vytvoria možné dvojice. Dvojice jedna s dva a jedna s päť sa tiež vyskytujú iba raz, takže neprejdú. Potom sa vytvoria možné trojice. Ak ostane iba jedna trojprvková množina, nemožno spojením vytvoriť štvorprvkovú, a ďalšie generovanie sa končí.
+
+Person2: Kde sú hlavné výkonnostné problémy Apriori?
+
+Person1: Algoritmus opakovane číta transakčnú databázu, vytvára obrovské množstvo kandidátov a musí zložito počítať ich podporu. Preto sa vylepšenia sústreďujú na tri veci: znížiť počet priechodov databázou, znížiť počet kandidátov a uľahčiť výpočet ich podpory.
+
+Person2: Aké dátové štruktúry pomáhajú s podporou?
+
+Person1: Varianty AprioriItemSet a AprioriTIDList ukladajú frekventované množiny spolu s informáciou, ktoré transakcie ich obsahujú. Samotný princíp Apriori ostáva rovnaký, no podporu už možno počítať nad vhodnejšou štruktúrou namiesto opakovaného hľadania v pôvodných transakciách.
+
+Person2: Ako funguje AprioriItemSet?
+
+Person1: Používa bitové vektory. Každá pozícia predstavuje transakciu a bit hovorí, či sa v nej daná množina nachádza. Výskyt spoločného kandidáta sa zistí rýchlou bitovou operáciou AND. Ak má jedna množina vektor jedna, nula, jedna, nula a druhá jedna, nula, nula, nula, výsledkom je jedna, nula, nula, nula. Kandidát sa teda spoločne vyskytuje v jednej transakcii.
+
+Person2: AprioriTIDList namiesto bitov používa čísla transakcií?
+
+Person1: Áno. Pre každú množinu drží množinu identifikátorov transakcií, v ktorých sa nachádza. Pri spájaní kandidátov sa urobí prienik týchto množín a podpora sa určí podľa počtu prvkov vo výsledku. Ak sa A s B vyskytuje v transakciách jedna a tri, ale A s C iba v transakcii jedna, ich prienik pre A, B a C obsahuje iba transakciu jedna.
+
+Person2: Ďalším spôsobom obmedzenia priechodov je algoritmus Partition. Aký má princíp?
+
+Person1: Partition potrebuje dva priechody celou databázou. Využíva poznatok, že množina frekventovaná v celej databáze musí byť frekventovaná aspoň v niektorej jej časti. V prvom priechode databázu rozdelí a v každej časti nájde lokálne frekventované množiny. Ich zjednotenie vytvorí globálnych kandidátov. V druhom priechode sa podpora týchto kandidátov overí nad celou databázou.
+
+Person2: Prečo je to efektívnejšie než bežné Apriori?
+
+Person1: Lokálne frekventované množiny sa získavajú na menších vzorkách dát a v druhom priechode sa testuje už len menší počet kandidátov. Výsledné frekventované množiny sú pritom identické s výsledkami Apriori.
+
+Person2: Čo robí algoritmus DHP, teda Direct Hashing and Pruning?
+
+Person1: Redukuje kandidátov ešte pred ich úplným testovaním. Hašovacia funkcia rozdelí kandidátne množiny do košov a počíta podporu košov. Ak počet výskytov koša nedosahuje minimálnu podporu, žiadny kandidát v tomto koši nemôže byť frekventovaný a ďalej sa s ním nepočíta. Pri tomto prístupe možno prah minimálnej podpory aj zvýšiť.
+
+Person2: A algoritmus DIC znižuje počet priechodov inak?
+
+Person1: DIC vychádza zo siete všetkých možných množín a počíta podporu zdola, hoci sieť fyzicky nevytvára. Keď zistí, že A a D sú frekventované, môže začať počítať podporu ich dvojice. Podobne začne skúmať trojicu B, C a D, keď sú frekventované všetky jej dvojprvkové podmnožiny.
+
+Person2: Musí pritom vždy čakať až na koniec celého priechodu databázou?
+
+Person1: Nie. Práve v tom je zrýchlenie. Ak už po preskenovaní polovice databázy vidí, že C a D sú veľmi frekventované, môže ešte v rámci prvej iterácie začať testovať ich dvojicu. Znižuje tým počet úplných priechodov a nestráca výsledky.
+
+Person2: MaxMiner sa zameriava na maximálne množiny. Čo je maximálna frekventovaná množina?
+
+Person1: Je to frekventovaná množina, ktorej žiadna nadmnožina už nie je frekventovaná. MaxMiner je vhodný najmä pre veľa transakcií nad malým počtom položiek. Po nájdení frekventovaných položiek postupuje zdola nahor, ale spolu s menšími množinami testuje aj ich potenciálne maximálne nadmnožiny. Ak je taká nadmnožina frekventovaná, jej podmnožiny netreba samostatne kontrolovať.
+
+Person2: Napriek všetkým týmto úpravám ostáva generovanie kandidátov zásadným limitom Apriori, správne?
+
+Person1: Áno. Už desaťtisíc frekventovaných jednomnožín môže vygenerovať desať miliónov kandidátnych dvojíc. Na objavenie frekventovanej množiny veľkosti sto by počet kandidátov mohol dosiahnuť približne desať na tridsiatu. Navyše, ak má najväčšia množina veľkosť en, databázu treba čítať en plus jedenkrát.
+
+Person2: Preto prichádza FP-strom, ktorý kandidátov negeneruje?
+
+Person1: Presne. FP znamená frequent pattern. FP-strom komprimuje rozsiahlu databázu do kompaktnej, ale stále úplnej štruktúry. Dolovanie potom prebieha prechádzaním stromu. Úloha sa rozkladá na menšie podúlohy, predchádza sa mnohým čítaniam databázy a netestujú sa explicitne vygenerovaní kandidáti.
+
+Person2: Ako sa FP-strom skonštruuje?
+
+Person1: Prvý priechod databázou nájde frekventované jednotlivé položky. Tie sa zoradia zostupne podľa počtu výskytov. V druhom priechode sa podľa tohto poradia vložia transakcie do stromu. Vytvoria sa odkazy medzi ekvivalentnými položkami a tabuľka hlavičiek, ktorá pre každú položku odkazuje na jej prvý výskyt.
+
+Person2: Prečo sa položky v transakciách zoraďujú podľa frekvencie?
+
+Person1: Časté položky sa tak dostanú bližšie ku koreňu a transakcie s podobným začiatkom zdieľajú prefixové cesty. Tým sa zvýši kompresia. Prvá transakcia vytvorí prvú vetvu s počtom výskytov jeden. Ďalšia transakcia môže zvýšiť počty na zdieľanej časti a až potom pridať novú vetvu.
+
+Person2: Aké sú hlavné vlastnosti výsledného stromu?
+
+Person1: Je úplný a kompaktný. Úplnosť znamená, že nerozbije dlhú množinu z transakcie a zachová všetku informáciu potrebnú na získanie frekventovaných množín. Kompaktnosť vzniká odstránením nefrekventovaných položiek a zdieľaním častých prefixov. Strom nikdy nebude väčší než pôvodná databáza.
+
+Person2: Ako vyzerá najlepší a najhorší prípad kompresie?
+
+Person1: V najlepšom prípade sú všetky transakcie rovnaké. Strom tvorí jediná cesta a kompresia je najväčšia. V najhoršom prípade obsahuje každá transakcia úplne odlišné prvky. Prefixy sa nezdieľajú, kompresia nevznikne a nevzniknú ani frekventované množiny.
+
+Person2: Strom už máme. Ako z neho získame frekventované množiny?
+
+Person1: Pre každú položku v tabuľke hlavičiek sa najprv zostaví podmienený základ. Z neho sa vytvorí podmienený FP-strom a všetky takéto podmienené stromy sa rekurzívne dolujú. Tým sa frekventované množiny postupne rozširujú o ďalšie prvky.
+
+Person2: Čo si mám predstaviť pod podmieneným základom?
+
+Person1: Začneme pri položke v tabuľke hlavičiek a cez uzlové odkazy navštívime všetky jej výskyty. Pre každý výskyt vezmeme prefixovú cestu vedúcu k tejto položke a priradíme jej počet výskytov danej položky. Nahromadené transformované prefixové cesty tvoria podmienený základ.
+
+Person2: Môžeš uviesť slovný príklad?
+
+Person1: Ak sa položka bé nachádza za prefixmi ef, cé, á s počtom jeden, samotné ef s počtom jeden a cé s počtom jeden, jej podmienený základ tvoria práve tieto tri cesty. Ak sa položka pé nachádza dvakrát za prefixom ef, cé, á, em a raz za prefixom cé, bé, podmienený základ zachová obe cesty aj ich počty dva a jeden.
+
+Person2: Aké vlastnosti umožňujú, aby sme nič dôležité nevynechali?
+
+Person1: Vlastnosť uzlových odkazov hovorí, že všetky frekventované množiny obsahujúce určitú položku možno nájsť nasledovaním jej odkazov od príslušnej hlavičky. Vlastnosť prefixovej cesty zas hovorí, že pre daný uzol stačí skúmať jeho prefixovú podcestu a použiť rovnaký počet výskytov, aký má daná položka.
+
+Person2: Ako sa z podmieneného základu vytvorí podmienený FP-strom?
+
+Person1: Najprv sa v podmienenom základe spočítajú výskyty jednotlivých položiek. Nefrekventované sa odstránia a z ostávajúcich prefixových ciest sa vytvorí nový FP-strom pre skúmanú položku. Rovnaký postup sa rekurzívne opakuje.
+
+Person2: Zhrňme, prečo je FP-strom výrazne rýchlejší.
+
+Person1: Negeneruje ani netestuje kandidátov. Používa kompaktnú dátovú štruktúru a po druhom priechode, keď je strom zostavený, už pôvodnú databázu nepotrebuje. Eliminuje jej opakované čítanie. Základnými operáciami ostávajú počítanie výskytov a konštrukcia podmienených FP-stromov.
+
+Person2: Doteraz sme pracovali prevažne na jednej úrovni položiek. Ako sa dolujú viacúrovňové pravidlá?
+
+Person1: Využívajú konceptuálnu hierarchiu položiek. Pravidlá na rôznych úrovniach abstrakcie môžu byť užitočné, no konkrétnejšie položky na nižšej úrovni majú spravidla nižšiu podporu. Transakčná databáza môže byť zakódovaná podľa týchto úrovní.
+
+Person2: Postupuje sa zhora nadol?
+
+Person1: Áno. Najprv sa hľadajú silné pravidlá na najvyššej, najvšeobecnejšej úrovni. Potom sa pokračuje na nižšie úrovne abstrakcie, kde bývajú pravidlá slabšie pre menší počet výskytov konkrétnych položiek.
+
+Person2: Ako sa nastavuje minimálna podpora na jednotlivých úrovniach?
+
+Person1: Jednou možnosťou je konštantná podpora, teda rovnaký prah pre všetky úrovne. Výhodou je jednoduchosť a možnosť vynechať množiny s položkou, ktorej predchodcovia v hierarchii nie sú frekventovaní. Nevýhodou je konflikt medzi úrovňami: vysoký prah stratí asociácie medzi konkrétnymi položkami, nízky prah vytvorí priveľa asociácií na všeobecnej úrovni.
+
+Person2: Alternatívou je redukovaná podpora?
+
+Person1: Áno. Na nižších úrovniach sa použije nižší minimálny prah. Existuje viac stratégií filtrovania. Pri filtrovaní nezávislom od úrovní sa prechádza celá hierarchia bez ohľadu na frekventovanosť predchodcu. Pri filtrovaní úrovne ká množinou sa konkrétnejšia množina testuje iba vtedy, keď je zodpovedajúca množina na vyššej úrovni frekventovaná.
+
+Person2: A stratégie založené na jednej položke?
+
+Person1: Pri filtrovaní úrovne jednou položkou sa nasledovníci testujú, ak je ich uzol frekventovaný. Kontrolované filtrovanie je miernejšie: nasledovník sa testuje, ak je predchodca frekventovaný alebo aspoň dosahuje stanovený prah zanorenia.
+
+Person2: Pri hierarchii môžu vznikať redundantné pravidlá. Ako ich rozpoznáme?
+
+Person1: Pravidlá môžu byť redundantné vzhľadom na vzťah predchodcu a nasledovníka medzi položkami. Konkrétnejšie pravidlo sa považuje za redundantné, ak je jeho podpora blízka hodnote očakávanej z pravidla na vyššej úrovni. Napríklad všeobecné pravidlo mlieko súvisí s chlebom môže mať podporu osem percent a spoľahlivosť sedemdesiat percent. Konkrétnejšie pravidlo dvojpercentné mlieko súvisí s tmavým chlebom s podporou dve percentá a spoľahlivosťou sedemdesiatdva percent nemusí prinášať podstatne novú informáciu.
+
+Person2: Posuňme sa od transakčných dát k relačným databázam a dátovým skladom. Čo sa mení?
+
+Person1: Pri viacdimenzionálnych asociáciách pracujeme s rôznymi atribútmi vrátane kvantitatívnych, napríklad s vekom. Kľúčovou otázkou je, ako číselné hodnoty rozdeliť do intervalov. Techniky sa preto delia podľa spôsobu diskretizácie kvantitatívneho atribútu.
+
+Person2: Najjednoduchšia je statická diskretizácia?
+
+Person1: Pri nej sa pred dolovaním použijú vopred definované pravidlá a numerické hodnoty sa nahradia intervalmi. Potom sa v relačnej tabuľke hľadajú frekventované množiny intervalov a kategorických hodnôt. Pri Apriori to vyžaduje ká alebo ká plus jeden priechodov tabuľkou, prípadne možno vytvoriť FP-strom, kde jeden riadok tabuľky predstavuje jednu transakciu.
+
+Person2: Aké typické statické rozdelenia sa používajú?
+
+Person1: Equi-depth vytvára intervaly podľa hĺbky a equi-width podľa šírky. Obe sú preddefinované ešte pred samotným dolovaním. V podstate potom používame upravené základné algoritmy nad hodnotami nahradenými intervalmi.
+
+Person2: Pri kvantitatívnych asociačných pravidlách však môžeme diskretizovať dynamicky podľa rozloženia dát.
+
+Person1: Presne. Hodnoty sa rozdeľujú do košov na základe dát. Jedna metóda je obmedzená na dvojdimenzionálne pravidlá. Dva kvantitatívne atribúty na ľavej strane súvisia s jedným kategorickým atribútom na pravej strane. Diskretizácia sa môže voliť napríklad tak, aby maximalizovala spoľahlivosť pravidiel, a susedné pravidlá sa zhlukujú v dvojdimenzionálnej mriežke.
+
+Person2: Túto myšlienku rozvíja systém ARCS?
+
+Person1: Áno. Association Rule Clustering System postupuje cez rozdelenie hodnôt do košov, nájdenie frekventovaných množín, zhlukovanie a optimalizáciu. Stále má obmedzenie, že na ľavej strane pravidla môžu byť iba dva kvantitatívne atribúty. Alternatívami sú metódy bez mriežky, diskretizácia do hĺbky a diskretizácia založená na metrike partial completeness.
+
+Person2: Čo robí všeobecná metóda s ká čiastočnou úplnosťou?
+
+Person1: Touto metrikou hodnotí stratu informácie spôsobenú diskretizáciou. Snaží sa, aby intervaly neboli ani príliš veľké, ani príliš malé. Začne počiatočnou diskretizáciou a potom postupne spája susedné intervaly do väčších.
+
+Person2: Aký je celý postup tejto všeobecnej metódy?
+
+Person1: Najprv sa kvantitatívne atribúty diskretizujú a hodnoty sa priradia do intervalov. Susedné intervaly sa spájajú tak, aby bola splnená podmienka maximálnej podpory. Potom sa generujú frekventované množiny a asociačné pravidlá. Nakoniec sa podľa metriky zaujímavosti odstránia nezaujímavé pravidlá.
+
+Person2: Má tento prístup nejakú slabinu?
+
+Person1: Nerešpektuje sémantiku dát, teda skutočné vzdialenosti medzi kvantitatívnymi hodnotami. Počiatočné intervaly majú rovnaký počet prvkov, no hodnoty v nich nemusia byť zmysluplne blízke.
+
+Person2: Túto nevýhodu riešia asociačné pravidlá založené na vzdialenosti?
+
+Person1: Áno. Dynamická diskretizácia pri nich berie do úvahy vzdialenosti medzi dátovými bodmi, ich hustotu aj počet v intervale. Zhlukovacie metódy najprv nájdu zhluky en tíc s čo najmenším priemerom a potom vytvoria pravidlá obsahujúce tieto zhluky hodnôt. Hlavnou výhodou je zmysluplnejšie rozdelenie rešpektujúce sémantiku kvantitatívnych dát.
+
+Person2: Ako funguje metóda adaptívneho zlučovania numerických atribútov?
+
+Person1: Každá hodnota atribútu sa najprv priradí do vlastného jednoprvkového intervalu. Potom sa podľa zvolených kritérií zlučujú najbližšie susedné intervaly. Ide o hierarchické zhlukovanie a výsledné zhluky sa stanú intervalmi v asociačných pravidlách.
+
+Person2: Kedy sa zlučovanie zastaví?
+
+Person1: Sleduje sa rozdiel medzi susednými stredmi intervalov. Zlučovanie sa zastaví, keď je tento rozdiel väčší než trojnásobok priemernej vzdialenosti susedných prvkov atribútu. [short pause] V ďalšom spracovaní možno hotový interval považovať za kategorickú hodnotu. Musí mať dostatočnú podporu, aby z neho známe metódy vytvorili zaujímavé pravidlá, a aj tu treba výsledný počet pravidiel redukovať.
+
+Person2: Existuje aj metóda založená priamo na priemernej vzdialenosti.
+
+Person1: Tá oddeľuje spracovanie kategorických a kvantitatívnych atribútov. Najprv vytvorí frekventované množiny z kategorických stĺpcov tabuľky. Potom po jednom diskretizuje kvantitatívne atribúty. Nakoniec z výsledných frekventovaných množín vygeneruje asociačné pravidlá.
+
+Person2: Posledným prístupom v poznámke je metóda založená na štatistike. Čo hľadá?
+
+Person1: Hľadá vzorku dát, ktorej správanie sa líši od zvyšku. Príkladom je skupina žien s priemerným platom sedem celých deväťdesiat za hodinu, kým celkový priemer je deväť celých desať za hodinu. Následne sa overuje, či je rozdiel stredných hodnôt, prípadne rozptylov, štatisticky významný.
+
+Person2: Akým testom a s akou dodatočnou podmienkou?
+
+Person1: Používa sa štandardný zet test a testuje sa hypotéza, že stredné hodnoty sú rovnaké. Zároveň sa kontroluje minimálny rozdiel stredných hodnôt označovaný ako mindiff, aby sa za zaujímavý nepovažoval štatisticky zachytený, ale prakticky príliš malý rozdiel.
+
+Person2: Celý okruh si teda môžem zapamätať v troch vrstvách. Najprv rozlíšim podporu spoločného výskytu od smerovej spoľahlivosti a z frekventovaných množín vytváram silné pravidlá. Potom porovnám Apriori s jeho kandidátmi a opakovanými priechodmi proti FP-stromu bez generovania kandidátov. A napokon pri hierarchických, relačných a kvantitatívnych dátach riešim úrovne abstrakcie, vhodné prahy podpory a zmysluplnú diskretizáciu hodnôt.

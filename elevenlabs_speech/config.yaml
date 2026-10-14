@@ -13,8 +13,8 @@ model_id: "eleven_v3"
 # invalidate already-cached chunks - it only affects newly generated chunks.
 language_code: "sk"
 
-# Output format (codec_samplerate_bitrate). 192 kbps requires Creator+.
-output_format: "mp3_44100_192"
+# Output format (codec_samplerate_bitrate).
+output_format: "mp3_44100_128"
 
 # Voices for the two speakers (voice_id from the ElevenLabs account).
 voices:
@@ -37,9 +37,9 @@ normalize: true
 # for spoken word; lower = quieter with more headroom.
 target_lufs: -18.0
 
-# Final dynamics mastering across the whole episode: a gentle compressor tames loud
-# phrase onsets, a dynamic normalizer evens out slower loudness drift, then a
-# true-peak limiter guards against clipping. Set false to keep raw dynamics.
+# Final mastering across the whole episode: a gentle speech compressor followed by
+# two-pass EBU R128 normalization to `target_lufs` and a -1.5 dBTP safety limiter.
+# Set false to keep raw dynamics after the per-speaker leveling above.
 dynamics: true
 
 # Eleven v3 dialogue settings. Only `stability` is exposed for dialogue.

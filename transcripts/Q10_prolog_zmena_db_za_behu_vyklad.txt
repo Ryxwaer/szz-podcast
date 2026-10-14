@@ -1,0 +1,143 @@
+Person1: Témou okruhu je Prolog, zmena databázy a programu za behu, prehľadávanie stavového priestoru a práca so zoznamami. Začneme zoznamami, pretože ich potom využijeme pri reprezentácii ciest aj frontu.
+
+Person2: Ako je zoznam v Prologu vlastne vytvorený?
+
+Person1: Je to rekurzívna dátová štruktúra. Máme prázdny zoznam a neprázdny zoznam rozdelený na hlavu a chvost. Hlava je prvý prvok, kým chvost je opäť zoznam obsahujúci všetky zostávajúce prvky.
+
+Person2: A čo znamená otvorený zoznam?
+
+Person1: V otvorenom zozname poznáme niekoľko úvodných prvkov, ale jeho zvyšok je zatiaľ premenná. Taký zoznam teda obsahuje najmenej uvedené prvky a môže sa neskôr doplniť ďalším chvostom. Bežný zápis troch prvkov je iba skratka pre postupné pripájanie každej hlavy pred zvyšok až po prázdny zoznam.
+
+Person2: Zápis hlavy a chvosta sa často objavuje priamo v hlavičke predikátu. Je to len rozbalenie zoznamu?
+
+Person1: Presnejšie je to vzor. Pri volaní predikátu sa argument unifikuje s týmto vzorom, takže premenná pre hlavu dostane prvý prvok a premenná pre chvost dostane zvyšok. Rovnaký princíp používajú základné predikáty member, last aj append.
+
+Person2: Ako pracuje member, teda hľadanie prvku?
+
+Person1: Má dve klauzuly. Prvá uspeje, keď sa hľadaný prvok unifikuje s hlavou zoznamu. Druhá zahodí aktuálnu hlavu a rekurzívne pokračuje v chvoste. Pre prázdny zoznam klauzula nie je, takže hľadanie zlyhá.
+
+Person2: Prečo tam nie je rez po prvom úspechu?
+
+Person1: Pretože member má zostať nedeterministický. Pri spätnom prehľadávaní môže nájsť ďalší výskyt rovnakého prvku, a ak je hľadaný prvok premenná, môže postupne generovať prvky zoznamu.
+
+Person2: A predikát last na nájdenie posledného prvku?
+
+Person1: Podľa používanej konvencie má prvý argument posledný prvok a druhý argument zoznam. Základná klauzula hovorí, že jediný prvok jednoprvkového zoznamu je zároveň posledný. Rekurzívna klauzula zahadzuje hlavy, až kým nezostane jednoprvkový zoznam. Prázdny zoznam nemá posledný prvok, preto volanie zlyhá.
+
+Person2: Ani tu netreba rez?
+
+Person1: Nie. Ak sa po úspechu základnej klauzuly skúsi alternatíva, rekurzia dôjde k prázdnemu zoznamu a prirodzene zlyhá. Rez by teda nebol potrebný na správnosť.
+
+Person2: Zostáva append, ktorý budeme potrebovať pri prehľadávaní do šírky.
+
+Person1: Append vyjadruje vzťah medzi dvoma vstupnými zoznamami a ich spojením. Ak je prvý zoznam prázdny, výsledkom je druhý zoznam. Inak sa hlava prvého zoznamu prenesie do výsledku a rekurzívne sa spája jeho chvost s druhým zoznamom.
+
+Person2: Ako zo zoznamov prejdeme k zmene databázy za behu?
+
+Person1: Program v Prologu môžeme chápať ako databázu klauzúl. Klauzula je buď fakt tvorený samotnou hlavičkou, alebo pravidlo, ktorého hlavička platí pri splnení tela. Prolog dovolí klauzuly počas behu pridávať a odstraňovať, prípadne v nich uchovávať priebežný stav výpočtu.
+
+Person2: Môže sa takto meniť každý predikát?
+
+Person1: Predikáty rozlišujeme na statické a dynamické. Statický predikát sa počas behu meniť nemá. Predikát určený na zmenu deklarujeme direktívou dynamic, pričom uvádzame jeho názov a aritu, teda počet argumentov.
+
+Person2: Prečo je arita súčasťou deklarácie?
+
+Person1: Pretože názov s aritou jednoznačne určuje predikát. Napríklad used s aritou jeden je iný predikát než used s aritou dva. Rovnako môžeme deklarovať dynamický predikát chová s aritou dva na ukladanie dvojíc.
+
+Person2: Ktoré operácie potom databázu menia?
+
+Person1: Asserta vloží klauzulu na začiatok definície predikátu, takže sa pri ďalšom volaní skúsi skôr. Assertz ju vloží na koniec. Historický assert je implementačne závislý; v SWI Prologu je aliasom pre assertz, no v prenosnom kóde je lepšie zvoliť asserta alebo assertz explicitne.
+
+Person2: Ako funguje odstraňovanie cez retract a retractall?
+
+Person1: Retract odstráni prvú klauzulu, ktorá sa unifikuje so zadaným vzorom. Ak nič nezodpovedá, zlyhá. Keď si vyžiadame ďalšie riešenie, môže postupne odstrániť aj ďalšie zodpovedajúce klauzuly. Retractall odstráni všetky klauzuly so zodpovedajúcou hlavičkou a uspeje aj vtedy, keď nenašiel nič.
+
+Person2: Dajú sa pridávať a odstraňovať iba fakty?
+
+Person1: Nie, argumentom týchto operácií môže byť fakt aj celé pravidlo. Pri pravidle treba hlavičku spolu s telom uzavrieť do zátvoriek, aby sa celé pravidlo odovzdalo ako jeden argument. Tak možno za behu zmeniť nielen údaje, ale aj odvodené správanie programu.
+
+Person2: Môžeš uviesť jednoduchý príklad poradia faktov?
+
+Person1: Predstavme si dynamický predikát chová a pôvodné fakty, že teta chová mača a teľa. Ak cez asserta pridáme prasiatko, objaví sa pri vypisovaní výsledkov ako prvé. Ak cez assertz pridáme jahňa, objaví sa ako posledné. Retract môže odstrániť jeden konkrétny fakt a retractall všetky fakty, ktoré hovoria, čo teta chová.
+
+Person2: A príklad zmeny samotného pravidla?
+
+Person1: Máme základnú cenu knihy dvadsať a dynamický predikát pre výslednú cenu. Za behu môžeme pridať pravidlo, ktoré načíta základnú cenu a vypočíta desaťpercentnú zľavu. Výsledná cena je potom osemnásť. Pravidlo neskôr odstránime zodpovedajúcim retract alebo odstránime všetky pravidlá daného predikátu pomocou retractall.
+
+Person2: Čo sa s týmito zmenami stane pri backtrackingu?
+
+Person1: Toto je zásadná vlastnosť: účinky asserta, assertz, assert, retract a retractall sa pri spätnom prehľadávaní neanulujú. Sú to vedľajšie účinky. Aj keď sa výpočet vráti cez miesto, kde sa klauzula pridala alebo odstránila, databáza zostane zmenená.
+
+Person2: Ovplyvní nová klauzula aj volanie predikátu, ktoré už práve prebieha?
+
+Person1: V moderných implementáciách sa typicky používa logická aktualizácia pohľadu. Už začaté volanie pracuje s klauzulami, ktoré boli viditeľné v okamihu jeho začatia. Klauzulu pridanú neskôr preto toto aktívne volanie pri ďalšom backtrackingu neuvidí. Starší okamžitý pohľad naopak sprístupňoval zmenu aj aktívnemu volaniu.
+
+Person2: Čo ak sa pokúsime meniť statický predikát?
+
+Person1: V SWI Prologu pokus o zmenu statického predikátu načítaného zo súboru typicky skončí chybou oprávnenia. SWI Prolog síce dokáže pridaním klauzuly vytvoriť dovtedy nedefinovaný predikát, ale prenosný a čitateľný program ho má vopred deklarovať ako dynamický.
+
+Person2: Teraz už môžeme dynamickú databázu použiť pri prehľadávaní stavového priestoru.
+
+Person1: Stavový priestor opisuje možné konfigurácie úlohy a dovolené prechody medzi nimi. Potrebujeme reprezentáciu stavov, počiatočný stav, operáciu generujúcu následníkov a cieľový stav alebo test cieľa. Hľadáme cieľ dosiahnuteľný zo začiatku, často aj cestu, ktorá k nemu vedie.
+
+Person2: Ako sa reprezentuje ukážkový orientovaný graf?
+
+Person1: Fakt edge s aritou dva znamená, že z prvého stavu možno jedným krokom prejsť do druhého. Graf obsahuje aj cykly, napríklad návraty k už navštíveným vrcholom. Dynamický predikát used s aritou jeden preto dočasne uchováva stavy na práve skúmanej ceste.
+
+Person2: Ako je postavené prehľadávanie do hĺbky, teda dé ef es?
+
+Person1: Predikát path dostane počiatočný stav, cieľ a výslednú cestu. Základná klauzula uspeje, keď je aktuálny stav cieľom, a vráti jednoprvkový koniec cesty. Za touto klauzulou je rez, takže po dosiahnutí cieľa už pre rovnaké volanie neskúšame pokračovať ďalšími hranami.
+
+Person2: Čo robí rekurzívna klauzula?
+
+Person1: Najprv cez assertz uloží aktuálny stav do used. Potom edge vygeneruje nasledovníka. Negácia ako neúspech overí, že nasledovník ešte neleží na aktuálnej ceste, a rekurzia hľadá zvyšok cesty z neho do cieľa.
+
+Person2: Ako sa stav z used odstráni, keď sa zvolená vetva ukáže ako slepá?
+
+Person1: Tretia klauzula overí, že aktuálny stav je v used, odstráni ho cez retract a zámerne zlyhá. Tým vynúti spätné prehľadávanie a skúšanie inej vetvy. Ručné odstránenie je nevyhnutné práve preto, že samotný backtracking databázový vedľajší účinok nevráti.
+
+Person2: Aký bude priebeh pri hľadaní cesty zo stavu jeden do stavu sedem?
+
+Person1: Najprv sa neúspešne preskúša vetva cez stavy jeden, dva a päť, pretože ďalší krok by sa vrátil do cyklu. Potom sa nájde kratšia cesta cez stavy jeden, štyri a sedem. Pri vyžiadaní ďalšieho riešenia sa nájde aj cesta cez stavy jeden, štyri, osem a sedem.
+
+Person2: Zostane po skončení hľadania niečo v used?
+
+Person1: Ak si vyžiadame všetky riešenia a necháme prebehnúť spätné prehľadávanie, pomocné fakty sa pri návrate odstránia. Ak sa však zastavíme hneď po prvom riešení, časť faktov môže zostať. Pred novým nezávislým hľadaním preto treba odstrániť všetky fakty used cez retractall.
+
+Person2: Dá sa čistenie zabezpečiť automaticky?
+
+Person1: Áno. Opakovane použiteľné riešenie oddelí vnútorné jadro hľadania a obalí ho konštrukciou setup call cleanup. Tá pred hľadaním vyčistí used a po skončení ho vyčistí znova, či už výpočet uspel, zlyhal alebo bol ukončený iným spôsobom.
+
+Person2: Potrebujeme vôbec dynamickú databázu, keď máme zoznamy?
+
+Person1: Nie. Navštívené stavy môžeme odovzdávať ako ďalší argument. Pri každom rekurzívnom kroku pridáme aktuálny stav na začiatok zoznamu navštívených a cez member overíme, že nasledovník ešte nie je na ceste. Po nájdení cieľa obrátený zoznam otočíme predikátom reverse, aby cesta viedla od začiatku k cieľu.
+
+Person2: Aký je hlavný rozdiel medzi týmito dvoma prístupmi?
+
+Person1: Dynamická databáza názorne ukazuje zmenu programu za behu a poskytuje globálne dostupný stav bez ďalšieho argumentu. Zároveň prináša vedľajšie účinky, vyžaduje dôsledné čistenie a komplikuje vnorené či súbežné použitie.
+
+Person2: Kým zoznam drží stav lokálne?
+
+Person1: Presne. Zoznam je explicitný argument a väzby premenných sa pri backtrackingu obnovujú automaticky. Riešenie je preto deklaratívnejšie, bezpečnejšie pri opakovanom použití a ľahšie testovateľné. Cenou je ďalší argument a opakované testovanie členstva.
+
+Person2: Ako zoznam použijeme ako front pri prehľadávaní do šírky, teda bé ef es?
+
+Person1: Front neobsahuje iba jednotlivé stavy, ale celé rozpracované cesty. Spracúva ich v poradí od najkratších. Každú cestu ukladáme obrátene, takže nový stav môžeme efektívne pridať na jej začiatok bez prechádzania celého zoznamu.
+
+Person2: Čo sa stane s prvou cestou vo fronte?
+
+Person1: Vyberie sa zo začiatku frontu. Ak je jej prvým, teda aktuálnym stavom cieľ, algoritmus túto obrátenú cestu vráti a vonkajší predikát ju pomocou reverse otočí. Inak treba vytvoriť všetky jednokrokové rozšírenia tejto cesty.
+
+Person2: Ako vzniknú rozšírenia bez cyklov?
+
+Person1: Findall zozbiera všetkých nasledovníkov generovaných predikátom edge, ktorí sa ešte nenachádzajú v konkrétnej ceste. Pre každého vytvorí novú obrátenú cestu s nasledovníkom na začiatku. Append potom pripojí všetky nové cesty na koniec zostávajúceho frontu.
+
+Person2: Prečo prvá nájdená cesta obsahuje najmenší počet hrán?
+
+Person1: Pretože front zachováva poradie podľa dĺžky. Kým sa začnú spracúvať dlhšie cesty, algoritmus preskúma všetky kratšie cesty, ktoré boli zaradené skôr. To zaručuje najmenší počet hrán v neohodnotenom grafe; pri rôznych cenách hrán by toto tvrdenie neplatilo.
+
+Person2: Je zoznam navštívených v tejto verzii bé ef es globálny pre celý graf?
+
+Person1: Nie, a to je dôležitý detail. Kontrola cyklu sa robí iba v rámci každej konkrétnej cesty. Rovnaký stav sa preto môže dostať do frontu viackrát cez rôzne cesty. V konečnom grafe algoritmus stále nájde najkratšiu cestu, ale oproti klasickému grafovému bé ef es s jednou globálnou množinou navštívených môže spotrebovať podstatne viac pamäte.
+
+Person2: Zhrniem si to. Zoznamy v Prologu rozkladáme na hlavu a chvost a používame ich v predikátoch member, last, append aj pri reprezentácii ciest a frontu. Dynamické predikáty deklarujeme názvom a aritou, klauzuly pridávame cez asserta alebo assertz a odstraňujeme cez retract či retractall, pričom tieto zmeny backtracking nevracia. Pri prehľadávaní preto musíme dynamický stav dôsledne čistiť, alebo radšej niesť navštívené stavy explicitne v zozname. Dé ef es skúša vetvy do hĺbky, kým bé ef es rozširuje najkratšie rozpracované cesty a v neohodnotenom grafe nájde cestu s najmenším počtom hrán.

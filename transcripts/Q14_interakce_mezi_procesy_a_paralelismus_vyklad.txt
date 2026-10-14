@@ -1,0 +1,203 @@
+Person1: Vitaj pri výklade okruhu Interakcie medzi procesmi a typické problémy paralelizmu. Prejdeme si súperenie a spoluprácu procesov, komunikačné a synchronizačné mechanizmy, kritické sekcie aj klasické problémy súbehu.
+
+Person2: Začnime tým, čo vlastne medzi procesmi môže prebiehať.
+
+Person1: Interakcie delíme na súperenie a spoluprácu. Pri súperení sa viac procesov snaží v rovnakom čase pristupovať k jednému zdroju, preto potrebujeme vzájomné vylúčenie. Pri spolupráci sa procesy dohovárajú a koordinujú, napríklad pri rozdelení úloh, synchronizácii alebo detekcii správneho či chybného ukončenia výpočtu.
+
+Person2: A ako do toho zapadajú procesy, vlákna a paralelné spracovanie?
+
+Person1: Proces je samostatne vykonávaná inštancia programu s vlastným tokom riadenia a spravidla aj vlastným adresným priestorom. Samostatné procesy preto bežne nepracujú priamo s rovnakými premennými. Komunikujú cez mechanizmy operačného systému, zdieľanú pamäť alebo správy.
+
+Person2: Vlákno teda nie je to isté ako proces.
+
+Person1: Presne tak. Vlákno je tok riadenia vnútri procesu. Vlákna jedného procesu zdieľajú adresný priestor a ďalšie prostriedky, ale každé má vlastný zásobník a stav vykonávania. Paralelizmus medzi vláknami je preto jemnejší než paralelizmus medzi samostatnými procesmi.
+
+Person2: A multitasking ešte nemusí znamenať, že sa veci naozaj vykonávajú súčasne.
+
+Person1: Správne. Na jednom procesore multitasking vytvára zdanlivý súbeh tým, že procesy strieda pomocou prepínania kontextu. V jednom okamihu však procesor vykonáva iba jeden tok riadenia. Skutočné paralelné spracovanie nastáva až vtedy, keď viac procesorov alebo jadier vykonáva viac tokov riadenia súčasne.
+
+Person2: Čím sa od seba líšia synchronizácia a komunikácia?
+
+Person1: Synchronizácia neprenáša používateľské dáta. Určuje požadované časové vzťahy medzi udalosťami. Môže ju zabezpečovať synchrónne zasielanie správ, rendezvous, vzdialené volanie procedúry, semafor, monitor alebo bariéra. Komunikácia naopak prenáša informácie medzi procesmi, procesormi alebo vláknami.
+
+Person2: Aké základné komunikačné mechanizmy používame?
+
+Person1: Prvou možnosťou je zdieľaná pamäť. Procesy alebo vlákna pristupujú k spoločnému adresnému priestoru, skutočnému alebo simulovanému. Súbežný prístup k rovnakým údajom však vyžaduje synchronizáciu a riešenie konfliktov pri zápise.
+
+Person2: Druhou možnosťou je zasielanie správ?
+
+Person1: Áno. Každý proces pracuje vo vlastnom adresnom priestore a údaje odovzdáva párom operácií send a receive, teda odoslaním a prijatím správy cez kanál. Obe operácie môžu byť blokujúce alebo neblokujúce.
+
+Person2: Čo rozhoduje o tom, či odosielateľ čaká?
+
+Person1: Asynchrónny kanál má buffer, takže odoslanie môže skončiť bez čakania na príjemcu. Synchrónny kanál má obmedzenú alebo nulovú kapacitu, a preto môže odosielateľ čakať na prevzatie správy. Kanál má typicky jedného príjemcu, zatiaľ čo mailbox ich môže mať viac.
+
+Person2: A čo vzdialené volanie procedúry a rendezvous?
+
+Person1: Pri RPC jeden proces vyvolá operáciu, ktorú vykoná iný proces. Pri rendezvous musia byť pripravení odosielateľ aj príjemca, takže samotný prenos zároveň synchronizuje oba procesy. Broadcast zasa odošle správu všetkým procesom, či už priamym rozoslaním, alebo záplavou, pri ktorej procesy správu ďalej preposielajú.
+
+Person2: Zostáva bariéra.
+
+Person1: Na bariére každý proces čaká, kým na ňu nedorazia všetky procesy danej skupiny. Až potom môžu pokračovať. Je to typický mechanizmus na oddelenie fáz paralelného výpočtu.
+
+Person2: Prejdime ku kritickej sekcii.
+
+Person1: Kritická sekcia je časť programu, ktorá pristupuje k zdieľaným zdrojom a ktorej vykonávanie jedným procesom vylučuje súčasné vykonávanie ostatnými. Vzájomné vylúčenie znamená, že v kritickej sekcii je v danom okamihu nanajvýš jeden proces. Ak môže do chránenej časti vstúpiť najviac ká procesov, ide o ká vylúčenie, nie o vzájomné vylúčenie.
+
+Person2: Akú úlohu tu má mutex?
+
+Person1: Mutex je zámok s vlastníkom. Odomknúť ho má vlákno, ktoré ho zamklo. Rekurzívny mutex môže vlastniace vlákno zamknúť opakovane, pričom sa vedie počet zamknutí a zámok sa uvoľní až po rovnakom počte odomknutí. Pri nerekurzívnom mutexe opakované zamknutie vlastníkom typicky spôsobí zablokovanie alebo chybu podľa rozhrania. Práve vlastníctvo odlišuje mutex od bežného semaforu.
+
+Person2: Aké problémy môže nesprávne chránená kritická sekcia spôsobiť?
+
+Person1: Najprv data race, teda súbeh nad dátami. Nastane, keď dva súbežné prístupy k tej istej pamäťovej lokácii nie sú usporiadané synchronizáciou a aspoň jeden z nich je zápis. Výsledok potom môže závisieť od konkrétneho preloženia operácií.
+
+Person2: A deadlock znamená, že procesy na seba navzájom čakajú?
+
+Person1: Presnejšie, uviaznutie alebo deadlock je stav, keď je každý proces z určitej množiny pozastavený a čaká na výlučný zdroj vlastnený iným procesom z tej istej množiny, ktorý jediný ho môže uvoľniť. [short pause] Na vznik deadlocku musia súčasne platiť štyri Coffmanove podmienky.
+
+Person2: Ktoré štyri?
+
+Person1: Prvou je vzájomné vylúčenie, teda aspoň jeden zdroj nemožno používať súčasne. Druhou je držanie zdroja a čakanie na ďalší. Treťou je nemožnosť násilne odobrať zdroj jeho držiteľovi. Štvrtou je cyklické čakanie, keď každý proces v cykle čaká na zdroj držaný nasledujúcim procesom.
+
+Person2: Stačí teda porušiť jednu z nich?
+
+Person1: Áno. Prevencia deadlocku cielene znemožní aspoň jednu Coffmanovu podmienku. Napríklad pevné poradie získavania zdrojov odstráni cyklické čakanie. Detekcia deadlocku hľadá cyklus v grafe čakania procesov na procesy. Ak existuje iba jeden exemplár každého zdroja, cyklus znamená deadlock.
+
+Person2: Čo systém urobí po detekcii?
+
+Person1: Musí deadlock zrušiť, napríklad ukončením procesu alebo odobratím zdroja, ak to daný zdroj umožňuje. Iný prístup je vyhýbanie sa deadlocku. Systém povolí pridelenie iba vtedy, ak zostane v bezpečnom stave, teda ak stále existuje poradie, v ktorom môžu všetky procesy dokončiť. Bankárov algoritmus na to potrebuje poznať maximálne požiadavky procesov.
+
+Person2: Čím sa od deadlocku líši blokovanie, hladovanie a livelock?
+
+Person1: Blokovanie prístupu znamená, že proces žiadajúci o kritickú sekciu musí čakať, hoci je sekcia voľná. Hladovanie znamená, že proces je neurčito odkladaný a opakovane nezíska zdroj, hoci iné procesy napredujú. Typickým príkladom je pisateľ, ktorého stále predbiehajú noví čitatelia.
+
+Person2: Pri livelocku procesy nie sú zablokované, však?
+
+Person1: Nie sú. Aktívne menia svoj stav a reagujú na seba, ale systém nenapreduje. Predstav si dva procesy, ktoré si stále navzájom ustúpia a ani jeden nevstúpi do kritickej sekcie. Pri deadlocku procesy stoja, pri livelocku bežia, ale nerobia užitočnú prácu.
+
+Person2: Aké vlastnosti má mať správne riešenie vzájomného vylúčenia?
+
+Person1: V kritickej sekcii smie byť iba jeden proces. Proces zastavený vo svojej nekritickej sekcii nesmie brániť ostatným. Nesmie nastať deadlock ani hladovanie. Ak je kritická sekcia voľná a proces chce vstúpiť, má vstúpiť bez zbytočného čakania. Riešenie nesmie predpokladať konkrétne relatívne rýchlosti procesov ani konkrétny počet procesorov a každý proces musí kritickú sekciu opustiť v konečnom čase.
+
+Person2: Akými cestami sa tieto vlastnosti dosahujú?
+
+Person1: Čisto softvérovým riešením bez podpory jazyka či operačného systému, hardvérovou podporou, napríklad zákazom prerušení alebo špeciálnymi inštrukciami, a napokon prostriedkami operačného systému či jazyka, ako sú semafory a monitory.
+
+Person2: Aké predpoklady používa analýza čisto softvérových algoritmov?
+
+Person1: Predpokladá, že jedno čítanie a jeden zápis do pamäte sú atomické a že súbežné čítania a zápisy sa vykonajú v nejakom poradí. Ide o modelové predpoklady algoritmov, nie o automatickú záruku ľubovoľného moderného viacjadrového systému.
+
+Person2: Ako funguje Dekkerov algoritmus?
+
+Person1: Rieši vzájomné vylúčenie dvoch procesov. Každý proces má príznak, ktorým oznamuje záujem vstúpiť, a zdieľaná premenná turn určuje, kto má prioritu. Proces najprv nastaví svoj príznak. Ak druhý záujem nemá, vstúpi. Ak chcú vstúpiť obaja, rozhodne turn.
+
+Person2: Čo spraví proces, ktorý práve prioritu nemá?
+
+Person1: Dočasne stiahne svoj príznak a čaká, kým nebude na rade. Potom ho znovu nastaví a pokúsi sa vstúpiť. Po kritickej sekcii odovzdá prioritu druhému procesu a svoj príznak zruší. Kombinácia príznakov a premennej turn rieši aj súčasný záujem oboch procesov.
+
+Person2: Petersonov algoritmus používa tie isté premenné, ale jednoduchšie.
+
+Person1: Áno. Proces nastaví svoj príznak záujmu a následne dá prioritu druhému procesu. Čaká iba dovtedy, kým druhý proces zároveň prejavuje záujem a má prioritu. Potom vstúpi do kritickej sekcie a pri odchode svoj príznak zruší.
+
+Person2: Poznámka uvádza aj ticket algoritmus pre viac procesov.
+
+Person1: Ticket algoritmus používa dva zdieľané čítače, number a next. Proces si atomicky prevezme aktuálnu hodnotu number ako svoj lístok a čítač zvýši. Potom čaká, kým sa jeho lístok rovná hodnote next. Pri odchode z kritickej sekcie zvýši next. Atómové pridelenie lístka možno realizovať inštrukciou fetch-and-add, preto sú lístky jedinečné.
+
+Person2: Nemáme si ho pomýliť s Lamportovým Bakery algoritmom.
+
+Person1: Presne. V Bakery algoritme si dva procesy môžu vybrať rovnaké číslo. Poradie sa potom určí lexikograficky podľa dvojice tvorenej číslom a identifikátorom procesu.
+
+Person2: Prejdime k hardvérovej podpore. Pomôže zakázanie prerušení?
+
+Person1: Na jednoprocesorovom systéme môže zabezpečiť vzájomné vylúčenie, pretože zabráni prepnutiu na iný proces. Na multiprocesorovom systéme však zákaz prerušení na jednom procesore nestačí. Ostatné procesory môžu k zdieľanému zdroju pristupovať ďalej. Navyše sa obmedzí plánovanie a môže klesnúť efektivita.
+
+Person2: Preto existujú atómové inštrukcie ako Test-and-Set a Swap.
+
+Person1: Test-and-Set vráti pôvodnú hodnotu cieľovej premennej a zároveň ju nastaví na jednotku. Pri jednoduchom zámku má zdieľaná premenná lock hodnotu nula, ak je odomknutá, a jedna, ak je zamknutá. Proces opakuje Test-and-Set, kým nezíska pôvodnú nulu. Tým zámok v jednej atómovej operácii zároveň skontroluje aj zamkne. Po kritickej sekcii ho nastaví späť na nulu.
+
+Person2: Ako sa líši Swap?
+
+Person1: Swap atomicky prehodí dve hodnoty. Každý proces má lokálny kľúč, na začiatku nastavený na jednotku, a zdieľaný lock. Proces opakovane vymieňa kľúč s lockom. Keď po výmene dostane do kľúča nulu, znamená to, že zámok bol otvorený a proces ho výmenou práve zatvoril. Môže teda vstúpiť a pri odchode lock opäť otvorí.
+
+Person2: Jednoduchý Test-and-Set však nezaručuje ohraničené čakanie.
+
+Person1: Preto existuje Bounded Test-and-Set. Každý proces má príznak waiting. Pri vstupe oznámi, že čaká, a pokúša sa získať zámok. Pri odchode proces v cyklickom poradí vyhľadá najbližšieho čakajúceho. Ak nikto nečaká, lock uvoľní. Inak ho neuvoľní všeobecne, ale nastaví príznak vybraného procesu tak, aby mu priamo povolil vstup. Cyklické odovzdávanie zaručí ohraničené čakanie.
+
+Person2: Všetky tieto slučky používajú aktívne čakanie.
+
+Person1: Áno. Dekker, Peterson aj jednoduché zámky nad Test-and-Set alebo Swap nechávajú čakajúci proces bežať v slučke a spotrebúvať procesorový čas. Takýto zámok sa nazýva spinlock. Samotné zakázanie prerušení aktívnym čakaním nie je. Semafory a monitory môžu namiesto slučky proces zablokovať.
+
+Person2: Vysvetlime semafor presne.
+
+Person1: Semafor je synchronizačný nástroj, ktorý sa navonok správa ako celočíselná hodnota dostupná dvoma atómovými operáciami. Operácia pé, nazývaná aj down alebo wait, zníži počítadlo. Ak je po znížení záporné, volajúci proces sa zablokuje. Operácia vé, nazývaná aj up alebo signal, počítadlo zvýši. Ak je po zvýšení menšie alebo rovné nule, odblokuje jeden čakajúci proces.
+
+Person2: Kde sú uložené zablokované procesy?
+
+Person1: Semafor je vnútorne záznam s celočíselným počítadlom count a frontom queue. Pri blokovaní sa proces vloží do frontu a pri prebudení sa jeden proces z frontu presunie medzi pripravené. Ak je count nezáporný, udáva počet procesov, ktoré ešte môžu vykonať pé bez zablokovania. Ak je záporný, jeho absolútna hodnota udáva počet čakajúcich vo fronte.
+
+Person2: Prečo musia byť celé operácie pé a vé atomické?
+
+Person1: Pretože aj súbežná zmena počítadla a manipulácia s frontom by mohla sama utrpieť data race. Mohla by sa stratiť aktualizácia alebo prebudenie procesu. Operácie nad tým istým semaforom sa preto musia navzájom vylučovať aj pri viacerých procesoroch. Ich krátke vnútorné kritické sekcie možno chrániť hardvérovými atómovými inštrukciami, napríklad Test-and-Set alebo Swap.
+
+Person2: A binárny semafor má iba dva stavy.
+
+Person1: Áno, je špeciálnym prípadom všeobecného semaforu a jeho počítadlo možno nahradiť booleovskou hodnotou. Stále však nemusí byť mutexom, pretože spravidla neeviduje vlastníka a operáciu vé môže vykonať aj iný proces.
+
+Person2: Čo sú kritické regióny?
+
+Person1: Pri kritickom regióne deklarujeme premennú ako zdieľanú a sprístupníme ju iba vnútri príkazu region. Kým sa vykonáva telo regiónu nad danou premennou, iný proces k nej nemôže pristúpiť. Implementácia môže každej zdieľanej premennej priradiť binárny semafor inicializovaný na jednotku a okolo regiónu vykonať operácie pé a vé.
+
+Person2: Ani viac regiónov automaticky nevylúči deadlock.
+
+Person1: Presne. Ak proces čaká na podmienku alebo ďalší zdroj, pričom drží zamknutý región, môže vzniknúť uviaznutie. Podmienený kritický región preto povoľuje vykonať telo až vtedy, keď platí zadaný booleovský výraz. Pri vzore producent-konzument tak možno odstrániť čakanie so zamknutým regiónom. Ani podmienený región však sám nevylúči každý deadlock medzi viacerými zdrojmi.
+
+Person2: Vyššiu úroveň abstrakcie poskytuje monitor.
+
+Person1: Monitor zapuzdruje chránené dáta, procedúry nad nimi a inicializačnú sekvenciu. K dátam sa pristupuje iba cez procedúry monitora a v monitore môže byť naraz najviac jeden proces. Vzájomné vylúčenie je teda zabudované a programátor ho nemusí explicitne skladať zo zámkov. Monitor poskytuje podobnú funkcionalitu ako semafory a možno ho pomocou nich implementovať.
+
+Person2: Ako sa v monitore rieši čakanie na podmienku?
+
+Person1: Podmienkovými premennými. Každá má vlastný front a operácie wait a signal. Wait uvoľní monitor, zablokuje volajúci proces a zaradí ho do frontu danej podmienky. Tým sa umožní vstup procesu, ktorý môže podmienku zmeniť.
+
+Person2: Signal sa správa rôzne v Hoareho a Mesa sémantike.
+
+Person1: V tu opisovanej Hoareho sémantike prebudený čakajúci okamžite prevezme monitor. Signalizujúci proces sa dočasne presunie do urgentného frontu, ak signal nie je jeho poslednou operáciou v procedúre. Ak nikto nečaká, signal nič neurobí. V Mesa sémantike signalizujúci pokračuje a prebudený proces musí po neskoršom opätovnom získaní monitora podmienku znovu overiť.
+
+Person2: Ukážme si mechanizmy na klasickom probléme producenta a konzumenta.
+
+Person1: Producent zapisuje položky do buffera a konzument ich číta. Pri neobmedzenom bufferi môže producent vždy produkovať, ale konzument musí pri prázdnom bufferi čakať. Pri obmedzenom bufferi čaká aj producent, keď už nie je voľné miesto. Obe strany navyše súbežne pracujú s bufferom a s indexmi ďalšieho čítania a zápisu, takže nechránené preloženie ich operácií môže poškodiť stav.
+
+Person2: Ako vyzerá riešenie pre neobmedzený buffer?
+
+Person1: Semafor es inicializovaný na jednotku zabezpečí vzájomné vylúčenie pri prístupe k bufferu. Počítací semafor en začína na nule a udáva počet dostupných položiek. Producent vytvorí položku, vykoná pé nad es, vloží položku, vykoná vé nad es a potom vé nad en. Konzument najprv vykoná pé nad en, potom pé nad es, vyberie položku, uvoľní es a položku spracuje.
+
+Person2: Poradie pé nad en pred pé nad es je podstatné.
+
+Person1: Veľmi. Ak by konzument pri prázdnom bufferi najprv zamkol es a až potom čakal na en, producent by nemohol získať es, vložiť položku a zvýšiť en. Nastal by deadlock.
+
+Person2: Čo pridáme pri obmedzenom bufferi?
+
+Person1: Semafor é, inicializovaný na kapacitu buffera, ktorý počíta prázdne miesta. Producent po vytvorení položky najprv vykoná pé nad é, až potom zamkne es a vloží položku. Po uvoľnení es zvýši en. Konzument najprv zníži en, potom zamkne es a vyberie položku. Po uvoľnení es zvýši é. Nikto tak nečaká na dostupnú položku ani na prázdne miesto so zamknutým es.
+
+Person2: Ďalším známym problémom sú večeriaci filozofi.
+
+Person1: Päť filozofov sedí pri okrúhlom stole a medzi každými dvoma je palička. Každý potrebuje na jedlo ľavú aj pravú paličku. Ak každý najprv vezme ľavú a potom čaká na pravú, vznikne cyklická závislosť a deadlock.
+
+Person2: Ako sa mu dá predísť?
+
+Person1: Napríklad atómovým získaním oboch paličiek, asymetrickým poradím, keď niektorí filozofi berú najprv pravú, alebo obmedzením počtu filozofov, ktorí sa naraz pokúšajú jesť, najviac na štyroch. Tým sa poruší podmienka potrebná na cyklické čakanie všetkých piatich.
+
+Person2: Posledným príkladom sú čitatelia a pisatelia.
+
+Person1: Ľubovoľný počet čitateľov môže čítať súčasne, ale počas zápisu nesmie nikto iný čítať ani písať. Premenná readcount eviduje počet čitateľov. Semafor mutex chráni túto premennú a semafor write zabezpečuje výlučný prístup k zdieľaným dátam.
+
+Person2: Ako spolupracujú prví a poslední čitatelia?
+
+Person1: Prvý vstupujúci čitateľ zamkne write. Ďalší čitatelia už iba pod ochranou mutexu zvýšia readcount a môžu čítať súčasne. Posledný odchádzajúci čitateľ po znížení readcount na nulu write odomkne. Pisateľ jednoducho zamkne write, ako jediný zapíše a potom ho uvoľní.
+
+Person2: Toto riešenie však zvýhodňuje čitateľov.
+
+Person1: Áno. Ak stále prichádzajú noví čitatelia, pisateľ môže hladovať. Jedným riešením je pridať ďalší semafor, ktorý po príchode pisateľa dovolí aktuálnym čitateľom dočítať, ale nepustí už nových.
+
+Person2: Zhrniem si to. Procesy môžu súperiť o zdroje alebo spolupracovať cez zdieľanú pamäť a správy. Kritické sekcie chránime softvérovými algoritmami, atómovými inštrukciami, semaformi či monitormi, pričom sledujeme nielen vzájomné vylúčenie, ale aj napredovanie a ohraničené čakanie. Pri producentovi a konzumentovi, filozofov aj čitateľoch a pisateľoch je rozhodujúce správne poradie získavania zdrojov, aby nevznikol data race, deadlock, hladovanie ani livelock.

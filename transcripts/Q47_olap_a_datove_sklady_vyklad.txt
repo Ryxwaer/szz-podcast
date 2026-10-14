@@ -1,0 +1,131 @@
+Person1: Témou tohto výkladu je OLAP a dátové sklady: ich určenie, rozdiely oproti OLTP, multidimenzionálny dátový model, operácie nad dátovou kockou a štruktúra dátového skladu.
+
+Person2: Začnime teda tým najdôležitejším. Čo presne odlišuje OLAP od OLTP?
+
+Person1: OLAP znamená Online Analytical Processing, teda online analytické spracovanie. Dáta sa doň typicky nahrávajú periodicky po dávkach a potom sa nad nimi vykonávajú zložité analytické dotazy. Systém preto často využíva indexy, predpočítané agregácie, odvodené hodnoty aj zámernú duplicitu dát. OLTP znamená Online Transaction Processing, teda online transakčné spracovanie. Pracuje s aktuálnymi dátami, ktoré priebežne mení veľa používateľov, a okamžite reaguje na ich požiadavky zmenou stavu systému.
+
+Person2: Čiže OLTP zabezpečuje každodennú prevádzku a OLAP z dát spätne získava informácie na rozhodovanie?
+
+Person1: Presne. OLTP používa napríklad operátor pri zadávaní objednávky alebo platby. Jeho typickou jednotkou práce je krátka a jednoduchá transakcia nad desiatkami záznamov. OLAP používa skôr manažér alebo znalostný odborník, ktorý položí ad hoc otázku nad miliónmi záznamov. Jedna analýza môže trvať sekundy, ale aj hodiny, zatiaľ čo pri OLTP očakávame odozvu v milisekundách až sekundách.
+
+Person2: A ako sa tieto rozdielne úlohy prejavia v uložených dátach?
+
+Person1: OLTP obsahuje najmä súčasné, detailné a často aktualizované dáta. Z dôvodu rýchlosti môže uchovávať iba posledných niekoľko rokov. OLAP pracuje s integrovanými, historickými a sumarizovanými dátami, pokojne za desiatky rokov. OLTP býva navrhnuté podľa konkrétnych aplikácií a používa relačný ER model. OLAP sa orientuje podľa analyzovaného subjektu, používa dimenzie a fakty a dátový model často zámerne denormalizuje, aby urýchlil čítanie a agregácie.
+
+Person2: Preto sa analytika zvyčajne neprevádzkuje priamo nad produkčnou databázou?
+
+Person1: Áno. OLAP databáza býva oddelená od produkčnej OLTP databázy. Analytické dotazy by nad produkčnými tabuľkami opakovane prechádzali veľké množstvo záznamov, počítali agregácie a znižovali výkon bežnej prevádzky. Produkčná databáza navyše často neuchováva potrebnú históriu. Dáta na analýzu môžu byť roztrúsené v heterogénnych databázach, súboroch a externých zdrojoch, s odlišnými názvami, typmi a jednotkami.
+
+Person2: OLAP je prevažne určený na čítanie. Znamená to aj jednoduchšie riadenie súbehu?
+
+Person1: Áno. Keďže sa dáta nahrávajú najmä dávkovo a potom sa prevažne čítajú, požiadavky na transakčné spracovanie, zotavenie a riadenie súbežného prístupu sú výrazne menšie než pri OLTP. OLTP musí bezpečne zvládnuť tisíce používateľov, ktorí súčasne čítajú aj zapisujú. OLAP má obvykle menej používateľov, ale každý dotaz môže spracovať omnoho väčší objem dát.
+
+Person2: Prejdime k multidimenzionálnemu modelu. Čo v ňom predstavuje dimenzia?
+
+Person1: Dimenzia je usporiadateľná množina hodnôt, podľa ktorých dáta opisujeme a členíme. Typickými dimenziami sú čas, geografická oblasť a produkt. Často majú stromovú hierarchiu: čas možno usporiadať od dňa cez mesiac a štvrťrok po rok, geografiu od mesta cez kraj po štát a produkt od konkrétnej položky cez kategóriu po celý sortiment. Dimenzie bývajú menšie a menia sa menej často než samotné merané údaje.
+
+Person2: A fakt je hodnota, ktorú podľa týchto dimenzií meriame?
+
+Person1: Presne. Fakt, nazývaný aj miera alebo measure, je agregovateľná hodnota, napríklad tržba alebo počet predaných kusov. Predstav si kocku s dimenziami čas, produkt a región. Každá bunka zodpovedá konkrétnej kombinácii ich hodnôt a obsahuje príslušný fakt. Viac detailných buniek môžeme spojiť súčtom, počtom, priemerom alebo inou agregačnou funkciou.
+
+Person2: Ako sa dá dátová kocka vyjadriť presnejšie, keď môže mať viac než tri rozmery?
+
+Person1: Pojem kocka je len názorná predstava. Formálne máme usporiadanú množinu en dimenzií a z nej vyberieme usporiadanú podmnožinu aktívnych dimenzií. [short pause] Kocka je funkcia, ktorá každej kombinácii hodnôt aktívnych dimenzií, teda bodu ich kartézskeho súčinu, priradí fakt. [short pause] Pri en dimenziách existuje en faktoriál rôznych usporiadaní. Aktívne dimenzie pritom zachovávajú vzájomné poradie z práve zvoleného usporiadania.
+
+Person2: Čo znamená, že podkocky tvoria zväz?
+
+Person1: Pre jedno usporiadanie dimenzií a jednu agregačnú funkciu môžeme zostaviť kuboidy s rôznymi množinami aktívnych dimenzií. Dole je najdetailnejší kuboid a smerom nahor dimenzie postupne odoberáme, takže hodnoty viac agregujeme. Tieto úrovne a vzťahy medzi nimi vytvárajú zväz. Dôležitá myšlienka je, že tú istú množinu faktov môžeme sledovať v rôznej úrovni detailu.
+
+Person2: Sú všetky agregačné funkcie rovnako vhodné na predpočítanie?
+
+Person1: Nie. Distributívnu funkciu možno vypočítať po častiach a čiastkové výsledky potom spojiť bez straty správnosti. Tak funguje súčet, minimum a maximum. Algebraická funkcia sa dá odvodiť z pevného počtu distributívnych medzivýsledkov. Priemer napríklad získame zo súčtu a počtu. Holistická funkcia takúto pevnú sústavu medzivýsledkov nemá; príkladom je hľadanie najčastejšie sa vyskytujúcej položky.
+
+Person2: Teraz operácie nad kockou. Čo robí drill-down?
+
+Person1: Drill-down znižuje úroveň agregácie a zvyšuje detail. V usporiadaní kuboidov sa posunieme o úroveň nižšie, typicky pridaním najmenšej neaktívnej dimenzie na koniec. Keď sú aktívne všetky dimenzie, dostaneme detail podľa všetkých ich hodnôt. Zavŕtať sa však možno aj do základného kuboidu, pretože jeho fakty môžu byť stále agregáciou ešte detailnejších zdrojových záznamov.
+
+Person2: Roll-up je potom opačný smer?
+
+Person1: Áno. Roll-up zvyšuje úroveň agregácie a uberá detail. Typicky deaktivuje poslednú aktívnu dimenziu. Namiesto tržieb podľa produktu, regiónu a mesiaca tak môžeme dostať tržby iba podľa produktu a regiónu. Roll-up si zapamätaj ako pohľad z väčšej výšky, drill-down ako priblíženie k detailu.
+
+Person2: Ako sa od nich líši pivoting?
+
+Person1: Pivoting nemení množinu dimenzií ani úroveň agregácie. Mení ich usporiadanie, teda otáča kocku tak, aby bola k používateľovi obrátená inou stenou. Napríklad čas presunieme zo stĺpcov do riadkov a región z riadkov do filtrov. Dáta zostávajú tie isté, mení sa spôsob pohľadu na ne.
+
+Person2: A slicing and dicing?
+
+Person1: Slicing and dicing vyberá časť kocky pomocou podmienok. Slice typicky zafixuje jednu hodnotu dimenzie, napríklad iba jeden rok, a vytvorí rez. Dice vyberie rozsah alebo množinu hodnôt vo viacerých dimenziách, napríklad dva regióny, tri produktové kategórie a posledný štvrťrok. Formálne sa mení skutočná kardinalita jednej alebo viacerých dimenzií pomocou filtra či predikátu. Výsledok môžu ovplyvniť aj filtre nad dimenziami, ktoré sa práve nezobrazujú ako aktívne.
+
+Person2: Ako používateľ takúto viacrozmernú kocku vôbec vidí na obrazovke?
+
+Person1: Najčastejšie ako kontingenčnú tabuľku. Vybrané dimenzie určujú riadky a stĺpce, ďalšie dimenzie slúžia ako filtre a bunky obsahujú agregované fakty. Pivoting mení rozloženie dimenzií v tabuľke, roll-up a drill-down menia úroveň detailu a slicing či dicing obmedzujú zobrazenú časť dát.
+
+Person2: Tým sa dostávame k dátovému skladu. Ako ho definujeme?
+
+Person1: Dátový sklad je podnikovo štruktúrovaný depozitár subjektovo orientovaných, integrovaných, časovo premenlivých a historických dát, ktorý slúži na získavanie znalostí a podporu rozhodovania. Obsahuje detailné operačné aj agregované dáta. Pojem zahŕňa technológiu získania a transformácie dát, ich nahrania a uloženia aj ich poskytovania analytickým nástrojom.
+
+Person2: Spomenul si štyri podstatné vlastnosti. Rozoberme najprv subjektovú orientáciu.
+
+Person1: Dáta sa organizujú podľa predmetu analýzy a podľa dimenzií, nie podľa jednotlivých prevádzkových aplikácií. Fakty sú uložené v priesečníku hodnôt viacerých dimenzií. Analytika predaja tak spája čas, produkt, zákazníka či región bez ohľadu na to, z ktorého pôvodného systému jednotlivé údaje prišli.
+
+Person2: Čo presne znamená integrácia?
+
+Person1: Dáta o rovnakom predmete sa zjednotia tak, aby používali konzistentné názvy, štruktúry, dátové typy a jednotky. Zdrojom môžu byť relačné databázy, textové súbory, súkromné tabuľky zamestnancov aj externé dáta. Pred uložením treba odstrániť rozpory, napríklad rozdielne označenie pohlavia, odlišné formáty dátumov alebo sumy v rôznych menách. Cieľom je jeden dôveryhodný a integrovaný pohľad.
+
+Person2: Prečo sa pri vlastnostiach skladu osobitne zdôrazňuje čas?
+
+Person1: Čas je kľúčový, lineárny a usporiadaný atribút, vhodný napríklad na spojité grafy a sledovanie trendov. Dátový sklad uchováva omnoho dlhší horizont než produkčná databáza, často päť až desať rokov alebo viac. Každá kľúčová štruktúra skladu preto obsahuje čas explicitne alebo implicitne, hoci kľúč v produkčnom systéme ho obsahovať nemusí.
+
+Person2: A nemennosť znamená, že sa už uložené dáta neupravujú?
+
+Person1: Spravidla áno. Transformované dáta sú fyzicky oddelené od produkčných databáz a v sklade dominujú dve operácie: vkladanie nových dávok a čítanie. Staršie údaje sa bežne neprepisujú transakciami ako v OLTP. Táto stabilita umožňuje optimalizovať schému a dotazy na analytické čítanie, používať denormalizáciu a predpočítané agregácie a zjednodušiť súbežný prístup.
+
+Person2: Aké hlavné vrstvy má architektúra dátového skladu?
+
+Person1: Prvou je získavanie dát: zdrojové systémy a prípravná oblasť, v ktorej prebieha ETL. Druhou je uloženie dát: hlavný dátový sklad, dátové kocky, dátové trhy a metadáta. Treťou je predávanie výsledkov, teda rozhrania a analytické nástroje, ktoré poskytujú multidimenzionálny pohľad, OLAP analýzu alebo data mining.
+
+Person2: Vysvetlime ETL postupne. Čo sa deje pri extrakcii?
+
+Person1: Extrakcia získava dáta z produkčných databáz, interných súborov, archívov a externých zdrojov. Prvá extrakcia môže načítať veľký historický základ. Neskôr sa interné zdroje extrahujú periodicky a externé zdroje podľa potreby. Výsledkom je surový vstup z nehomogénneho prostredia, ktorý ešte nie je pripravený na spoločnú analýzu.
+
+Person2: Nasleduje transformácia, ktorá rieši kvalitu?
+
+Person1: Áno. Transformácia dáta čistí, zjednocuje a integruje. Rieši nejednoznačné údaje, chýbajúce hodnoty a duplicity. Chýbajúcu hodnotu možno podľa situácie doplniť, ignorovať alebo označiť. Ďalej sa zjednotia názvy pojmov, formáty čísel a textov, doplnia dátumy a prepočítajú jednotky či meny, napríklad české koruny na eurá. Cieľom je zvýšiť kvalitu a použiteľnosť dát pre analýzu.
+
+Person2: A posledný krok, load, dáta fyzicky uloží?
+
+Person1: Presne. Loading presunie pripravené údaje do tabuliek dátového skladu a mal by byť čo najviac automatizovaný. Iniciálne nahrávanie naplní prázdny sklad všetkými dátami. Inkrementálne nahrávanie periodicky premieta iba nové zmeny. Treťou možnosťou je úplný prepis, pri ktorom sa obsah skladu zmaže a nahrá nanovo.
+
+Person2: Čo sa deje s dátami po ich uložení?
+
+Person1: Sklad sa periodicky dopĺňa tak, aby odrážal zmeny v produkčných systémoch. Staršie dáta možno presúvať do pomalšej archívnej pamäte. K hlavnému skladu bývajú pripojené dátové trhy, teda data marts, určené konkrétnym skupinám používateľov alebo oblastiam podniku. Jeden či viac skladových serverov nad dátami vytvára multidimenzionálny OLAP pohľad alebo ich poskytuje koncovým nástrojom cez zodpovedajúce rozhrania.
+
+Person2: Dátový trh je teda menší tematický výsek hlavného skladu?
+
+Person1: Áno. Môže slúžiť napríklad finančnému, obchodnému alebo marketingovému oddeleniu. Celé úložisko je oddelené, obsahuje veľké množstvo prevažne historických dát a je navrhnuté na analýzu, nie na okamžité vybavenie krátkej transakcie. Z pohľadu bežného analytického používateľa je v zásade iba na čítanie.
+
+Person2: Ako sa multidimenzionálny pohľad realizuje v konceptuálnom modeli tabuliek?
+
+Person1: Najjednoduchšia je schéma hviezdy. V strede je jedna tabuľka faktov a okolo nej tabuľky dimenzií. Tabuľka faktov obsahuje merané hodnoty a cudzie kľúče smerujúce na primárne kľúče dimenzií. Dimenzie nie sú normalizované, preto je schéma ľahko pochopiteľná a vhodná na dotazy, hoci explicitne nerozkladá hierarchie do samostatných tabuliek.
+
+Person2: Schéma snehovej vločky túto hviezdu normalizuje?
+
+Person1: Áno. Hierarchie dimenzií reprezentuje explicitne viacerými naviazanými normalizovanými tabuľkami. Produktová dimenzia sa napríklad rozdelí na produkt, kategóriu a vyššiu skupinu. To môže zjednodušiť údržbu dimenzií, ale model aj dotazy sú zložitejšie než pri hviezde.
+
+Person2: A konštelácia faktov, nazývaná aj galaxia?
+
+Person1: Tá obsahuje viac tabuliek faktov, ktoré zdieľajú niektoré tabuľky dimenzií. Môžeme ju chápať ako kolekciu prepojených hviezd. Napríklad fakty o predaji a fakty o zásobách môžu spoločne používať dimenzie času, produktu a pobočky.
+
+Person2: Zostávajú architektúry OLAP servera. Čím sa vyznačuje MOLAP?
+
+Person1: MOLAP, teda multidimenzionálny OLAP, ukladá dáta do vlastných multidimenzionálnych štruktúr. Používa polia, techniky riedkych matíc a predspracované agregácie, ktoré dokáže rýchlo indexovať a vyhľadávať. Jeho hlavnou výhodou je vysoký výkon. Cenou je redundancia údajov a väčšia spotreba úložného priestoru.
+
+Person2: ROLAP naopak ponecháva dáta v relačných tabuľkách?
+
+Person1: Presne. ROLAP používa relačný alebo rozšírený relačný databázový systém a používateľovi nad tabuľkami poskytuje multidimenzionálny pohľad. Dopĺňa optimalizáciu databázového backendu, navigáciu medzi agregáciami a ďalšie služby. Dobre sa škáluje. Miera redundancie závisí od zvolenej schémy a od toho, ktoré agregácie sú predpočítané alebo materializované.
+
+Person2: HOLAP potom kombinuje oba prístupy?
+
+Person1: Áno. Hybridný OLAP kombinuje relačné a multidimenzionálne uloženie, aby využil škálovanie ROLAP a rýchlosť predpočítaných štruktúr MOLAP. Osobitnou možnosťou je špecializovaný SQL server, ktorý cielene podporuje dotazy nad schémami hviezdy a snehovej vločky.
+
+Person2: Zhrniem si to. OLTP obsluhuje rýchle zmeny aktuálnych detailných dát, kým OLAP analyzuje integrované historické dáta pomocou dimenzií, faktov a agregácií. Nad kockou používame roll-up, drill-down, pivoting a výbery slice či dice. Dátový sklad plní ETL proces, oddeľuje analytiku od produkcie, používa hviezdu, snehovú vločku alebo galaxiu a OLAP server môže byť multidimenzionálny, relačný alebo hybridný.
